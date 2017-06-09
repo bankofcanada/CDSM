@@ -20,7 +20,7 @@ function v = get(sm, p, X);
 
 %% 1. Call the specified variable in _stochasticModel_ class
 %
-% See _<@stochasticModel/get_Xlag.html get_Xlag>_
+% See _<get_Xlag.html get_Xlag>_
 switch p
   case 'zero_data'
     v = sm.zero_data;
