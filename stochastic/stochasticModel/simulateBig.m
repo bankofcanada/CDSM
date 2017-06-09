@@ -29,7 +29,7 @@ end
 
 %% 2. Simulate the variables in blocks (via _simulate.m_) and combine results
 %
-% See: _<../@nelsonSiegel/simulate.html simulate>_, _<set.html set>_
+% See: _<../nelsonSiegel/simulate.html simulate>_, _<set.html set>_
 
 %one-block simulation
 if numSims <= Blocksize  
