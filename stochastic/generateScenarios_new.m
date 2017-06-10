@@ -118,4 +118,4 @@ viewSimulation(ns,data);
 % File 3: Parameters from VAR Simulation
 %
 % See: _<stochasticModel/saveResults.html saveResults>_
-saveResults(ns,data,'~/CDSM-public/dataFiles/','ns_MMMYY');
+saveResults(ns,data,'../dataFiles/','ns_MMMYY');
