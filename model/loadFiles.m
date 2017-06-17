@@ -10,17 +10,17 @@
 %% 1. Load all generated scenarios
 
 if exist('shockType');  % Load scenarios for specified shock type (not defined here)
-  load(['~/CDSM-public/dataFiles/ns' num2str(shockType) 'Results']);
-  load(['~/CDSM-public/dataFiles/Coupon_ns' num2str(shockType)]);
-  load(['~/CDSM-public/dataFiles/FinR_ns' num2str(shockType)]);
+  load(['../dataFiles/ns' num2str(shockType) 'Results']);
+  load(['../dataFiles/Coupon_ns' num2str(shockType)]);
+  load(['../dataFiles/FinR_ns' num2str(shockType)]);
 else  
   switch modelType;
    % Load scenarios based on Nelson-Siegel yield curve model
    case 'ns';   
 
-    load ~/CDSM-public/dataFiles/ns_MMMYYResults;
-    load ~/CDSM-public/dataFiles/Coupon_ns_MMMYY;
-    load ~/CDSM-public/dataFiles/FinR_ns_MMMYY;
+    load ../dataFiles/ns_MMMYYResults;
+    load ../dataFiles/Coupon_ns_MMMYY;
+    load ../dataFiles/FinR_ns_MMMYY;
    
    % Load scenarios based on other yield curve models (not defined here) 
    case 'es';

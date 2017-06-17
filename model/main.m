@@ -45,9 +45,8 @@
 %% 1. Set Up
 
 % Set path
-path(path,'~/CDSM-public/stochastic');
-path(path,'~/CDSM-public/stochastic/matlab');
-path(path,'~/CDSM-public/practice/');
+path(path,'../stochastic');
+path(path,'../stochastic/matlab');
 modelType = 'ns';
 
 tic;

@@ -13,9 +13,9 @@
 if strcmp(s.model,'restricted') 
   disp('Using Restricted Stochastic Model');
   if strcmp(s.equi,'actual')   
-    save ~/CDSM-public/results/RestActual_MMMYY m s
+    save ../results/RestActual_MMMYY m s
   elseif strcmp(s.equi,'steady-state')
-    save ~/CDSM-public/results/RestSteady_MMMYY m s;
+    save ../results/RestSteady_MMMYY m s;
   end
 
   
@@ -23,7 +23,7 @@ if strcmp(s.model,'restricted')
 elseif strcmp(s.model,'full')   
   if strcmp(s.equi,'actual')    %if start simulation with actual portfolio (not used)
     disp('Saving results from full stochastic model with actual portfolio.')
-    save ~/CDSM-public/results/FullActual_MMMYY s m;
+    save ../results/FullActual_MMMYY s m;
   elseif strcmp(s.equi,'steady-state')
     disp('Saving results from full stochastic model with ergodic portfolio.')
 %     save ~/CDSM-public/results/ns/areaPortfolios/areaPortfolio_MMMYY s m;    %if running area portfolios (comment out if running traning set) 
