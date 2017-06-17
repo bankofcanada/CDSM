@@ -111,5 +111,5 @@ allPorts = allPorts(x,:);
 % Blocks will be evaluated separately in a parallel process, and results will be merged.
 for i=1:N/blockSize
   ports=allPorts((i-1)*blockSize+1:i*blockSize,:);  
-  eval(['save ~/CDSM-public/dataFiles/policyPort_MMMYY_vname_block',num2str(i),'.mat ports seq']);
+  eval(['save ../dataFiles/policyPort_MMMYY_vname_block',num2str(i),'.mat ports seq']);
 end

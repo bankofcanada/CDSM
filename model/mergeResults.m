@@ -18,7 +18,7 @@
 % field in the final training set's _m_ structures. (_s_ is taken directly
 % since it is the same for all blocks.)
 
-resultName = '~/CDSM-public/results/ns/trainingSets/tsBlocks/policyResults_policyPort_MMMYY_vname_block';
+resultName = '../results/ns/trainingSets/tsBlocks/policyResults_policyPort_MMMYY_vname_block';
 
 ff=1;
 while 1 
