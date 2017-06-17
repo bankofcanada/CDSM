@@ -1,0 +1,204 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>getRegMatrix.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="getRegMatrix.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>getRegMatrix.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This function creates a matrix defining each OLS regressor variable in terms of powers of each instrument allocation.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Function Syntax</a></li><li><a href="#3">1. Set up variables</a></li><li><a href="#4">2. Create matrix of instrument powers (0, 1, or 2) for each regressor</a></li></ul></div><h2>Function Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> interMatrix = getRegMatrix(olsmodel, colx, varargin)
+</pre><p><i>olsmodel</i> : function is applied to <i>OLS</i> class</p><p><i>colx</i> : number of instruments</p><p><i>varargin</i> : other arguments (blank here)</p><p><i>interMatrix</i> : matrix of each instrument's power in each regressor term</p><h2>1. Set up variables<a name="3"></a></h2><pre class="codeinput">olsmodel = set(olsmodel, varargin{:});  <span class="comment">%no effect here</span>
+
+pow   = olsmodel.pow;           <span class="comment">% powers of individual-instrument regressors (1 and 2 here)</span>
+inter = olsmodel.interact;      <span class="comment">% powers of instruments used in interaction regressors (1 here)</span>
+
+powTerms   = length(pow);
+interTerms = length(inter);
+</pre><h2>2. Create matrix of instrument powers (0, 1, or 2) for each regressor<a name="4"></a></h2><pre class="codeinput">interMatrix = zeros( 1, colx );   <span class="comment">% Matrix of all instrument powers corresponding to each regressor, to be populated.</span>
+pos = 1;
+
+<span class="comment">% Populate rows for single-instrument regressors</span>
+<span class="keyword">for</span> p=1:powTerms            <span class="comment">% Loop over all powers (1, 2)</span>
+    <span class="keyword">for</span> j=1:colx
+        interMatrix(pos, j) = pow(p);           <span class="comment">%set power for each variable</span>
+        pos = 1+pos;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Populate rows for interaction regressors and delete multiples</span>
+<span class="keyword">for</span> i=1:interTerms          <span class="comment">% Loop over powers of first interaction variable (just 1)</span>
+    <span class="keyword">for</span> j=1:interTerms      <span class="comment">% Loop over powers of second interaction variable (just 1)</span>
+        <span class="keyword">for</span> k=1:colx
+             <span class="keyword">for</span> m=1:colx
+                 <span class="keyword">if</span> k~=m
+                    interMatrix(pos, k) = inter(i);    <span class="comment">%set power for 1st interaction variable</span>
+                    interMatrix(pos, m) = inter(j);    <span class="comment">%set power for 2nd interaction variable</span>
+                    pos = 1+pos;
+                 <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+L1 = 1;
+<span class="keyword">while</span> L1 &lt;= size(interMatrix, 1)    <span class="comment">%Loop over all lines and delete those identical to others</span>
+    Line1 = interMatrix(L1,:);
+
+    L2 = L1+1;
+    <span class="keyword">while</span> L2 &lt;= size(interMatrix, 1)
+        Line2 = interMatrix(L2,:);
+
+        <span class="keyword">if</span> isequal(Line1, Line2)
+            interMatrix = [interMatrix( 1:(L2-1), :) ;<span class="keyword">...</span>
+                           interMatrix( (L2+1):end, :)];
+        <span class="keyword">else</span>
+            L2 = L2+1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    L1 = L1+1;
+<span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% getRegMatrix.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This function creates a matrix defining each OLS regressor variable in terms of powers of each instrument allocation.
+
+
+%% Function Syntax
+function interMatrix = getRegMatrix(olsmodel, colx, varargin)
+%%
+%
+% _olsmodel_ : function is applied to _OLS_ class
+%
+% _colx_ : number of instruments
+%
+% _varargin_ : other arguments (blank here)
+%
+% _interMatrix_ : matrix of each instrument's power in each regressor term
+
+
+%% 1. Set up variables
+olsmodel = set(olsmodel, varargin{:});  %no effect here
+
+pow   = olsmodel.pow;           % powers of individual-instrument regressors (1 and 2 here)
+inter = olsmodel.interact;      % powers of instruments used in interaction regressors (1 here)
+
+powTerms   = length(pow);
+interTerms = length(inter);
+
+
+%% 2. Create matrix of instrument powers (0, 1, or 2) for each regressor
+interMatrix = zeros( 1, colx );   % Matrix of all instrument powers corresponding to each regressor, to be populated.
+pos = 1;
+
+% Populate rows for single-instrument regressors
+for p=1:powTerms            % Loop over all powers (1, 2)
+    for j=1:colx
+        interMatrix(pos, j) = pow(p);           %set power for each variable      
+        pos = 1+pos;
+    end
+end
+
+% Populate rows for interaction regressors and delete multiples
+for i=1:interTerms          % Loop over powers of first interaction variable (just 1)
+    for j=1:interTerms      % Loop over powers of second interaction variable (just 1)
+        for k=1:colx
+             for m=1:colx
+                 if k~=m
+                    interMatrix(pos, k) = inter(i);    %set power for 1st interaction variable
+                    interMatrix(pos, m) = inter(j);    %set power for 2nd interaction variable
+                    pos = 1+pos;
+                 end
+            end
+        end
+    end
+end
+
+
+L1 = 1;
+while L1 <= size(interMatrix, 1)    %Loop over all lines and delete those identical to others
+    Line1 = interMatrix(L1,:);
+    
+    L2 = L1+1;
+    while L2 <= size(interMatrix, 1)            
+        Line2 = interMatrix(L2,:);
+        
+        if isequal(Line1, Line2)                
+            interMatrix = [interMatrix( 1:(L2-1), :) ;...
+                           interMatrix( (L2+1):end, :)];
+        else
+            L2 = L2+1;
+        end
+    end
+    L1 = L1+1;
+end
+
+end
+##### SOURCE END #####
+--></body></html>
