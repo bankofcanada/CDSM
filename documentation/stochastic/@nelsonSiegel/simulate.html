@@ -1,0 +1,342 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>simulate.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-17"><meta name="DC.source" content="simulate.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>simulate.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>nelsonSiegel</i> class) simulates the realized monthly macro variables and yield curve variables, as well as the macro forecasts, based on the parameterized VAR model. Run in smaller blocks of the full set of simulations.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Initialize matrices for macroeconomic and yield curve variable simulation results</a></li><li><a href="#4">2. Cholesky decomposition of VAR model correlation matrix (for shocks)</a></li><li><a href="#5">3. Obtain lagged starting values, and apply any shocks via the Cholesky decomposition</a></li><li><a href="#6">4. Finish Set Up</a></li><li><a href="#7">5. Simulate macroeconomic and yield curve variables for VAR(1) model</a></li><li><a href="#9">6. Simulate macroeconomic and yield curve variables for VAR(2) model</a></li><li><a href="#11">7. Compute matrix of macroeconomic forecasts from simulated variables and save results</a></li><li><a href="#12">8. Save matrix of simulated yield curve and macroeconomic variables</a></li><li><a href="#13">9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation</a></li><li><a href="#14">10. Add real GDP growth to the matrix of simulated macroeconomic variables (as 9th variable)</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [data]=simulate(ns,startLag,shockLocation);
+</pre><p><i>ns</i> : method is applied to 'nelsonSiegel' class</p><p><i>startLag</i> : setting for starting values in VAR simulation ('last','mean', or 'ltm'), optional input</p><p><i>shockLocation</i> : index of variable whose starting value is being shocked, optional input</p><p><i>data</i> : structure with arrays of simulation results for block</p><div><ul><li><i>data.X</i> : matrix of simulated Nelson-Siegel and macro variables: [# of simulated quarters] x [# of NS/macro variables] x [# of simulations]</li><li><i>data.Z</i> : matrix of simulated yield curve variables: [# of simulated quarters] x [# of tenors] x [# of simulations]</li><li><i>data.C</i> : matrix of simulated nominal par coupons: [# of simulated quarters] x [# of tenors] x [# of simulations]</li><li><i>data.R</i> : matrix of simulated real par coupons: [# of simulated quarters] x [# of tenors] x [# of simulations]</li><li><i>data.R</i> : matrix of simulated macroeconomic forecasts: [# of simulated quarters] x [# of forecast variables] x [# of simulations]</li></ul></div><h2>1. Initialize matrices for macroeconomic and yield curve variable simulation results<a name="3"></a></h2><pre class="codeinput">para=get(ns,<span class="string">'parameters'</span>);
+data.X=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+get(ns,<span class="string">'lags'</span>), size(para.X,1), <span class="keyword">...</span>
+	   get(ns,<span class="string">'numSims'</span>));  <span class="comment">%3D-array dimensions: [# of months simulated] x [# of macro variables] x [# of simulations]</span>
+data.Z=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+get(ns,<span class="string">'lags'</span>), length(get(ns, <span class="keyword">...</span>
+	  <span class="string">'simTenor'</span>)), get(ns,<span class="string">'numSims'</span>));     <span class="comment">%3D-array dimensions: [# of months simulated] x [# of yield curve variables] x [# of simulations]</span>
+K=size(para.X,1);
+</pre><h2>2. Cholesky decomposition of VAR model correlation matrix (for shocks)<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> isfield(para, <span class="string">'Chol'</span>)
+  para.std=para.Chol;
+<span class="keyword">else</span>
+  para.std=chol(para.Omega)';
+<span class="keyword">end</span>
+</pre><h2>3. Obtain lagged starting values, and apply any shocks via the Cholesky decomposition<a name="5"></a></h2><p>See: <i><a href="../@stochasticModel/get_Xlag.html">get_Xlag</a></i></p><pre class="codeinput"><span class="keyword">if</span> nargin &gt;= 3  <span class="comment">%if shock is defined</span>
+  shocks=[para.std(:,shockLocation)];
+  startXlag = get_Xlag(ns,startLag);    <span class="comment">%unshocked starting values</span>
+  <span class="keyword">if</span> shockLocation == 2;
+    startXlag(1,:)=startXlag(1,:)-norminv(0.999)*shocks'; <span class="comment">%i.e. effect of large negative shock to slope (index = 2) on all variables</span>
+  <span class="keyword">else</span>
+    startXlag(1,:)=startXlag(1,:)+norminv(0.999)*shocks';
+  <span class="keyword">end</span>;
+<span class="keyword">elseif</span> nargin == 2  <span class="comment">%if no shock, and starting setting defined</span>
+  startXlag = get_Xlag(ns,startLag);
+<span class="keyword">else</span>    <span class="comment">%if no shock, and starting setting not defined</span>
+  startXlag = get_Xlag(ns);
+<span class="keyword">end</span>
+</pre><h2>4. Finish Set Up<a name="6"></a></h2><pre class="codeinput">Q40 = [1:( 12/get(ns,<span class="string">'simN'</span>) ):( 12*get(ns,<span class="string">'simT'</span>) )]<span class="keyword">...</span>
+      + get(ns,<span class="string">'lags'</span>); <span class="comment">%Index vector for variables on quarterly basis</span>
+shock=zeros(122,8); <span class="comment">%Initialize matrix of shocks</span>
+</pre><h2>5. Simulate macroeconomic and yield curve variables for VAR(1) model<a name="7"></a></h2><p>See: <i><a href="../matlab/getEinflation.html">getEinflation</a></i></p><pre class="codeinput"><span class="keyword">if</span> get(ns,<span class="string">'lags'</span>)==1;   <span class="comment">%p = 1</span>
+</pre><pre class="codeinput">    <span class="keyword">for</span>(i=1:get(ns,<span class="string">'numSims'</span>));
+    <span class="comment">%Initialize matrices for simulated variables: 1st column is lagged values, will be deleted later</span>
+    data.X(1,:,i)=startXlag(1,:);
+    data.Z(1,:,i)=data.X(1,:,i)*para.HSim';
+    <span class="keyword">for</span>(h=2:get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+1)   <span class="comment">%for each simulated month</span>
+      temp=0;
+      <span class="keyword">while</span>(temp==0)
+        data.X(h,:,i)=(para.B(:,1)+para.B(:,2:end)*data.X(h-1,:,i)'<span class="keyword">...</span>
+          +para.std*randn(K,1))';   <span class="comment">%Simulate Nelson-Siegel and macroeconomic variables for that month (based on previous month) with VAR(1)</span>
+        data.Z(h,:,i)=(para.HSim*data.X(h,:,i)')';  <span class="comment">%Convert Nelson-Siegel simulations to zero-coupon yield simulations, based on factor loadings</span>
+        <span class="keyword">if</span>(sum(logical(data.Z(h,:,i)&lt;=0))==0)   <span class="comment">%Check that simulated yields are all positive. If not, redo that month's simulation.</span>
+          temp=1;
+        <span class="keyword">end</span>
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+
+  <span class="comment">%Compute expected inflation, up to 384 months ahead as of the first month of each quarter</span>
+  data.eInf = getEinflation(384,data.X(Q40,:,:),get(ns,<span class="string">'dim'</span>)+5,<span class="keyword">...</span>
+                             para.B(:,1),para.B(:,2:K+1));
+</pre><h2>6. Simulate macroeconomic and yield curve variables for VAR(2) model<a name="9"></a></h2><p>See: <i><a href="../matlab/getEinflation.html">getEinflation</a></i></p><pre class="codeinput"><span class="keyword">elseif</span> get(ns,<span class="string">'lags'</span>)==2;   <span class="comment">%p = 2</span>
+  <span class="keyword">for</span>(i=1:get(ns,<span class="string">'numSims'</span>));
+    <span class="comment">%Initialize matrices for simulated variables: 1st and 2nd columns are lagged values, will be deleted later</span>
+    data.X(1,:,i)=startXlag(2,:);
+    data.X(2,:,i)=startXlag(1,:);
+    data.Z(1,:,i)=(para.HSim*data.X(1,:,i)')';
+    data.Z(2,:,i)=(para.HSim*data.X(2,:,i)')';
+    <span class="keyword">for</span>(h=3:get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+2)   <span class="comment">%for each simulated month</span>
+      temp=0;
+      <span class="keyword">while</span>(temp==0)
+        data.X(h,:,i)=(para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'<span class="keyword">...</span>
+           + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'+chol(para.Omega)'*randn(K,1))';	<span class="comment">%Simulate variables for that month (based on previous 2 months) with VAR(2).</span>
+        data.Z(h,:,i)=(para.HSim*data.X(h,:,i)')';
+        <span class="keyword">if</span>(sum(logical(data.Z(h,:,i)&lt;=0))==0)   <span class="comment">%Check that yields are positive.</span>
+          temp=1;
+        <span class="keyword">end</span>
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+
+  <span class="comment">%Compute expected inflation, up to 384 months ahead as of the first month of each quarter</span>
+   data.eInf = getEinflation(384,data.X(Q40,:,:),data.X(Q40-1,:,:),get(ns,<span class="string">'dim'</span>)+5,<span class="keyword">...</span>
+                  para.B(:,1),para.B(:,2:K+1),para.B(:,K+2:2*K+1));
+
+<span class="keyword">else</span>
+  error(<span class="string">'Model can only accommodate up VAR(1) or VAR(2) dynamics!'</span>);
+<span class="keyword">end</span>;
+
+<span class="comment">%Not used</span>
+Y_pot=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+get(ns,<span class="string">'lags'</span>),get(ns,<span class="string">'numSims'</span>));
+Y_real=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+get(ns,<span class="string">'lags'</span>),get(ns,<span class="string">'numSims'</span>));
+Y_num=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+get(ns,<span class="string">'lags'</span>),get(ns,<span class="string">'numSims'</span>));
+</pre><h2>7. Compute matrix of macroeconomic forecasts from simulated variables and save results<a name="11"></a></h2><p>See: <i><a href="../@stochasticModel/annualMacroForecast.html">annualMacroForecast</a></i></p><pre class="codeinput">data.eMacro=annualMacroForecast(ns,data);
+</pre><h2>8. Save matrix of simulated yield curve and macroeconomic variables<a name="12"></a></h2><pre class="codeinput"><span class="comment">%Save only the quarterly yield curve and macro simulations (i.e. for first month of each quarter)</span>
+data.Z=data.Z(Q40,:,:);
+data.X=data.X(Q40,:,:);
+</pre><h2>9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation<a name="13"></a></h2><p>See: <i><a href="../matlab/getRiskPremia.html">getRiskPremia</a></i>, <i><a href="../@stochasticModel/getNominalPar.html">getNominalPar</a></i>, <i><a href="../@stochasticModel/getRealParNew.html">getRealParNew</a></i></p><pre class="codeinput">data.T=getRiskPremia(ns,data);  <span class="comment">%simulated term premia</span>
+data.C=getNominalPar(ns,data);  <span class="comment">%simulated nominal par coupons</span>
+data.simTenor=get(ns,<span class="string">'simTenor'</span>);   <span class="comment">%relevant tenors</span>
+data.eInf = data.eInf(:,4*get(ns,<span class="string">'simTenor'</span>),:);    <span class="comment">%expected inflation for relevant tenors (at each simulated quarter)</span>
+data.R=getRealParNew(ns,data);  <span class="comment">%simulated nominal real coupons</span>
+</pre><h2>10. Add real GDP growth to the matrix of simulated macroeconomic variables (as 9th variable)<a name="14"></a></h2><pre class="codeinput"><span class="keyword">for</span> k=1:get(ns,<span class="string">'numSims'</span>);
+  data.X(1,get(ns,<span class="string">'dim'</span>)+6,k) = <span class="keyword">...</span>
+      (((1+data.X(1,get(ns,<span class="string">'dim'</span>)+1,k))./<span class="keyword">...</span>
+	(1+startXlag(2,get(ns,<span class="string">'dim'</span>)+1)))-1) <span class="keyword">...</span>
+      +data.X(1,get(ns,<span class="string">'dim'</span>)+4,k);
+  <span class="keyword">for</span> i=2:length(Q40);
+    data.X(i,get(ns,<span class="string">'dim'</span>)+6,k) = <span class="keyword">...</span>
+        (((1+data.X(i,get(ns,<span class="string">'dim'</span>)+1,k))./<span class="keyword">...</span>
+	  (1+data.X(i-1,get(ns,<span class="string">'dim'</span>)+1,k)))-1) <span class="keyword">...</span>
+	+(data.X(i,get(ns,<span class="string">'dim'</span>)+4,k));
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% simulate.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This method (on the _nelsonSiegel_ class) simulates the realized monthly macro variables and yield curve variables, as well as the macro forecasts, based on the parameterized VAR model. Run in smaller blocks of the full set of simulations.
+
+%% Method Syntax
+function [data]=simulate(ns,startLag,shockLocation);
+%%
+% _ns_ : method is applied to 'nelsonSiegel' class
+%
+% _startLag_ : setting for starting values in VAR simulation ('last','mean', or 'ltm'), optional input
+%
+% _shockLocation_ : index of variable whose starting value is being shocked, optional input
+%
+% _data_ : structure with arrays of simulation results for block
+    %
+    % * _data.X_ : matrix of simulated Nelson-Siegel and macro variables: [# of simulated quarters] x [# of NS/macro variables] x [# of simulations]
+    % * _data.Z_ : matrix of simulated yield curve variables: [# of simulated quarters] x [# of tenors] x [# of simulations]
+    % * _data.C_ : matrix of simulated nominal par coupons: [# of simulated quarters] x [# of tenors] x [# of simulations]
+    % * _data.R_ : matrix of simulated real par coupons: [# of simulated quarters] x [# of tenors] x [# of simulations]
+    % * _data.R_ : matrix of simulated macroeconomic forecasts: [# of simulated quarters] x [# of forecast variables] x [# of simulations]
+    %
+    
+
+%% 1. Initialize matrices for macroeconomic and yield curve variable simulation results
+para=get(ns,'parameters');
+data.X=NaN(get(ns,'simT')*get(ns,'histN')+get(ns,'lags'), size(para.X,1), ...
+	   get(ns,'numSims'));  %3D-array dimensions: [# of months simulated] x [# of macro variables] x [# of simulations]
+data.Z=NaN(get(ns,'simT')*get(ns,'histN')+get(ns,'lags'), length(get(ns, ...
+	  'simTenor')), get(ns,'numSims'));     %3D-array dimensions: [# of months simulated] x [# of yield curve variables] x [# of simulations]
+K=size(para.X,1);
+
+
+%% 2. Cholesky decomposition of VAR model correlation matrix (for shocks)
+if isfield(para, 'Chol')    
+  para.std=para.Chol;
+else
+  para.std=chol(para.Omega)';
+end
+
+
+%% 3. Obtain lagged starting values, and apply any shocks via the Cholesky decomposition
+%
+% See: _<../@stochasticModel/get_Xlag.html get_Xlag>_
+if nargin >= 3  %if shock is defined  
+  shocks=[para.std(:,shockLocation)];       
+  startXlag = get_Xlag(ns,startLag);    %unshocked starting values     
+  if shockLocation == 2;     
+    startXlag(1,:)=startXlag(1,:)-norminv(0.999)*shocks'; %i.e. effect of large negative shock to slope (index = 2) on all variables     
+  else
+    startXlag(1,:)=startXlag(1,:)+norminv(0.999)*shocks';
+  end;
+elseif nargin == 2  %if no shock, and starting setting defined    
+  startXlag = get_Xlag(ns,startLag);     
+else    %if no shock, and starting setting not defined
+  startXlag = get_Xlag(ns);     
+end
+
+
+%% 4. Finish Set Up
+Q40 = [1:( 12/get(ns,'simN') ):( 12*get(ns,'simT') )]...
+      + get(ns,'lags'); %Index vector for variables on quarterly basis
+shock=zeros(122,8); %Initialize matrix of shocks
+
+
+%% 5. Simulate macroeconomic and yield curve variables for VAR(1) model 
+%
+% See: _<../matlab/getEinflation.html getEinflation>_
+
+if get(ns,'lags')==1;   %p = 1
+  
+    for(i=1:get(ns,'numSims'));
+    %Initialize matrices for simulated variables: 1st column is lagged values, will be deleted later  
+    data.X(1,:,i)=startXlag(1,:);    
+    data.Z(1,:,i)=data.X(1,:,i)*para.HSim'; 
+    for(h=2:get(ns,'simT')*get(ns,'histN')+1)   %for each simulated month
+      temp=0;   
+      while(temp==0)    
+        data.X(h,:,i)=(para.B(:,1)+para.B(:,2:end)*data.X(h-1,:,i)'...
+          +para.std*randn(K,1))';   %Simulate Nelson-Siegel and macroeconomic variables for that month (based on previous month) with VAR(1)
+        data.Z(h,:,i)=(para.HSim*data.X(h,:,i)')';  %Convert Nelson-Siegel simulations to zero-coupon yield simulations, based on factor loadings 
+        if(sum(logical(data.Z(h,:,i)<=0))==0)   %Check that simulated yields are all positive. If not, redo that month's simulation.
+          temp=1;
+        end
+      end
+    end
+  end
+  
+  %Compute expected inflation, up to 384 months ahead as of the first month of each quarter 
+  data.eInf = getEinflation(384,data.X(Q40,:,:),get(ns,'dim')+5,... 
+                             para.B(:,1),para.B(:,2:K+1));
+                         
+                         
+%% 6. Simulate macroeconomic and yield curve variables for VAR(2) model 
+%
+% See: _<../matlab/getEinflation.html getEinflation>_
+elseif get(ns,'lags')==2;   %p = 2
+  for(i=1:get(ns,'numSims'));
+    %Initialize matrices for simulated variables: 1st and 2nd columns are lagged values, will be deleted later  
+    data.X(1,:,i)=startXlag(2,:);  
+    data.X(2,:,i)=startXlag(1,:);
+    data.Z(1,:,i)=(para.HSim*data.X(1,:,i)')';
+    data.Z(2,:,i)=(para.HSim*data.X(2,:,i)')';
+    for(h=3:get(ns,'simT')*get(ns,'histN')+2)   %for each simulated month
+      temp=0;
+      while(temp==0)
+        data.X(h,:,i)=(para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'...
+           + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'+chol(para.Omega)'*randn(K,1))';	%Simulate variables for that month (based on previous 2 months) with VAR(2).
+        data.Z(h,:,i)=(para.HSim*data.X(h,:,i)')';
+        if(sum(logical(data.Z(h,:,i)<=0))==0)   %Check that yields are positive.
+          temp=1;
+        end
+      end
+    end
+  end
+  
+  %Compute expected inflation, up to 384 months ahead as of the first month of each quarter  
+   data.eInf = getEinflation(384,data.X(Q40,:,:),data.X(Q40-1,:,:),get(ns,'dim')+5,... 
+                  para.B(:,1),para.B(:,2:K+1),para.B(:,K+2:2*K+1));
+
+else
+  error('Model can only accommodate up VAR(1) or VAR(2) dynamics!');
+end;
+
+%Not used
+Y_pot=NaN(get(ns,'simT')*get(ns,'histN')+get(ns,'lags'),get(ns,'numSims'));
+Y_real=NaN(get(ns,'simT')*get(ns,'histN')+get(ns,'lags'),get(ns,'numSims'));
+Y_num=NaN(get(ns,'simT')*get(ns,'histN')+get(ns,'lags'),get(ns,'numSims'));
+
+
+%% 7. Compute matrix of macroeconomic forecasts from simulated variables and save results
+%
+% See: _<../@stochasticModel/annualMacroForecast.html annualMacroForecast>_
+data.eMacro=annualMacroForecast(ns,data);
+
+
+%% 8. Save matrix of simulated yield curve and macroeconomic variables
+%Save only the quarterly yield curve and macro simulations (i.e. for first month of each quarter)
+data.Z=data.Z(Q40,:,:); 
+data.X=data.X(Q40,:,:);
+
+
+%% 9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation
+%
+% See: _<../matlab/getRiskPremia.html getRiskPremia>_, _<../@stochasticModel/getNominalPar.html getNominalPar>_, _<../@stochasticModel/getRealParNew.html getRealParNew>_
+data.T=getRiskPremia(ns,data);  %simulated term premia
+data.C=getNominalPar(ns,data);  %simulated nominal par coupons
+data.simTenor=get(ns,'simTenor');   %relevant tenors
+data.eInf = data.eInf(:,4*get(ns,'simTenor'),:);    %expected inflation for relevant tenors (at each simulated quarter)
+data.R=getRealParNew(ns,data);  %simulated nominal real coupons
+
+
+%% 10. Add real GDP growth to the matrix of simulated macroeconomic variables (as 9th variable)
+for k=1:get(ns,'numSims');
+  data.X(1,get(ns,'dim')+6,k) = ...
+      (((1+data.X(1,get(ns,'dim')+1,k))./...
+	(1+startXlag(2,get(ns,'dim')+1)))-1) ...
+      +data.X(1,get(ns,'dim')+4,k); 
+  for i=2:length(Q40);
+    data.X(i,get(ns,'dim')+6,k) = ...
+        (((1+data.X(i,get(ns,'dim')+1,k))./...
+	  (1+data.X(i-1,get(ns,'dim')+1,k)))-1) ...
+	+(data.X(i,get(ns,'dim')+4,k)); 
+  end
+end
+##### SOURCE END #####
+--></body></html>
