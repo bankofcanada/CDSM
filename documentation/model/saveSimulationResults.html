@@ -79,7 +79,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
     save <span class="string">../results/FullActual_MMMYY</span> <span class="string">s</span> <span class="string">m</span>;
   <span class="keyword">elseif</span> strcmp(s.equi,<span class="string">'steady-state'</span>)
     disp(<span class="string">'Saving results from full stochastic model with ergodic portfolio.'</span>)
-<span class="comment">%     save ~/CDSM-public/results/ns/areaPortfolios/areaPortfolio_MMMYY s m;    %if running area portfolios (comment out if running traning set)</span>
+<span class="comment">%     save ../results/ns/areaPortfolios/areaPortfolio_MMMYY s m;    %if running area portfolios (comment out if running traning set)</span>
     save(resultsFile,<span class="string">'s'</span>,<span class="string">'m'</span>);     <span class="comment">%if running a training set (comment out if running individual strategies)</span>
   <span class="keyword">end</span>
 <span class="keyword">end</span>
@@ -113,7 +113,7 @@ elseif strcmp(s.model,'full')
     save ../results/FullActual_MMMYY s m;
   elseif strcmp(s.equi,'steady-state')
     disp('Saving results from full stochastic model with ergodic portfolio.')
-%     save ~/CDSM-public/results/ns/areaPortfolios/areaPortfolio_MMMYY s m;    %if running area portfolios (comment out if running traning set) 
+%     save ../results/ns/areaPortfolios/areaPortfolio_MMMYY s m;    %if running area portfolios (comment out if running traning set) 
     save(resultsFile,'s','m');     %if running a training set (comment out if running individual strategies)
   end
 end	
