@@ -16,7 +16,7 @@ function TT=historicalRiskPremia(ns)
 
 %% 1. Set Up
 %
-% See: _<../@nelsonSiegel/private/ns_basis.html ns_basis>_
+% See: _<ns_basis.html ns_basis>_
 Z=get(ns,'zero_data');
 simTenor = get(ns,'ttm');  
 ttm=linspace(min(simTenor),max(simTenor),...
