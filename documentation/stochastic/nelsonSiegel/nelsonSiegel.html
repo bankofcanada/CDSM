@@ -1,0 +1,165 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>nelsonSiegel.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-17"><meta name="DC.source" content="nelsonSiegel.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>nelsonSiegel.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This function constructs the class <i>nelsonSiegel</i> where key variables for estimation and simulation will be stored. It is the implementation of the model proposed by Diebold and Li (2003). <i>nelsonSiegel</i> is a child class that inherits from the parent class, <i>stochasticModel</i>.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Function Syntax</a></li><li><a href="#3">Variables stored in <i>nelsonSiegel</i></a></li><li><a href="#4">Principal methods for <i>nelsonSiegel</i></a></li><li><a href="#5">1. Construct <i>nelsonSiegel</i> class</a></li></ul></div><h2>Function Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> ns = nelsonSiegel(lags,Z,ttm,M,histT,histN,simT,simN,startLag,numSims)
+</pre><h2>Variables stored in <i>nelsonSiegel</i><a name="3"></a></h2><p>Variables defined through parent 'stochasticModel' class:</p><div><ul><li><i>'zero_data'</i> (2nd input) : matrix of historical zero-coupon yields</li><li><i>'ttm'</i> (3rd input) : tenors associated with that matrix of yields</li><li><i>'macro_data'</i> (4th input) : matrix of historical macro data</li><li><i>'histT'</i> (5th input) : number of years of historical data</li><li><i>'histN'</i> (6th input) : granularity of historical data (monthly is 12)</li><li><i>'simT'</i> (7th input) : number of simulation years</li><li><i>'simN'</i> (8th input) : granularity of simulations (quarterly is 4)</li><li><i>'startLag'</i> (9th input) : starting values (for macro and interest rate variables) for simulation ('ltm' is pre-set or ergodic long-term mean)</li></ul></div><p>Variables defined through 'nelsonSiegel' class directly:</p><div><ul><li><i>'lags'</i> (1st input) : number of lags in the VAR(p), (p = 1, 2, or 6)</li><li><i>'numSims'</i> (10th input) : number of simulations</li><li><i>'parameters'</i> (defined in constructor) : empty structure will be populated with VAR parameters from 'estimate_new' method</li><li><i>'dim'</i> (defined in constructor) : number of NS dimensions, fixed as 3</li><li><i>'simTenor'</i> (defined in constructor) : yield curve tenors for computing term premium via NS model, fixed vector</li></ul></div><p>Variables are called via <i>get</i> function either on <i>'ns'</i> or <i>'sm'</i></p><p>See: <i><a href="get.html">get</a></i></p><h2>Principal methods for <i>nelsonSiegel</i><a name="4"></a></h2><p><i>estimate_new()</i> : estimates the parameters for vector autoregression (VAR) based on historical data</p><p><i>simulate()</i> : simulates the monthly macro variables and yield curve variables based on the parameterized VAR model</p><p>See: <i><a href="estimate_new.html">estimate_new</a></i>, <i><a href="simulate.html">simulate</a></i></p><h2>1. Construct <i>nelsonSiegel</i> class<a name="5"></a></h2><p>See: <i><a href="../stochasticModel/stochasticModel.html">stochasticModel</a></i></p><pre class="codeinput"><span class="keyword">if</span> nargin == 0; <span class="comment">%If no inputs given, creates empty class</span>
+  ns.parameters = [];
+  ns.lags = [];
+  ns.numSims = [];
+  ns.dim = [];
+  ns.simTenor = [];
+  sm = stochasticModel();
+  ns = class(ns,<span class="string">'nelsonSiegel'</span>,sm);
+<span class="keyword">elseif</span> isa(lags,<span class="string">'nelsonSiegel'</span>);
+  sm=lags;
+<span class="keyword">elseif</span> nargin == 10;    <span class="comment">%If inputs given. Defines variables specific to _nelsonSiegel_ child class.</span>
+  ns.parameters = [];
+  ns.lags = lags;
+  ns.numSims = numSims;
+  ns.dim = 3;
+  ns.simTenor = [0.25 0.5 0.75 1 2 3 4 5 6 7 8 9 10 12 15 20 30 32];
+
+  sm = stochasticModel(Z,ttm,M,[],histT,histN,simT,simN,startLag);  <span class="comment">%constructor call for parent _stochasticModel_ class</span>
+  ns = class(ns,<span class="string">'nelsonSiegel'</span>,sm); <span class="comment">%construct _nelsonSiegel_ class as child of _stochasticModel_</span>
+<span class="keyword">else</span>
+  error(<span class="string">'Object instantiation for nelsonSiegel class is incorrect!'</span>);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% nelsonSiegel.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This function constructs the class _nelsonSiegel_ where key variables for estimation and simulation will be stored. It is the implementation of the model proposed by Diebold and Li (2003). _nelsonSiegel_ is a child class that inherits from the parent class, _stochasticModel_. 
+
+%% Function Syntax
+function ns = nelsonSiegel(lags,Z,ttm,M,histT,histN,simT,simN,startLag,numSims)
+
+
+%% Variables stored in _nelsonSiegel_
+% Variables defined through parent 'stochasticModel' class:
+    %
+    % * _'zero_data'_ (2nd input) : matrix of historical zero-coupon yields
+    % * _'ttm'_ (3rd input) : tenors associated with that matrix of yields
+    % * _'macro_data'_ (4th input) : matrix of historical macro data
+    % * _'histT'_ (5th input) : number of years of historical data
+    % * _'histN'_ (6th input) : granularity of historical data (monthly is 12)
+    % * _'simT'_ (7th input) : number of simulation years
+    % * _'simN'_ (8th input) : granularity of simulations (quarterly is 4)
+    % * _'startLag'_ (9th input) : starting values (for macro and interest rate variables) for simulation ('ltm' is pre-set or ergodic long-term mean)
+    %
+%
+% Variables defined through 'nelsonSiegel' class directly:
+    %
+    % * _'lags'_ (1st input) : number of lags in the VAR(p), (p = 1, 2, or 6)
+    % * _'numSims'_ (10th input) : number of simulations
+    % * _'parameters'_ (defined in constructor) : empty structure will be populated with VAR parameters from 'estimate_new' method
+    % * _'dim'_ (defined in constructor) : number of NS dimensions, fixed as 3
+    % * _'simTenor'_ (defined in constructor) : yield curve tenors for computing term premium via NS model, fixed vector
+    %
+%
+% Variables are called via _get_ function either on _'ns'_ or _'sm'_
+%
+% See: _<get.html get>_
+
+%% Principal methods for _nelsonSiegel_
+    % _estimate_new()_ : estimates the parameters for vector autoregression (VAR) based on historical data
+    %
+    % _simulate()_ : simulates the monthly macro variables and yield curve variables based on the parameterized VAR model
+%
+% See: _<estimate_new.html estimate_new>_, _<simulate.html simulate>_ 
+    
+%% 1. Construct _nelsonSiegel_ class 
+%
+% See: _<../stochasticModel/stochasticModel.html stochasticModel>_
+if nargin == 0; %If no inputs given, creates empty class
+  ns.parameters = [];
+  ns.lags = [];
+  ns.numSims = [];
+  ns.dim = [];
+  ns.simTenor = [];
+  sm = stochasticModel();
+  ns = class(ns,'nelsonSiegel',sm);    
+elseif isa(lags,'nelsonSiegel');
+  sm=lags;
+elseif nargin == 10;    %If inputs given. Defines variables specific to _nelsonSiegel_ child class.
+  ns.parameters = [];   
+  ns.lags = lags;   
+  ns.numSims = numSims;
+  ns.dim = 3;   
+  ns.simTenor = [0.25 0.5 0.75 1 2 3 4 5 6 7 8 9 10 12 15 20 30 32];
+  
+  sm = stochasticModel(Z,ttm,M,[],histT,histN,simT,simN,startLag);  %constructor call for parent _stochasticModel_ class
+  ns = class(ns,'nelsonSiegel',sm); %construct _nelsonSiegel_ class as child of _stochasticModel_  
+else
+  error('Object instantiation for nelsonSiegel class is incorrect!');
+end
+##### SOURCE END #####
+--></body></html>
