@@ -26,7 +26,7 @@ elseif strcmp(s.model,'full')
     save ../results/FullActual_MMMYY s m;
   elseif strcmp(s.equi,'steady-state')
     disp('Saving results from full stochastic model with ergodic portfolio.')
-%     save ~/CDSM-public/results/ns/areaPortfolios/areaPortfolio_MMMYY s m;    %if running area portfolios (comment out if running traning set) 
+%     save ../results/ns/areaPortfolios/areaPortfolio_MMMYY s m;    %if running area portfolios (comment out if running traning set) 
     save(resultsFile,'s','m');     %if running a training set (comment out if running individual strategies)
   end
 end	
