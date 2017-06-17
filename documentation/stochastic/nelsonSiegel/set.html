@@ -67,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
   </style></head><body><div class="content"><h1>set.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>nelsonSiegel</i> class) sets a value for the given variable in the <i>nelsonSiegel</i> class.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Set value for specified variable in <i>nelsonSiegel</i> class via <i>stochasticModel</i> class</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> sm = set(sm, p, v)
-</pre><p><i>sm</i> : method is applied to, and updates, <i>nelsonSiegel</i> class</p><p><i>p</i> : name of variable</p><p><i>v</i> : value to set</p><h2>1. Set value for specified variable in <i>nelsonSiegel</i> class via <i>stochasticModel</i> class<a name="3"></a></h2><p>See <i><a href="../stochasticModel/set.html">set</a></i></p><pre class="codeinput"><span class="keyword">switch</span> p
+</pre><p><i>sm</i> : method is applied to, and updates, <i>nelsonSiegel</i> class</p><p><i>p</i> : name of variable</p><p><i>v</i> : value to set</p><h2>1. Set value for specified variable in <i>nelsonSiegel</i> class via <i>stochasticModel</i> class<a name="3"></a></h2><p>See <i><a href="../@stochasticModel/set.html">set</a></i></p><pre class="codeinput"><span class="keyword">switch</span> p
   <span class="keyword">case</span> <span class="string">'numSims'</span>
     sm.numSims = v;
   <span class="keyword">otherwise</span>
@@ -99,7 +99,7 @@ function sm = set(sm, p, v)
 
 %% 1. Set value for specified variable in _nelsonSiegel_ class via _stochasticModel_ class
 %
-% See _<../stochasticModel/set.html set>_
+% See _<../@stochasticModel/set.html set>_
 
 switch p
   case 'numSims'

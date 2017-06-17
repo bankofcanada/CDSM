@@ -78,7 +78,7 @@ K=size(para.X,1);
 <span class="keyword">else</span>
   para.std=chol(para.Omega)';
 <span class="keyword">end</span>
-</pre><h2>3. Obtain lagged starting values, and apply any shocks via the Cholesky decomposition<a name="5"></a></h2><p>See: <i><a href="../stochasticModel/get_Xlag.html">get_Xlag</a></i></p><pre class="codeinput"><span class="keyword">if</span> nargin &gt;= 3  <span class="comment">%if shock is defined</span>
+</pre><h2>3. Obtain lagged starting values, and apply any shocks via the Cholesky decomposition<a name="5"></a></h2><p>See: <i><a href="../@stochasticModel/get_Xlag.html">get_Xlag</a></i></p><pre class="codeinput"><span class="keyword">if</span> nargin &gt;= 3  <span class="comment">%if shock is defined</span>
   shocks=[para.std(:,shockLocation)];
   startXlag = get_Xlag(ns,startLag);    <span class="comment">%unshocked starting values</span>
   <span class="keyword">if</span> shockLocation == 2;
@@ -147,11 +147,11 @@ shock=zeros(122,8); <span class="comment">%Initialize matrix of shocks</span>
 Y_pot=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+get(ns,<span class="string">'lags'</span>),get(ns,<span class="string">'numSims'</span>));
 Y_real=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+get(ns,<span class="string">'lags'</span>),get(ns,<span class="string">'numSims'</span>));
 Y_num=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'histN'</span>)+get(ns,<span class="string">'lags'</span>),get(ns,<span class="string">'numSims'</span>));
-</pre><h2>7. Compute matrix of macroeconomic forecasts from simulated variables and save results<a name="11"></a></h2><p>See: <i><a href="../stochasticModel/annualMacroForecast.html">annualMacroForecast</a></i></p><pre class="codeinput">data.eMacro=annualMacroForecast(ns,data);
+</pre><h2>7. Compute matrix of macroeconomic forecasts from simulated variables and save results<a name="11"></a></h2><p>See: <i><a href="../@stochasticModel/annualMacroForecast.html">annualMacroForecast</a></i></p><pre class="codeinput">data.eMacro=annualMacroForecast(ns,data);
 </pre><h2>8. Save matrix of simulated yield curve and macroeconomic variables<a name="12"></a></h2><pre class="codeinput"><span class="comment">%Save only the quarterly yield curve and macro simulations (i.e. for first month of each quarter)</span>
 data.Z=data.Z(Q40,:,:);
 data.X=data.X(Q40,:,:);
-</pre><h2>9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation<a name="13"></a></h2><p>See: <i><a href="../matlab/getRiskPremia.html">getRiskPremia</a></i>, <i><a href="../stochasticModel/getNominalPar.html">getNominalPar</a></i>, <i><a href="../stochasticModel/getRealParNew.html">getRealParNew</a></i></p><pre class="codeinput">data.T=getRiskPremia(ns,data);  <span class="comment">%simulated term premia</span>
+</pre><h2>9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation<a name="13"></a></h2><p>See: <i><a href="../matlab/getRiskPremia.html">getRiskPremia</a></i>, <i><a href="../@stochasticModel/getNominalPar.html">getNominalPar</a></i>, <i><a href="../@stochasticModel/getRealParNew.html">getRealParNew</a></i></p><pre class="codeinput">data.T=getRiskPremia(ns,data);  <span class="comment">%simulated term premia</span>
 data.C=getNominalPar(ns,data);  <span class="comment">%simulated nominal par coupons</span>
 data.simTenor=get(ns,<span class="string">'simTenor'</span>);   <span class="comment">%relevant tenors</span>
 data.eInf = data.eInf(:,4*get(ns,<span class="string">'simTenor'</span>),:);    <span class="comment">%expected inflation for relevant tenors (at each simulated quarter)</span>
@@ -216,7 +216,7 @@ end
 
 %% 3. Obtain lagged starting values, and apply any shocks via the Cholesky decomposition
 %
-% See: _<../stochasticModel/get_Xlag.html get_Xlag>_
+% See: _<../@stochasticModel/get_Xlag.html get_Xlag>_
 if nargin >= 3  %if shock is defined  
   shocks=[para.std(:,shockLocation)];       
   startXlag = get_Xlag(ns,startLag);    %unshocked starting values     
@@ -305,7 +305,7 @@ Y_num=NaN(get(ns,'simT')*get(ns,'histN')+get(ns,'lags'),get(ns,'numSims'));
 
 %% 7. Compute matrix of macroeconomic forecasts from simulated variables and save results
 %
-% See: _<../stochasticModel/annualMacroForecast.html annualMacroForecast>_
+% See: _<../@stochasticModel/annualMacroForecast.html annualMacroForecast>_
 data.eMacro=annualMacroForecast(ns,data);
 
 
@@ -317,7 +317,7 @@ data.X=data.X(Q40,:,:);
 
 %% 9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation
 %
-% See: _<../matlab/getRiskPremia.html getRiskPremia>_, _<../stochasticModel/getNominalPar.html getNominalPar>_, _<../stochasticModel/getRealParNew.html getRealParNew>_
+% See: _<../matlab/getRiskPremia.html getRiskPremia>_, _<../@stochasticModel/getNominalPar.html getNominalPar>_, _<../@stochasticModel/getRealParNew.html getRealParNew>_
 data.T=getRiskPremia(ns,data);  %simulated term premia
 data.C=getNominalPar(ns,data);  %simulated nominal par coupons
 data.simTenor=get(ns,'simTenor');   %relevant tenors
