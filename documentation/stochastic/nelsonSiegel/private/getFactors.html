@@ -67,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
   </style></head><body><div class="content"><h1>getFactors.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>nelsonSiegel</i> class) uses Principal Components Analysis (PCA) to decompose the yield curve into three Nelson-Siegel factors (level, slope, curvature), and computes historical values for those factors</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Set path</a></li><li><a href="#4">2. Compute Nelson-Siegel factor loadings for each factor (level, slope, curvature)</a></li><li><a href="#5">3. Load historical yield curve data</a></li><li><a href="#6">4. Solve for the historical factor values, for each month, through least-squares optimization</a></li><li><a href="#7">5. Display the fit to the data</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [X,H,HSim] = getFactors(ns);
-</pre><p><i>ns</i> : method is applied to 'nelsonSiegel' class</p><p><i>X</i> : historical time series of three Nelson-Siegel factors</p><p><i>H</i> : Nelson-Siegel factor loadings</p><p><i>HSim</i> : Nelson-Siegel factor loadings based on adjusted tenors</p><h2>1. Set path<a name="3"></a></h2><pre class="codeinput">path(path,<span class="string">'../../nelsonSiegel/private/'</span>);
+</pre><p><i>ns</i> : method is applied to 'nelsonSiegel' class</p><p><i>X</i> : historical time series of three Nelson-Siegel factors</p><p><i>H</i> : Nelson-Siegel factor loadings</p><p><i>HSim</i> : Nelson-Siegel factor loadings based on adjusted tenors</p><h2>1. Set path<a name="3"></a></h2><pre class="codeinput">path(path,<span class="string">'../../@nelsonSiegel/private/'</span>);
 </pre><h2>2. Compute Nelson-Siegel factor loadings for each factor (level, slope, curvature)<a name="4"></a></h2><p><i>See <a href="ns_basis.html">ns_basis</a></i></p><pre class="codeinput"><span class="keyword">for</span>(i=1:get(ns,<span class="string">'dim'</span>))
   H(:,i) = ns_basis(get(ns,<span class="string">'ttm'</span>),i,1/2.5)';
   HSim(:,i) = ns_basis(get(ns,<span class="string">'simTenor'</span>),i,1/2.5)';    <span class="comment">%factor loadings for alternate tenors, not used</span>
@@ -111,7 +111,7 @@ function [X,H,HSim] = getFactors(ns);
 
 
 %% 1. Set path
-path(path,'../../nelsonSiegel/private/');  
+path(path,'../../@nelsonSiegel/private/');  
 
 
 %% 2. Compute Nelson-Siegel factor loadings for each factor (level, slope, curvature) 
