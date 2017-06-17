@@ -73,7 +73,7 @@ nsLTM =[    ---, ---; ...   % 1 - level, NaN if taken from historical average
 %     
 % Variables are called via _get_ function either on _'ns'_ or _'sm'_.
 %
-% _See <nelsonSiegel/nelsonSiegel.html nelsonSiegel>_
+% _See <@nelsonSiegel/nelsonSiegel.html nelsonSiegel>_
 
     ns = nelsonSiegel(2,Z,ttm,M,numObs/12,12,10,4,'ltm',N);
 
@@ -86,7 +86,7 @@ nsLTM =[    ---, ---; ...   % 1 - level, NaN if taken from historical average
     % * _'EXO', index of any exogenous variables_
     % * _'CONTEMP', index of existing variable, new variable that is contemporaneous with it_
     %
-% See: _<nelsonSiegel/estimate_new.html estimate_new>_
+% See: _<@nelsonSiegel/estimate_new.html estimate_new>_
 
 ns = estimate_new(ns,'ltm',nsLTM(:,1),'simLTM', nsLTM(:,2),...                    
         'CONTEMP',[get(ns,'dim')+2],INFL);
@@ -100,7 +100,7 @@ TT=historicalRiskPremia(ns);
 
 %% 9. Simulate macroeconomic and yield curve variables with the VAR model
 %
-% See: _<stochasticModel/simulateBig.html simulateBig>_
+% See: _<@stochasticModel/simulateBig.html simulateBig>_
 data=simulateBig(ns,'ltm');
 
 
@@ -117,5 +117,5 @@ viewSimulation(ns,data);
 %
 % File 3: Parameters from VAR Simulation
 %
-% See: _<stochasticModel/saveResults.html saveResults>_
+% See: _<@stochasticModel/saveResults.html saveResults>_
 saveResults(ns,data,'../dataFiles/','ns_MMMYY');
