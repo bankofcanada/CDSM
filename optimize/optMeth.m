@@ -39,29 +39,29 @@ switch mt
         % Cost
         fileName = strcat('mars_',cost,dF_str,resultName);
         try
-            eval(['load ~/CDSM-policy/optimize/curveFits/',fileName]);
+            eval(['load ../optimize/curveFits/',fileName]);
         catch
             fhat = train(mars(), x, f); % usually Debt Charges
-            eval(['save ~/CDSM-policy/optimize/curveFits/',fileName,...
+            eval(['save ../optimize/curveFits/',fileName,...
      ' fhat'])
         end
         %Risk
         fileName = strcat('mars_',rc,resultName);
         try
-            eval(['load ~/CDSM-policy/optimize/curveFits/',fileName]);
+            eval(['load ../optimize/curveFits/',fileName]);
         catch
             ghat = train(mars(), x, g); % roll constraint
-            eval(['save ~/CDSM-policy/optimize/curveFits/',fileName,...
+            eval(['save ../optimize/curveFits/',fileName,...
      ' ghat'])
         end
         % Rollover overlay, if necessary
         if roll_overlay == 1    
             fileName = strcat('mars_roll',resultName);
             try
-                eval(['load ~/CDSM-policy/optimize/curveFits/',fileName]);
+                eval(['load ../optimize/curveFits/',fileName]);
             catch
                 rollhat = train(mars(), x, roll); % risk constraint
-                eval(['save ~/CDSM-policy/optimize/curveFits/',fileName,...
+                eval(['save ../optimize/curveFits/',fileName,...
             ' rollhat'])
             end
         else

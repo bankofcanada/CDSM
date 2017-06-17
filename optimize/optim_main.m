@@ -28,7 +28,7 @@ inst = [ 1 2 3 4 5 6 8 9 13];   %index of relevant sectors
 nInst = size(inst,2);
 issConst = - [ --- --- --- --- --- --- --- --- ---];   %minimum issuance constraint for each instrument
 
-path('~/CDSM-public/results/ns/',path)
+path('../results/ns/',path)
 
 resultName= '_MMMYY_vname_block';    %name of result files
 mt = 'OLS';  % model used to curve-fit general cost/risk functions for strategies
@@ -47,7 +47,7 @@ fileAdd = strcat(resultName,techstr,num2str(roll_overlay_value));
 
 %% 2. Load file with training set results
 % Contains structure _s_ with model parameters and _m_ with summary metrics
-eval(['load ~/CDSM-public/results/ns/trainingSets/policyResults_policyPort',resultName,'_all']); 
+eval(['load ../results/ns/trainingSets/policyResults_policyPort',resultName,'_all']); 
 
 
 %% 3. Define cost and risk metrics for each financing strategy (from training set results)
@@ -82,8 +82,8 @@ last = ((endcon-k)/step) + 1;	%number of risk level points evaluated
 %
 % See: _<setApproximationPaths.html setApproximationPaths>_
 
-path(path, '~/CDSM-public/optimize/');
-path(path, '~/CDSM-public/optimize/np_regression/');
+path(path, '../optimize/');
+path(path, '../optimize/np_regression/');
 
 setApproximationPaths   %set path for curve-fitting method of training set 
 [fhat ghat rollhat] = optMeth(mt,x,f,g,rc,resultName,cost,dF_str,riskC.roll,roll_overlay);  %compute parameters of cost, risk, and rollover functions
