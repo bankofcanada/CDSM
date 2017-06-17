@@ -67,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
   </style></head><body><div class="content"><h1>historicalRiskPremia.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>nelsonSiegel</i> class) estimates historical term premium at each relevant yield curve tenor</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Set Up</a></li><li><a href="#4">2. Compute historical term premia</a></li><li><a href="#5">3. Save historical term premia for relevant points on zero curve</a></li><li><a href="#6">4. Print four charts for historical risk premium</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> TT=historicalRiskPremia(ns)
-</pre><p><i>ns</i> : method is applied to <i>nelsonSiegel</i> class</p><p><i>T</i> : matrix of historical term premia</p><h2>1. Set Up<a name="3"></a></h2><p>See: <i><a href="../nelsonSiegel/private/ns_basis.html">ns_basis</a></i></p><pre class="codeinput">Z=get(ns,<span class="string">'zero_data'</span>);
+</pre><p><i>ns</i> : method is applied to <i>nelsonSiegel</i> class</p><p><i>T</i> : matrix of historical term premia</p><h2>1. Set Up<a name="3"></a></h2><p>See: <i><a href="ns_basis.html">ns_basis</a></i></p><pre class="codeinput">Z=get(ns,<span class="string">'zero_data'</span>);
 simTenor = get(ns,<span class="string">'ttm'</span>);
 ttm=linspace(min(simTenor),max(simTenor),<span class="keyword">...</span>
 	     (max(simTenor)-min(simTenor))/min(simTenor)+1);
@@ -269,7 +269,7 @@ function TT=historicalRiskPremia(ns)
 
 %% 1. Set Up
 %
-% See: _<../nelsonSiegel/private/ns_basis.html ns_basis>_
+% See: _<ns_basis.html ns_basis>_
 Z=get(ns,'zero_data');
 simTenor = get(ns,'ttm');  
 ttm=linspace(min(simTenor),max(simTenor),...
