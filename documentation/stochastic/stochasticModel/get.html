@@ -67,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
   </style></head><body><div class="content"><h1>get.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>stochasticModel</i> class) calls the specified variable within the <i>stochasticModel</i> class</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Call the specified variable in <i>stochasticModel</i> class</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> v = get(sm, p, X);
-</pre><p><i>ns</i> : method is applied to <i>stochasticModel</i> class</p><p><i>p</i> : name of variable being called</p><p><i>X</i> : specific lag, optional input</p><p><i>v</i> : variable called</p><h2>1. Call the specified variable in <i>stochasticModel</i> class<a name="3"></a></h2><p>See <i><a href="stochasticModel/get_Xlag.html">get_Xlag</a></i></p><pre class="codeinput"><span class="keyword">switch</span> p
+</pre><p><i>ns</i> : method is applied to <i>stochasticModel</i> class</p><p><i>p</i> : name of variable being called</p><p><i>X</i> : specific lag, optional input</p><p><i>v</i> : variable called</p><h2>1. Call the specified variable in <i>stochasticModel</i> class<a name="3"></a></h2><p>See <i><a href="get_Xlag.html">get_Xlag</a></i></p><pre class="codeinput"><span class="keyword">switch</span> p
   <span class="keyword">case</span> <span class="string">'zero_data'</span>
     v = sm.zero_data;
   <span class="keyword">case</span> <span class="string">'macro_data'</span>
@@ -115,7 +115,7 @@ function v = get(sm, p, X);
 
 %% 1. Call the specified variable in _stochasticModel_ class
 %
-% See _<stochasticModel/get_Xlag.html get_Xlag>_
+% See _<get_Xlag.html get_Xlag>_
 switch p
   case 'zero_data'
     v = sm.zero_data;
