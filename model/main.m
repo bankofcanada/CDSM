@@ -47,6 +47,7 @@
 % Set path
 path(path,'../stochastic');
 path(path,'../stochastic/matlab');
+path(path,'../practice/');
 modelType = 'ns';
 
 tic;
