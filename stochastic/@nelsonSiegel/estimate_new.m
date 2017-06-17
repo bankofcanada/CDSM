@@ -16,7 +16,7 @@ function ns  = estimate_new(ns,varargin);
 
 %% 1. Decompose yield curve into three Nelson-Siegel factors (level, slope, curvature) and compute their historical values. The three factors will be combined with the macro variables in the VAR parameterization. 
 %
-% See: _<private/getFactors.html getFactors>_
+% See: _<../matlab/getFactors.html getFactors>_
 [Xf,H,HSim] = getFactors(ns);
 
 
