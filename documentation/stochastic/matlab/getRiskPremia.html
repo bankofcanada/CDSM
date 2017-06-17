@@ -1,0 +1,334 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>getRiskPremia.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="getRiskPremia.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>getRiskPremia.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>nelsonSiegel</i> class) estimates term premium at each relevant yield curve tenor for simulations</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Set Up</a></li><li><a href="#4">2. Compute term premia for VAR(1) model</a></li><li><a href="#6">3. Compute term premia for VAR(2) model</a></li><li><a href="#8">4. Save term premia for relevant points on zero curve</a></li><li><a href="#9">5. Create Plots</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> TT=getRiskPremia(ns,data)
+</pre><p><i>ns</i> : method is applied to 'nelsonSiegel' class</p><p><i>data</i> : structure containing simulated zero-coupon yields</p><p><i>TT</i> : matrix of simulated term premia</p><p>For term premium computations, simulated 25-year zero rate is taken as 30-year rate, and simulated 30-year rate is taken as 32-year rate</p><h2>1. Set Up<a name="3"></a></h2><pre class="codeinput">simTenor = get(ns,<span class="string">'simTenor'</span>);
+ttm=linspace(min(simTenor),max(simTenor),<span class="keyword">...</span>
+	     (max(simTenor)-min(simTenor))/min(simTenor)+1);
+
+para = get(ns,<span class="string">'parameters'</span>);    <span class="comment">%get model parameters</span>
+K=size(para.X,1);
+<span class="keyword">for</span>(i=1:get(ns,<span class="string">'dim'</span>))  <span class="comment">%compute factor loadings</span>
+  H(:,i) = ns_basis(ttm,i,1/2.5)';
+<span class="keyword">end</span>
+H=[H zeros(length(H),K-get(ns,<span class="string">'dim'</span>))];
+
+N=get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string">'simN'</span>);  <span class="comment">%number of quarters simulated</span>
+M=get(ns,<span class="string">'numSims'</span>);    <span class="comment">%number of simulations</span>
+
+<span class="comment">% Initialize matrices</span>
+F=zeros(N,size(ttm,2),M);
+Zb=zeros(N,size(ttm,2),M);
+Zhat=zeros(N,size(ttm,2),M);
+T=zeros(N,size(ttm,2),M);
+T1=zeros(N,size(ttm,2),M);
+</pre><h2>2. Compute term premia for VAR(1) model<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> get(ns,<span class="string">'lags'</span>)==1;
+</pre><pre class="codeinput">  <span class="keyword">for</span> p=1:M
+    <span class="keyword">for</span> i=1:N
+      Zb(i,:,p)=interp1(simTenor,data.Z(i,:,p)',ttm,<span class="string">'spline'</span>);  <span class="comment">%interpolated quarterly zero rates</span>
+      F(i,:,p)=forward(Zb(i,:,p),ttm);  <span class="comment">%compute the forward rates (1-year)</span>
+      X=[];
+
+      <span class="comment">%Estimate historical rates fitted to VAR model, for term premium computation</span>
+      <span class="keyword">for</span> j=1:12
+	<span class="keyword">if</span> j==1;
+	  X=para.B(:,1) + para.B(:,2:end)*data.X(i,:,p)';
+	<span class="keyword">else</span>
+	  X=para.B(:,1) + para.B(:,2:end)*X;
+	<span class="keyword">end</span>
+      <span class="keyword">end</span>
+      Zhat(i,:,p)=(H*X)';   <span class="comment">%forecasted rates (1-year forward)</span>
+      T(i,:,p)=F(i,:,p)-Zhat(i,:,p);    <span class="comment">% term premia estimate (model), not used</span>
+      T1(i,:,p)=F(i,:,p)-Zb(i,:,p); <span class="comment">% term-premia estimate (random walk)</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+</pre><h2>3. Compute term premia for VAR(2) model<a name="6"></a></h2><pre class="codeinput"><span class="keyword">elseif</span> get(ns,<span class="string">'lags'</span>)==2
+
+  <span class="keyword">for</span> p=1:M;
+    <span class="keyword">for</span> i=1:N
+      Zb(i,:,p)=interp1(simTenor,data.Z(i,:,p)',ttm,<span class="string">'spline'</span>);
+      F(i,:,p)=forward(Zb(i,:,p),ttm);
+      X=[];
+      <span class="keyword">for</span> j=1:12
+	<span class="keyword">if</span> j==1;
+	  X(:,j)=para.B(:,1) + para.B(:,2:K+1)*data.X(i,:,p)' <span class="keyword">...</span>
+		 + para.B(:,K+2:2*K+1)*para.X(:,end);
+	<span class="keyword">elseif</span> j==2;
+	  X(:,j)=para.B(:,1) + para.B(:,2:K+1)*X(:,j-1) <span class="keyword">...</span>
+		 + para.B(:,K+2:2*K+1)*data.X(i,:,p)';
+	<span class="keyword">else</span>
+	  X(:,j)=para.B(:,1) + para.B(:,2:K+1)*X(:,j-1) <span class="keyword">...</span>
+		 + para.B(:,K+2:2*K+1)*X(:,j-2);
+	<span class="keyword">end</span>
+      <span class="keyword">end</span>
+      Zhat(i,:,p)=(H*X(:,end))';
+      T(i,:,p)=F(i,:,p)-Zhat(i,:,p);    <span class="comment">% term premia estimate (model)</span>
+      T1(i,:,p)=F(i,:,p)-Zb(i,:,p);     <span class="comment">% term-premia estimate (random walk)</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>4. Save term premia for relevant points on zero curve<a name="8"></a></h2><pre class="codeinput"><span class="keyword">for</span> k=1:M
+  TT(:,:,k) = interp1(ttm,T1(:,:,k)',simTenor)';
+<span class="keyword">end</span>
+</pre><h2>5. Create Plots<a name="9"></a></h2><pre class="codeinput">makeGraph=0;
+<span class="keyword">if</span> makeGraph==1;
+
+  subplot(2,2,1)
+  plot(ttm,100*mean(mean(Zb,3)),<span class="string">'b'</span>)
+  hold <span class="string">on</span>
+  plot(ttm,100*mean(mean(F,3)),<span class="string">'r'</span>)
+  plot(ttm,100*mean(mean(Zhat,3)),<span class="string">'g'</span>)
+  hold <span class="string">off</span>
+  xlabel(<span class="string">'Tenor (yrs.)'</span>)
+  ylabel(<span class="string">'Per cent'</span>)
+  legend(<span class="string">'Current zero'</span>,<span class="string">'Forward'</span>,<span class="string">'Forecast zero'</span>, <span class="keyword">...</span>
+	 <span class="string">'Location'</span>,<span class="string">'Best'</span>);
+  axis([0.25 32 2 5]);
+  title(<span class="string">'Curves'</span>)
+
+  subplot(2,2,2)
+  plot(ttm,1e4*mean(mean(T,3)),<span class="string">'r'</span>)
+  hold <span class="string">on</span>
+  plot(ttm,1e4*mean(mean(T1,3)),<span class="string">'g'</span>)
+  hold <span class="string">off</span>
+  legend(<span class="string">'Model'</span>,<span class="string">'RW'</span>,<span class="string">'Location'</span>,<span class="string">'Best'</span>)
+  axis([0.25 32 -70 70]);
+  title(<span class="string">'Risk Premia'</span>)
+
+  subplot(2,2,3)
+  surf(2007+(1/4)*linspace(1,N,N),ttm,1e4*mean(T,3)')
+  colormap(<span class="string">'summer'</span>)
+  xlabel(<span class="string">'Time (yrs.)'</span>)
+  ylabel(<span class="string">'Tenor (yrs.'</span>)
+  ylabel(<span class="string">'Per cent'</span>)
+  title(<span class="string">'Model Risk Premia'</span>)
+  axis <span class="string">tight</span>
+
+  subplot(2,2,4)
+  surf(2007+(1/4)*linspace(1,N,N),ttm,1e4*mean(T1,3)')
+  colormap(<span class="string">'summer'</span>)
+  xlabel(<span class="string">'Time (yrs.)'</span>)
+  ylabel(<span class="string">'Tenor (yrs.'</span>)
+  ylabel(<span class="string">'Per cent'</span>)
+  title(<span class="string">'RW Risk Premia'</span>)
+  axis <span class="string">tight</span>
+
+<span class="keyword">end</span>;
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% getRiskPremia.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This method (on the _nelsonSiegel_ class) estimates term premium at each relevant yield curve tenor for simulations
+
+%% Method Syntax
+function TT=getRiskPremia(ns,data)
+%%
+% _ns_ : method is applied to 'nelsonSiegel' class
+%
+% _data_ : structure containing simulated zero-coupon yields
+%
+% _TT_ : matrix of simulated term premia
+%
+% For term premium computations, simulated 25-year zero rate is taken as 30-year rate, and simulated 30-year rate is taken as 32-year rate
+
+
+%% 1. Set Up
+simTenor = get(ns,'simTenor');  
+ttm=linspace(min(simTenor),max(simTenor),...
+	     (max(simTenor)-min(simTenor))/min(simTenor)+1);
+
+para = get(ns,'parameters');    %get model parameters
+K=size(para.X,1);
+for(i=1:get(ns,'dim'))  %compute factor loadings
+  H(:,i) = ns_basis(ttm,i,1/2.5)';
+end
+H=[H zeros(length(H),K-get(ns,'dim'))];  
+
+N=get(ns,'simT')*get(ns,'simN');  %number of quarters simulated
+M=get(ns,'numSims');    %number of simulations
+
+% Initialize matrices 
+F=zeros(N,size(ttm,2),M);
+Zb=zeros(N,size(ttm,2),M);
+Zhat=zeros(N,size(ttm,2),M);
+T=zeros(N,size(ttm,2),M);
+T1=zeros(N,size(ttm,2),M);
+
+
+%% 2. Compute term premia for VAR(1) model
+if get(ns,'lags')==1;
+
+  for p=1:M
+    for i=1:N
+      Zb(i,:,p)=interp1(simTenor,data.Z(i,:,p)',ttm,'spline');  %interpolated quarterly zero rates
+      F(i,:,p)=forward(Zb(i,:,p),ttm);  %compute the forward rates (1-year) 
+      X=[];
+      
+      %Estimate historical rates fitted to VAR model, for term premium computation
+      for j=1:12
+	if j==1;
+	  X=para.B(:,1) + para.B(:,2:end)*data.X(i,:,p)';
+	else
+	  X=para.B(:,1) + para.B(:,2:end)*X;    
+	end
+      end
+      Zhat(i,:,p)=(H*X)';   %forecasted rates (1-year forward)
+      T(i,:,p)=F(i,:,p)-Zhat(i,:,p);    % term premia estimate (model), not used
+      T1(i,:,p)=F(i,:,p)-Zb(i,:,p); % term-premia estimate (random walk)
+    end  
+  end
+
+  
+%% 3. Compute term premia for VAR(2) model  
+elseif get(ns,'lags')==2
+  
+  for p=1:M;
+    for i=1:N
+      Zb(i,:,p)=interp1(simTenor,data.Z(i,:,p)',ttm,'spline');
+      F(i,:,p)=forward(Zb(i,:,p),ttm);
+      X=[];
+      for j=1:12
+	if j==1;
+	  X(:,j)=para.B(:,1) + para.B(:,2:K+1)*data.X(i,:,p)' ...
+		 + para.B(:,K+2:2*K+1)*para.X(:,end);
+	elseif j==2;
+	  X(:,j)=para.B(:,1) + para.B(:,2:K+1)*X(:,j-1) ...
+		 + para.B(:,K+2:2*K+1)*data.X(i,:,p)';	
+	else
+	  X(:,j)=para.B(:,1) + para.B(:,2:K+1)*X(:,j-1) ...
+		 + para.B(:,K+2:2*K+1)*X(:,j-2);		
+	end
+      end
+      Zhat(i,:,p)=(H*X(:,end))';
+      T(i,:,p)=F(i,:,p)-Zhat(i,:,p);    % term premia estimate (model)
+      T1(i,:,p)=F(i,:,p)-Zb(i,:,p);     % term-premia estimate (random walk)
+    end  
+  end
+end
+
+
+%% 4. Save term premia for relevant points on zero curve
+for k=1:M
+  TT(:,:,k) = interp1(ttm,T1(:,:,k)',simTenor)';
+end
+
+
+%% 5. Create Plots
+makeGraph=0;
+if makeGraph==1;
+  
+  subplot(2,2,1)
+  plot(ttm,100*mean(mean(Zb,3)),'b')
+  hold on
+  plot(ttm,100*mean(mean(F,3)),'r')
+  plot(ttm,100*mean(mean(Zhat,3)),'g')
+  hold off
+  xlabel('Tenor (yrs.)')
+  ylabel('Per cent')
+  legend('Current zero','Forward','Forecast zero', ...
+	 'Location','Best'); 
+  axis([0.25 32 2 5]);
+  title('Curves')
+  
+  subplot(2,2,2)
+  plot(ttm,1e4*mean(mean(T,3)),'r')
+  hold on  
+  plot(ttm,1e4*mean(mean(T1,3)),'g')
+  hold off
+  legend('Model','RW','Location','Best')
+  axis([0.25 32 -70 70]);
+  title('Risk Premia')
+
+  subplot(2,2,3)
+  surf(2007+(1/4)*linspace(1,N,N),ttm,1e4*mean(T,3)')
+  colormap('summer')
+  xlabel('Time (yrs.)')
+  ylabel('Tenor (yrs.')
+  ylabel('Per cent')
+  title('Model Risk Premia')
+  axis tight
+  
+  subplot(2,2,4)
+  surf(2007+(1/4)*linspace(1,N,N),ttm,1e4*mean(T1,3)')
+  colormap('summer')
+  xlabel('Time (yrs.)')
+  ylabel('Tenor (yrs.')
+  ylabel('Per cent')
+  title('RW Risk Premia')
+  axis tight
+  
+end;
+
+
+
+##### SOURCE END #####
+--></body></html>

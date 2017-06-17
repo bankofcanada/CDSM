@@ -1,0 +1,239 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>getVarParameters_new.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="getVarParameters_new.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>getVarParameters_new.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This function computes the parameters of a VAR(p) model based on historical data, with the specified settings</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Function Syntax</a></li><li><a href="#3">1. Set up</a></li><li><a href="#4">2. Estimate coefficients of VAR(p) model (excluding the constants), by regressing the combined time series of historical variables on their lagged combined time series (up to lag p)</a></li><li><a href="#5">3. Adjust VAR(p) coefficients for exogenous variables, if applicable</a></li><li><a href="#6">4. Set an alternate value (instead of long-term mean) for variables to center around, if applicable</a></li><li><a href="#7">5. Set the constant vector of VAR(p) model such that process is stationary around long-term mean (or alternate value)</a></li><li><a href="#8">6. Compute VAR error and significance measures</a></li></ul></div><h2>Function Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> s=getVarParameters_new(Y,k,lag,LTM,exo,newMean)
+</pre><p><i>Y</i> : Combined historical time series of Nelson-Siegel yield curve factors and macro variables</p><p><i>k</i> : number of variables in the VAR(p) model</p><p><i>lag</i> : lag of the VAR model, i.e. p</p><p><i>LTM</i> : pre-set vector of each variable's long-term mean, optional input</p><p><i>exo</i> : index of exogenous variable(s), optional input</p><p><i>newMean</i> : alternate long-term means, optional input</p><p><i>s</i> : matrix of computed VAR(p) parameters, [c A_1 ... A_p]</p><h2>1. Set up<a name="3"></a></h2><pre class="codeinput">N=length(Y);    <span class="comment">%number of months of historical data</span>
+lagStep=[1:lag];    <span class="comment">%vector from 1 to number of lags</span>
+
+<span class="comment">%Ensure correct dimensionality</span>
+nlag=lag;
+<span class="keyword">if</span> length(lag)&gt;1
+  lagStep=lag;
+  nlag=length(lag);
+  lag=max(lagStep);
+<span class="keyword">end</span>
+<span class="keyword">if</span> size(Y,1)&lt;size(Y,2)
+  Y=Y';
+<span class="keyword">end</span>
+
+<span class="comment">%If no long-term mean vector set for LTM, use mean of historical data</span>
+<span class="keyword">if</span> nargin &lt; 4
+  LTM = mean(Y);
+<span class="keyword">elseif</span> size(LTM,1)&gt;size(LTM,2)
+  LTM=LTM';
+<span class="keyword">end</span>
+
+<span class="comment">%If no exogenous variables set for exo, that variable is NULL</span>
+<span class="keyword">if</span> nargin &lt; 5
+  exo = [];
+<span class="keyword">end</span>
+
+<span class="comment">%If no alternate mean vector set for newMean, that variable is NULL</span>
+<span class="keyword">if</span> nargin &lt; 6
+    newMean = [];
+<span class="keyword">end</span>
+</pre><h2>2. Estimate coefficients of VAR(p) model (excluding the constants), by regressing the combined time series of historical variables on their lagged combined time series (up to lag p)<a name="4"></a></h2><p>Variables for regression are redefined in terms of difference from long-term mean, with no constant vector, so that VAR is stationary around LTM</p><pre class="codeinput">X = [ones(N-lag,1)];
+X_= [];
+<span class="keyword">for</span> tt=lagStep
+  X = [X  Y(lag-tt+1:end-tt,:)];    <span class="comment">%matrix of lagged combined time series for lags 1,...,p (with constant vector)</span>
+  X_= [X_ Y(lag-tt+1:end-tt,:)-LTM(ones(N-lag,1),:)];   <span class="comment">%matrix in terms of difference from long-term mean, no constant vector</span>
+<span class="keyword">end</span>
+
+Y = Y(lag+1:end,:); <span class="comment">%matrix of combined time series (first p terms removed, with constant vector)</span>
+Y_= Y-LTM(ones(N-lag,1),:); <span class="comment">%matrix in terms of difference from long-term mean, no constant vector</span>
+
+s.B_=inv(X_'*X_)*X_'*Y_;    <span class="comment">%compute VAR coefficients</span>
+</pre><h2>3. Adjust VAR(p) coefficients for exogenous variables, if applicable<a name="5"></a></h2><pre class="codeinput"><span class="keyword">for</span> idx = exo
+  s.B_(:,idx)=0;    <span class="comment">%other lagged variables have no effect on exogenous variable</span>
+  s.B_(idx,idx)=inv(X_(:,idx)'*X_(:,idx))*X_(:,idx)'*Y_(:,idx);     <span class="comment">%exogenous variable has AR(p) process</span>
+<span class="keyword">end</span>
+</pre><h2>4. Set an alternate value (instead of long-term mean) for variables to center around, if applicable<a name="6"></a></h2><pre class="codeinput">simLTM=LTM;
+<span class="keyword">for</span> nm = 1:length(newMean)
+    <span class="keyword">if</span> ~isnan(newMean(nm))
+        simLTM(nm) = newMean(nm);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>5. Set the constant vector of VAR(p) model such that process is stationary around long-term mean (or alternate value)<a name="7"></a></h2><pre class="codeinput">s.B=[simLTM-repmat(simLTM,1,nlag)*s.B_; s.B_]';
+</pre><h2>6. Compute VAR error and significance measures<a name="8"></a></h2><pre class="codeinput">N=length(Y);
+
+resid = (Y-X*s.B'); <span class="comment">%matrix of residuals</span>
+s.Omega=(Y-X*s.B')'*(Y-X*s.B')/(N-k*nlag-1);     <span class="comment">%correlation matrix of error terms</span>
+s.Q=(X'*X)/(N-k*nlag-1);
+s.h=sqrt(diag(kron(s.Omega,inv(s.Q)))/(N-k*nlag-1));
+vecB=reshape(s.B',length(s.h),1);
+s.LTM=LTM;
+s.simLTM=simLTM;
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% getVarParameters_new.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This function computes the parameters of a VAR(p) model based on historical data, with the specified settings  
+
+%% Function Syntax
+function s=getVarParameters_new(Y,k,lag,LTM,exo,newMean)
+%%
+% _Y_ : Combined historical time series of Nelson-Siegel yield curve factors and macro variables
+%
+% _k_ : number of variables in the VAR(p) model
+%
+% _lag_ : lag of the VAR model, i.e. p
+%
+% _LTM_ : pre-set vector of each variable's long-term mean, optional input
+%
+% _exo_ : index of exogenous variable(s), optional input
+%
+% _newMean_ : alternate long-term means, optional input
+%
+% _s_ : matrix of computed VAR(p) parameters, [c A_1 ... A_p] 
+
+
+%% 1. Set up
+N=length(Y);    %number of months of historical data   
+lagStep=[1:lag];    %vector from 1 to number of lags
+
+%Ensure correct dimensionality
+nlag=lag;
+if length(lag)>1
+  lagStep=lag;
+  nlag=length(lag);
+  lag=max(lagStep);
+end
+if size(Y,1)<size(Y,2)
+  Y=Y';
+end
+
+%If no long-term mean vector set for LTM, use mean of historical data 
+if nargin < 4    
+  LTM = mean(Y); 
+elseif size(LTM,1)>size(LTM,2)
+  LTM=LTM';
+end
+
+%If no exogenous variables set for exo, that variable is NULL
+if nargin < 5   
+  exo = [];
+end
+
+%If no alternate mean vector set for newMean, that variable is NULL
+if nargin < 6
+    newMean = [];   
+end
+
+
+%% 2. Estimate coefficients of VAR(p) model (excluding the constants), by regressing the combined time series of historical variables on their lagged combined time series (up to lag p) 
+% Variables for regression are redefined in terms of difference from long-term mean, with no constant vector, so that VAR is stationary around LTM 
+
+X = [ones(N-lag,1)];
+X_= [];
+for tt=lagStep
+  X = [X  Y(lag-tt+1:end-tt,:)];    %matrix of lagged combined time series for lags 1,...,p (with constant vector)
+  X_= [X_ Y(lag-tt+1:end-tt,:)-LTM(ones(N-lag,1),:)];   %matrix in terms of difference from long-term mean, no constant vector
+end
+
+Y = Y(lag+1:end,:); %matrix of combined time series (first p terms removed, with constant vector) 
+Y_= Y-LTM(ones(N-lag,1),:); %matrix in terms of difference from long-term mean, no constant vector
+
+s.B_=inv(X_'*X_)*X_'*Y_;    %compute VAR coefficients 
+
+
+%% 3. Adjust VAR(p) coefficients for exogenous variables, if applicable
+for idx = exo
+  s.B_(:,idx)=0;    %other lagged variables have no effect on exogenous variable
+  s.B_(idx,idx)=inv(X_(:,idx)'*X_(:,idx))*X_(:,idx)'*Y_(:,idx);     %exogenous variable has AR(p) process
+end
+
+
+%% 4. Set an alternate value (instead of long-term mean) for variables to center around, if applicable
+simLTM=LTM;
+for nm = 1:length(newMean)
+    if ~isnan(newMean(nm))
+        simLTM(nm) = newMean(nm);
+    end
+end
+
+
+%% 5. Set the constant vector of VAR(p) model such that process is stationary around long-term mean (or alternate value)
+s.B=[simLTM-repmat(simLTM,1,nlag)*s.B_; s.B_]'; 
+
+
+%% 6. Compute VAR error and significance measures
+N=length(Y);    
+
+resid = (Y-X*s.B'); %matrix of residuals 
+s.Omega=(Y-X*s.B')'*(Y-X*s.B')/(N-k*nlag-1);     %correlation matrix of error terms
+s.Q=(X'*X)/(N-k*nlag-1);
+s.h=sqrt(diag(kron(s.Omega,inv(s.Q)))/(N-k*nlag-1));
+vecB=reshape(s.B',length(s.h),1);
+s.LTM=LTM;
+s.simLTM=simLTM;
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,178 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>viewSimulation.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="viewSimulation.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>viewSimulation.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>stochasticModel</i> class) prints a high-level summary of the simulation results.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Define variables for output</a></li><li><a href="#4">2. Print results</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> viewSimulation(sm,data);
+</pre><p><i>sm</i> : method is applied to <i>stochasticModel</i> class</p><p><i>data</i> : structure with the monthly simulated variables</p><h2>1. Define variables for output<a name="3"></a></h2><pre class="codeinput"><span class="keyword">for</span> i=1:length(get(sm,<span class="string">'simTenor'</span>)); <span class="comment">%zero-coupon rates</span>
+  mZ(i,:)=mean(squeeze(data.Z(:,i,:)));
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> i=1:size(data.X,2); <span class="comment">%macroeconomic variables</span>
+  mX(i,:)=mean(squeeze(data.X(:,i,:)));
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> isa(sm,<span class="string">'fourierSeries'</span>); <span class="comment">%macroeconomic variables for alternate models</span>
+  mX = mX(get(sm,<span class="string">'dim'</span>)+1:get(sm,<span class="string">'dim'</span>)+6,:);
+<span class="keyword">elseif</span> isa(sm,<span class="string">'obsAffine'</span>);
+    mX = mX(get(sm,<span class="string">'dim'</span>)+1:get(sm,<span class="string">'dim'</span>)+3,:);
+<span class="keyword">elseif</span> isa(sm,<span class="string">'exponentialSpline'</span>);
+  mX = mX(get(sm,<span class="string">'dim'</span>)+1:get(sm,<span class="string">'dim'</span>)+4,:);
+<span class="keyword">else</span>;
+  mX = mX(4:9,:);
+<span class="keyword">end</span>
+</pre><h2>2. Print results<a name="4"></a></h2><p>First two moments (mean, standard deviation) and maximum/minimum for yields and macro variables</p><pre class="codeinput">disp(sprintf(<span class="string">'    Some Summary Statistics for Output Data'</span>));
+disp(sprintf(<span class="string">'    ----------------------------------------------'</span>));
+disp(sprintf(<span class="string">'    TTM       MEAN      STD       MIN       MAX'</span>));
+disp(sprintf(<span class="string">'    ----------------------------------------------'</span>));
+disp([get(sm,<span class="string">'simTenor'</span>)' 100*mean(mZ')' 100*std(mZ')' 100*min(mZ')' <span class="keyword">...</span>
+      100*max(mZ')']);
+disp(sprintf(<span class="string">'    ----------------------------------------------'</span>));
+disp(sprintf([<span class="string">'    Number of Simulations: '</span> <span class="keyword">...</span>
+	      num2str(get(sm,<span class="string">'numSims'</span>))]));
+disp(sprintf([<span class="string">'    Simulation years: '</span> num2str(get(sm,<span class="string">'simT'</span>))]));
+disp(sprintf([<span class="string">'    Simulation frequency: '</span> num2str(get(sm,<span class="string">'simN'</span>))]));
+disp(sprintf(<span class="string">'    ----------------------------------------------'</span>));
+A=[100*mean(mX')' 100*std(mX')' 100*min(mX')' 100*max(mX')'];
+disp(sprintf(<span class="string">'                 MEAN   STD    MIN    MAX'</span>));
+disp(sprintf(<span class="string">'    ----------------------------------------------'</span>));
+disp(sprintf(<span class="string">'    Real GDP:    %0.2f  %0.2f  %0.2f  %0.2f'</span>,A(6,:)));
+disp(sprintf(<span class="string">'    Inflation:   %0.2f  %0.2f  %0.2f  %0.2f'</span>,A(5,:)));
+
+<span class="keyword">if</span> ~isa(sm,<span class="string">'angPiazzesi'</span>)
+  disp(sprintf(<span class="string">'    Target Rate: %0.2f  %0.2f  %0.2f  %0.2f'</span>,A(3,:)));
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> ~isa(sm,<span class="string">'obsAffine'</span>)
+  disp(sprintf(<span class="string">'    Output Gap:  %0.2f  %0.2f  %0.2f  %0.2f'</span>,A(1,:)));
+<span class="keyword">end</span>;
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% viewSimulation.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This method (on the _stochasticModel_ class) prints a high-level summary of the simulation results.
+
+%% Method Syntax
+function viewSimulation(sm,data);
+%%
+% _sm_ : method is applied to _stochasticModel_ class
+%
+% _data_ : structure with the monthly simulated variables
+
+ 
+%% 1. Define variables for output
+for i=1:length(get(sm,'simTenor')); %zero-coupon rates
+  mZ(i,:)=mean(squeeze(data.Z(:,i,:)));
+end
+
+for i=1:size(data.X,2); %macroeconomic variables
+  mX(i,:)=mean(squeeze(data.X(:,i,:)));  
+end
+
+if isa(sm,'fourierSeries'); %macroeconomic variables for alternate models
+  mX = mX(get(sm,'dim')+1:get(sm,'dim')+6,:);
+elseif isa(sm,'obsAffine');
+    mX = mX(get(sm,'dim')+1:get(sm,'dim')+3,:);
+elseif isa(sm,'exponentialSpline');
+  mX = mX(get(sm,'dim')+1:get(sm,'dim')+4,:);
+else;
+  mX = mX(4:9,:);
+end
+
+
+%% 2. Print results
+% First two moments (mean, standard deviation) and maximum/minimum for yields and macro variables
+disp(sprintf('    Some Summary Statistics for Output Data'));  
+disp(sprintf('    REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH'));  
+disp(sprintf('    TTM       MEAN      STD       MIN       MAX'));  
+disp(sprintf('    REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH'));  
+disp([get(sm,'simTenor')' 100*mean(mZ')' 100*std(mZ')' 100*min(mZ')' ...
+      100*max(mZ')']);
+disp(sprintf('    REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH'));  
+disp(sprintf(['    Number of Simulations: ' ...
+	      num2str(get(sm,'numSims'))]));  
+disp(sprintf(['    Simulation years: ' num2str(get(sm,'simT'))]));  
+disp(sprintf(['    Simulation frequency: ' num2str(get(sm,'simN'))]));  
+disp(sprintf('    REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH'));  
+A=[100*mean(mX')' 100*std(mX')' 100*min(mX')' 100*max(mX')'];
+disp(sprintf('                 MEAN   STD    MIN    MAX'));  
+disp(sprintf('    REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH'));  
+disp(sprintf('    Real GDP:    %0.2f  %0.2f  %0.2f  %0.2f',A(6,:)));  
+disp(sprintf('    Inflation:   %0.2f  %0.2f  %0.2f  %0.2f',A(5,:)));  
+
+if ~isa(sm,'angPiazzesi')
+  disp(sprintf('    Target Rate: %0.2f  %0.2f  %0.2f  %0.2f',A(3,:)));  
+end
+
+if ~isa(sm,'obsAffine')
+  disp(sprintf('    Output Gap:  %0.2f  %0.2f  %0.2f  %0.2f',A(1,:)));  
+end;
+##### SOURCE END #####
+--></body></html>

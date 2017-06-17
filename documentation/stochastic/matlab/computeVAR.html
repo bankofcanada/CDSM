@@ -1,0 +1,392 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>computeVAR.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="computeVAR.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>computeVAR.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the parent <i>stochasticModel</i> class) computes the parameters for vector autoregression (VAR) based on historical data</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Combine Nelson-Siegel yield curve variables and macro variables into master file of monthly historical variables</a></li><li><a href="#4">2. Estimate VAR(p) parameters for model without options</a></li><li><a href="#5">3. Compute stationary means from VAR(p) model above to use as baseline long-term means for each variable (if not pre-set), will be same as historical average</a></li><li><a href="#6">4. Estimate VAR(p) parameters for model with the specified options</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [ para , X ] = computeVAR(sm, finX, varargin)
+</pre><p><i>sm</i> : method is applied to 'stochasticModel' class</p><p><i>finX</i> : historical time series of three Nelson-Siegel factors</p><p><i>varargin</i> : optional inputs for VAR estimation settings, carried over from 'estimate_new' inputs</p><p><i>para</i> : structure of VAR parameters to update, stored in 'nelsonSiegel' class</p><p><i>X</i> : master file of monthly historical variables</p><h2>1. Combine Nelson-Siegel yield curve variables and macro variables into master file of monthly historical variables<a name="3"></a></h2><pre class="codeinput">X=[finX; get(sm,<span class="string">'macro_data'</span>)];
+</pre><h2>2. Estimate VAR(p) parameters for model without options<a name="4"></a></h2><p><i>See <a href="getVarParameters_new.html">getVarParameters_new</a></i></p><pre class="codeinput">K = size(X,1);
+para=getVarParameters_new(X',size(X,1),get(sm,<span class="string">'lags'</span>));
+</pre><h2>3. Compute stationary means from VAR(p) model above to use as baseline long-term means for each variable (if not pre-set), will be same as historical average<a name="5"></a></h2><pre class="codeinput"><span class="keyword">if</span> get(sm,<span class="string">'lags'</span>) == 1  <span class="comment">%p = 1 case</span>
+  LTM=inv(eye(K)-para.B(:,2:K+1))*para.B(:,1);
+<span class="keyword">elseif</span> get(sm,<span class="string">'lags'</span>) ==2   <span class="comment">%p = 2 case</span>
+  LTM=inv(eye(K)-para.B(:,2:K+1)-para.B(:,K+2:2*K+1))*para.B(:,1);
+<span class="keyword">elseif</span> get(sm,<span class="string">'lags'</span>) ==6   <span class="comment">%p = 6 case</span>
+  LTM=inv(eye(K)-para.B(:,2:K+1)-para.B(:,K+2:2*K+1)-para.B(:,2*K+2:3*K+1)-para.B(:,3*K+2:4*K+1)-para.B(:,4*K+2:5*K+1)-para.B(:,5*K+2:6*K+1))*para.B(:,1);
+<span class="keyword">end</span>
+<span class="keyword">if</span> max(abs(LTM-mean(X,2)))&gt;1E-6,    <span class="comment">%verify that LTMs are at the sample average</span>
+ warning(<span class="string">'??? Unconditional LTM is not sample average. Might be wrong! '</span>);
+<span class="keyword">end</span>
+simLTM=LTM;
+</pre><h2>4. Estimate VAR(p) parameters for model with the specified options<a name="6"></a></h2><pre class="codeinput">optionsInputs = varargin;
+ss=1;
+<span class="keyword">while</span> ss &lt;= length(optionsInputs)   <span class="comment">%loops through all option inputs</span>
+  <span class="keyword">switch</span> upper(  optionsInputs{ss}  )
+
+    <span class="keyword">case</span> <span class="string">'LTM'</span>  <span class="comment">%Use the value in pre-set matrix (instead of historical average) for long-term means</span>
+      LTMinput = optionsInputs{ss+1};
+      replaceidx = find(~isnan( LTMinput ) );
+      LTM( replaceidx ) = LTMinput( replaceidx );
+      simLTM = LTM;
+      para = getVarParameters_new(X',K,get(sm,<span class="string">'lags'</span>),LTM(1:size(X,1)),[],simLTM(1:size(X,1)));
+
+    <span class="keyword">case</span> <span class="string">'SIMLTM'</span>   <span class="comment">%Center VAR model on value besides long-term mean - currently set as the same</span>
+      simLTM = optionsInputs{ss+1};
+      size(X,1)
+      size(simLTM)
+      size(LTM)
+      para = getVarParameters_new(X',K,get(sm,<span class="string">'lags'</span>),LTM(1:size(X,1)),[],simLTM(1:size(X,1)));
+      simLTM(1:size(X,1)) = para.simLTM;
+
+    <span class="keyword">case</span> <span class="string">'EXO'</span>  <span class="comment">%Adjust VAR parameters for exogenous variables</span>
+      exoIdx = optionsInputs{ss+1};
+      para = getVarParameters_new(X',K,get(sm,<span class="string">'lags'</span>),LTM(1:size(X,1)),exoIdx,simLTM(1:size(X,1)));
+
+    <span class="keyword">case</span> <span class="string">'FLIP'</span> <span class="comment">%Flip the position of two variables</span>
+      idx = optionsInputs{ss+1};
+      LTM(idx) = LTM(idx([2,1]));
+      para.LTM(idx) = para.LTM(idx([2,1]));
+      X( idx,: ) = X( idx([2,1]),: );
+      para.B( idx,: )   = para.B( idx([2,1]),: );
+      para.B( :,idx+1 ) = para.B( :,idx([2,1])+1 );
+      <span class="keyword">if</span> get(sm,<span class="string">'lags'</span>)==2
+        para.B( :,idx+K+1 ) = para.B( :,idx([2,1])+K+1 );
+        para.B( idx+K,: )   = para.B( idx([2,1])+K,: );
+      <span class="keyword">end</span>
+      para.Omega( :,idx ) = para.Omega( :,idx([2,1]) );
+      para.Omega( idx,: ) = para.Omega( idx([2,1]),: );
+      <span class="keyword">if</span> isfield(para,<span class="string">'Chol'</span>)
+        para.Chol( :,idx ) = para.Chol( :,idx([2,1]) );
+        para.Chol( idx,: ) = para.Chol( idx([2,1]),: );
+      <span class="keyword">end</span>
+      <span class="keyword">if</span> isfield(para,<span class="string">'X'</span>)
+        para.X( idx,: ) = para.X( idx([2,1]),: );
+      <span class="keyword">end</span>
+
+    <span class="keyword">case</span> <span class="string">'CONTEMP'</span>  <span class="comment">%Extend the VAR model for new total inflation variable (INFL), contemporaneous with core inflation</span>
+      COREidx = optionsInputs{ss+1};
+      INFL=optionsInputs{ss+2}';
+      CORE=X(COREidx,:)';
+      <span class="keyword">if</span> size(INFL,1)&lt;size(INFL,2), INFL=INFL'; <span class="keyword">end</span>
+      <span class="keyword">if</span> size(X,1)==length(LTM), LTM(end+1)=mean(INFL); <span class="keyword">end</span>
+      <span class="keyword">if</span> INFL==CORE,
+        error(<span class="string">'INFL == CORE, change M matrix'</span>);
+      <span class="keyword">end</span>
+
+      <span class="comment">%Estimate a separate VAR to compute effect on total inflation (INFL) of: (1) its own lag, and (2) contemporaneous core inflation</span>
+      pinf=getVarParameters_new([CORE(2:end) INFL(1:end-1)],2,get(sm,<span class="string">'lags'</span>)<span class="keyword">...</span>
+                               ,LTM([COREidx,end]));
+
+      <span class="comment">%Compute coefficients in main VAR(p) for new INFL variable; INFL does not affect other variables</span>
+      B=zeros(1,(K+1)*get(sm,<span class="string">'lags'</span>)+1);
+      B(1:(K+1))=para.B(COREidx,1:(K+1))*pinf.B(2,2);   <span class="comment">%Other variables' lagged effect on INFL is multiple (based on that separate VAR) of their effect on contemporaneous CORE</span>
+      B(1)=B(1)+pinf.B(2,1);    <span class="comment">%Add constant term</span>
+      B(K+2)=pinf.B(2,3);   <span class="comment">%Effect of its own lag</span>
+      <span class="keyword">if</span> get(sm,<span class="string">'lags'</span>)==2  <span class="comment">%p = 2 case</span>
+        B(K+3:2*K+2)=para.B(COREidx,K+2:(2*K+1))*pinf.B(2,2);
+        B(COREidx+1)=B(COREidx+1)+pinf.B(2,4);
+        B(2*K+3)=pinf.B(2,5);
+      <span class="keyword">end</span>
+      <span class="keyword">if</span> get(sm,<span class="string">'lags'</span>)==6  <span class="comment">%p = 6 case</span>
+
+        B(K+3:2*K+2)=para.B(COREidx,K+2:(2*K+1))*pinf.B(2,2);
+        B(COREidx+1)=B(COREidx+1)+pinf.B(2,4);
+        B(2*K+3)=pinf.B(2,5);
+
+        B(2*K+4:3*K+3)=para.B(COREidx,2*K+2:(3*K+1))*pinf.B(2,2);
+        B(COREidx+2)=B(COREidx+2)+pinf.B(2,6);
+        B(3*K+4)=pinf.B(2,7);
+
+        B(3*K+5:4*K+4)=para.B(COREidx,3*K+2:(4*K+1))*pinf.B(2,2);
+        B(COREidx+3)=B(COREidx+3)+pinf.B(2,8);
+        B(4*K+5)=pinf.B(2,9);
+
+        B(4*K+6:5*K+5)=para.B(COREidx,4*K+2:(5*K+1))*pinf.B(2,2);
+        B(COREidx+4)=B(COREidx+4)+pinf.B(2,10);
+        B(5*K+6)=pinf.B(2,11);
+
+        B(5*K+7:6*K+6)=para.B(COREidx,5*K+2:(6*K+1))*pinf.B(2,2);
+        B(COREidx+5)=B(COREidx+5)+pinf.B(2,12);
+        B(6*K+7)=pinf.B(2,13);
+      <span class="keyword">end</span>
+
+      <span class="comment">%Adjust the cholesky decomposition of the covariance matrix to incorporate the new contemporaneous variable</span>
+       diag(para.Omega)
+      C=chol(para.Omega)';
+      Cinf=chol(pinf.Omega)';
+      C(end+1,end+1)=0;
+      C(end,1:end-1)=C(COREidx,1:end-1)*pinf.B(2,2);
+      C(end,end)=Cinf(end,end);
+      C(end,COREidx)=C(end,COREidx)+Cinf(2,1);
+
+      <span class="comment">%Extend the main VAR(p) parameters with coefficients for new INFL</span>
+      b=para.B;
+      <span class="keyword">if</span> get(sm,<span class="string">'lags'</span>) == 1    <span class="comment">%p = 1 case</span>
+        b(end+1,end+1)=0;
+        b(end,:)=B;
+      <span class="keyword">end</span>
+      <span class="keyword">if</span> get(sm,<span class="string">'lags'</span>) == 2    <span class="comment">%p = 2 case</span>
+        b=[b(:,1:K+1) zeros(K,1) b(:,K+2:end) zeros(K,1)];
+        b(end+1,:)=B;
+      <span class="keyword">end</span>
+      <span class="keyword">if</span> get(sm,<span class="string">'lags'</span>) == 6    <span class="comment">%p = 6 case</span>
+        b=[b(:,1:K+1) zeros(K,1) b(:,K+2:2*K+1) zeros(K,1) b(:,2*K+2:3*K+1) zeros(K,1) b(:,3*K+2:4*K+1) zeros(K,1) b(:,4*K+2:5*K+1) zeros(K,1) b(:,5*K+2:end) zeros(K,1) ];
+        b(end+1,:)=B;
+      <span class="keyword">end</span>
+      para.Omega(end+1,end+1)=pinf.Omega(end,end);
+      para.Chol = C;
+      para.B=b;
+      K=K+1;
+      X(end+1,:)=INFL;
+      ss=ss+1;
+  <span class="keyword">end</span>
+
+  <span class="comment">%Store long-term means in structure of VAR parameters</span>
+  para.LTM = LTM;
+  para.simLTM = simLTM;
+  ss=ss+2;
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% computeVAR.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This method (on the parent _stochasticModel_ class) computes the parameters for vector autoregression (VAR) based on historical data
+
+%% Method Syntax
+function [ para , X ] = computeVAR(sm, finX, varargin)
+%%
+% _sm_ : method is applied to 'stochasticModel' class
+%
+% _finX_ : historical time series of three Nelson-Siegel factors
+%
+% _varargin_ : optional inputs for VAR estimation settings, carried over from 'estimate_new' inputs
+%
+% _para_ : structure of VAR parameters to update, stored in 'nelsonSiegel' class 
+%
+% _X_ : master file of monthly historical variables
+
+
+%% 1. Combine Nelson-Siegel yield curve variables and macro variables into master file of monthly historical variables
+X=[finX; get(sm,'macro_data')];
+
+
+%% 2. Estimate VAR(p) parameters for model without options
+%
+% _See <getVarParameters_new.html getVarParameters_new>_
+K = size(X,1);
+para=getVarParameters_new(X',size(X,1),get(sm,'lags'));
+
+
+%% 3. Compute stationary means from VAR(p) model above to use as baseline long-term means for each variable (if not pre-set), will be same as historical average 
+if get(sm,'lags') == 1  %p = 1 case  
+  LTM=inv(eye(K)-para.B(:,2:K+1))*para.B(:,1);
+elseif get(sm,'lags') ==2   %p = 2 case
+  LTM=inv(eye(K)-para.B(:,2:K+1)-para.B(:,K+2:2*K+1))*para.B(:,1);
+elseif get(sm,'lags') ==6   %p = 6 case
+  LTM=inv(eye(K)-para.B(:,2:K+1)-para.B(:,K+2:2*K+1)-para.B(:,2*K+2:3*K+1)-para.B(:,3*K+2:4*K+1)-para.B(:,4*K+2:5*K+1)-para.B(:,5*K+2:6*K+1))*para.B(:,1);
+end
+if max(abs(LTM-mean(X,2)))>1E-6,    %verify that LTMs are at the sample average
+ warning('??? Unconditional LTM is not sample average. Might be wrong! ');
+end
+simLTM=LTM;
+
+
+%% 4. Estimate VAR(p) parameters for model with the specified options
+optionsInputs = varargin;
+ss=1;
+while ss <= length(optionsInputs)   %loops through all option inputs
+  switch upper(  optionsInputs{ss}  )
+
+    case 'LTM'  %Use the value in pre-set matrix (instead of historical average) for long-term means 
+      LTMinput = optionsInputs{ss+1};
+      replaceidx = find(~isnan( LTMinput ) );
+      LTM( replaceidx ) = LTMinput( replaceidx );
+      simLTM = LTM;
+      para = getVarParameters_new(X',K,get(sm,'lags'),LTM(1:size(X,1)),[],simLTM(1:size(X,1)));
+
+    case 'SIMLTM'   %Center VAR model on value besides long-term mean - currently set as the same
+      simLTM = optionsInputs{ss+1};
+      size(X,1)
+      size(simLTM)
+      size(LTM)
+      para = getVarParameters_new(X',K,get(sm,'lags'),LTM(1:size(X,1)),[],simLTM(1:size(X,1)));
+      simLTM(1:size(X,1)) = para.simLTM;
+
+    case 'EXO'  %Adjust VAR parameters for exogenous variables
+      exoIdx = optionsInputs{ss+1};
+      para = getVarParameters_new(X',K,get(sm,'lags'),LTM(1:size(X,1)),exoIdx,simLTM(1:size(X,1)));
+
+    case 'FLIP' %Flip the position of two variables
+      idx = optionsInputs{ss+1};
+      LTM(idx) = LTM(idx([2,1]));
+      para.LTM(idx) = para.LTM(idx([2,1]));
+      X( idx,: ) = X( idx([2,1]),: );
+      para.B( idx,: )   = para.B( idx([2,1]),: );
+      para.B( :,idx+1 ) = para.B( :,idx([2,1])+1 );
+      if get(sm,'lags')==2
+        para.B( :,idx+K+1 ) = para.B( :,idx([2,1])+K+1 );
+        para.B( idx+K,: )   = para.B( idx([2,1])+K,: );
+      end
+      para.Omega( :,idx ) = para.Omega( :,idx([2,1]) );
+      para.Omega( idx,: ) = para.Omega( idx([2,1]),: );
+      if isfield(para,'Chol')
+        para.Chol( :,idx ) = para.Chol( :,idx([2,1]) );
+        para.Chol( idx,: ) = para.Chol( idx([2,1]),: );
+      end
+      if isfield(para,'X')
+        para.X( idx,: ) = para.X( idx([2,1]),: );
+      end
+      
+    case 'CONTEMP'  %Extend the VAR model for new total inflation variable (INFL), contemporaneous with core inflation
+      COREidx = optionsInputs{ss+1};
+      INFL=optionsInputs{ss+2}';
+      CORE=X(COREidx,:)';
+      if size(INFL,1)<size(INFL,2), INFL=INFL'; end
+      if size(X,1)==length(LTM), LTM(end+1)=mean(INFL); end
+      if INFL==CORE,
+        error('INFL == CORE, change M matrix');
+      end
+      
+      %Estimate a separate VAR to compute effect on total inflation (INFL) of: (1) its own lag, and (2) contemporaneous core inflation 
+      pinf=getVarParameters_new([CORE(2:end) INFL(1:end-1)],2,get(sm,'lags')...
+                               ,LTM([COREidx,end])); 
+                           
+      %Compute coefficients in main VAR(p) for new INFL variable; INFL does not affect other variables
+      B=zeros(1,(K+1)*get(sm,'lags')+1);
+      B(1:(K+1))=para.B(COREidx,1:(K+1))*pinf.B(2,2);   %Other variables' lagged effect on INFL is multiple (based on that separate VAR) of their effect on contemporaneous CORE
+      B(1)=B(1)+pinf.B(2,1);    %Add constant term
+      B(K+2)=pinf.B(2,3);   %Effect of its own lag
+      if get(sm,'lags')==2  %p = 2 case
+        B(K+3:2*K+2)=para.B(COREidx,K+2:(2*K+1))*pinf.B(2,2);
+        B(COREidx+1)=B(COREidx+1)+pinf.B(2,4);
+        B(2*K+3)=pinf.B(2,5);
+      end
+      if get(sm,'lags')==6  %p = 6 case
+          
+        B(K+3:2*K+2)=para.B(COREidx,K+2:(2*K+1))*pinf.B(2,2);
+        B(COREidx+1)=B(COREidx+1)+pinf.B(2,4);
+        B(2*K+3)=pinf.B(2,5);
+          
+        B(2*K+4:3*K+3)=para.B(COREidx,2*K+2:(3*K+1))*pinf.B(2,2);
+        B(COREidx+2)=B(COREidx+2)+pinf.B(2,6);
+        B(3*K+4)=pinf.B(2,7); 
+        
+        B(3*K+5:4*K+4)=para.B(COREidx,3*K+2:(4*K+1))*pinf.B(2,2);
+        B(COREidx+3)=B(COREidx+3)+pinf.B(2,8);
+        B(4*K+5)=pinf.B(2,9); 
+       
+        B(4*K+6:5*K+5)=para.B(COREidx,4*K+2:(5*K+1))*pinf.B(2,2);
+        B(COREidx+4)=B(COREidx+4)+pinf.B(2,10);
+        B(5*K+6)=pinf.B(2,11);
+        
+        B(5*K+7:6*K+6)=para.B(COREidx,5*K+2:(6*K+1))*pinf.B(2,2);
+        B(COREidx+5)=B(COREidx+5)+pinf.B(2,12);
+        B(6*K+7)=pinf.B(2,13);
+      end
+      
+      %Adjust the cholesky decomposition of the covariance matrix to incorporate the new contemporaneous variable
+       diag(para.Omega)
+      C=chol(para.Omega)';
+      Cinf=chol(pinf.Omega)';
+      C(end+1,end+1)=0;
+      C(end,1:end-1)=C(COREidx,1:end-1)*pinf.B(2,2);
+      C(end,end)=Cinf(end,end);
+      C(end,COREidx)=C(end,COREidx)+Cinf(2,1);
+      
+      %Extend the main VAR(p) parameters with coefficients for new INFL
+      b=para.B;
+      if get(sm,'lags') == 1    %p = 1 case
+        b(end+1,end+1)=0;
+        b(end,:)=B;
+      end
+      if get(sm,'lags') == 2    %p = 2 case
+        b=[b(:,1:K+1) zeros(K,1) b(:,K+2:end) zeros(K,1)];
+        b(end+1,:)=B;
+      end
+      if get(sm,'lags') == 6    %p = 6 case
+        b=[b(:,1:K+1) zeros(K,1) b(:,K+2:2*K+1) zeros(K,1) b(:,2*K+2:3*K+1) zeros(K,1) b(:,3*K+2:4*K+1) zeros(K,1) b(:,4*K+2:5*K+1) zeros(K,1) b(:,5*K+2:end) zeros(K,1) ];
+        b(end+1,:)=B;
+      end
+      para.Omega(end+1,end+1)=pinf.Omega(end,end);
+      para.Chol = C;
+      para.B=b; 
+      K=K+1;
+      X(end+1,:)=INFL;
+      ss=ss+1;
+  end
+  
+  %Store long-term means in structure of VAR parameters  
+  para.LTM = LTM;
+  para.simLTM = simLTM;
+  ss=ss+2;
+end
+
+##### SOURCE END #####
+--></body></html>
