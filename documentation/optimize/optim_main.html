@@ -1,0 +1,291 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>optim_main.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-17"><meta name="DC.source" content="optim_main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>optim_main.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This script is run for the PRODUCE EFFICIENT FRONTIER step of the model. It uses the simulated training set of financing strategy evaluations (from DEBT CHARGE ENGINE) to curve-fit general functions of cost and risk for any strategy, and uses those functions to define an efficient frontier of cost-risk trade-off (between efficient strategies).</p><p>The optimization is done only over the 9 relevant instruments (as defined in <i>inst</i>), rather than the total from the training set.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Policy Inputs</a></li><li><a href="#2">1. Specify instruments, constraints, risk measure, and other settings</a></li><li><a href="#3">2. Load file with training set results</a></li><li><a href="#4">3. Define cost and risk metrics for each financing strategy (from training set results)</a></li><li><a href="#5">4. Define points of efficient frontier</a></li><li><a href="#6">5. Curve-fit general functions of cost and risk</a></li><li><a href="#7">6. Produce efficient frontier</a></li></ul></div><h2>Policy Inputs<a name="1"></a></h2><p>These variables are defined via internal policy decision and are set to --- here as a placeholder:</p><div><ul><li><i>issConst</i> (see Part 1) : minimum issuance constraints by instrument, in % terms (each term between 0 and 1, sum is less than 1)</li><li><i>rc</i> (see Part 1) : choice of risk measure to use in optimization (string, see <i>riskCon.m</i> for common measures)</li><li><i>k</i>, <i>endcon</i>, <i>step</i> (see Part 4): starting value, ending value, and interval of risk points evaluated for optimization</li></ul></div><h2>1. Specify instruments, constraints, risk measure, and other settings<a name="2"></a></h2><pre class="codeinput">inst = [ 1 2 3 4 5 6 8 9 13];   <span class="comment">%index of relevant sectors</span>
+nInst = size(inst,2);
+issConst = - [ --- --- --- --- --- --- --- --- ---];   <span class="comment">%minimum issuance constraint for each instrument</span>
+
+path(<span class="string">'../results/ns/'</span>,path)
+
+resultName= <span class="string">'_MMMYY_vname_block'</span>;    <span class="comment">%name of result files</span>
+mt = <span class="string">'OLS'</span>;  <span class="comment">% model used to curve-fit general cost/risk functions for strategies</span>
+rc = <span class="string">'---'</span>; <span class="comment">% risk metric used for the efficient frontier</span>
+ic = <span class="string">'IC'</span>; <span class="comment">% issuance constraints on or off ('IC' or 'noIC')</span>
+
+cost = <span class="string">'percent'</span>;   <span class="comment">% define settings for name of saved file</span>
+dF = [];
+dF_str = num2str(dF*100);
+techstr = strcat(mt,<span class="string">'_'</span>,cost,dF_str,<span class="string">'_'</span>,rc,<span class="string">'_'</span>,ic);
+
+roll_overlay = 0;	<span class="comment">%rollover as a second constraint in optimization (not done here)</span>
+roll_overlay_value = [];
+fileAdd = strcat(resultName,techstr,num2str(roll_overlay_value));
+</pre><h2>2. Load file with training set results<a name="3"></a></h2><p>Contains structure <i>s</i> with model parameters and <i>m</i> with summary metrics</p><pre class="codeinput">eval([<span class="string">'load ../results/ns/trainingSets/policyResults_policyPort'</span>,resultName,<span class="string">'_all'</span>]);
+</pre><h2>3. Define cost and risk metrics for each financing strategy (from training set results)<a name="4"></a></h2><p>See: <i><a href="costMeasure.html">costMeasure</a></i></p><pre class="codeinput">dstock = mean(m.totalStockYrmean,2);    <span class="comment">%average debt stock for each year (across strategies)</span>
+riskC.dstock = mean(dstock(6:10));  <span class="comment">%average debt stock in Year 6-10 (across strategies)</span>
+x = m.strategy(inst,:)';    <span class="comment">%matrix of all debt strategies (with only issued instruments)</span>
+f = costMeasure(cost,dF,m.percentCharges.avg,m.moyenne);    <span class="comment">%vector of cost measures for each strategy</span>
+riskC.roll = mean(m.issue.qBondRed.mean + m.issue.qBillRed.mean)';  <span class="comment">%define rollover (average quarterly maturity) as a risk metric</span>
+riskC.refix_pct_gdp = mean(m.psm.pRfPg,1)'; <span class="comment">%define refixing debt as a risk metric (not used)</span>
+riskC.cv = m.cv;    <span class="comment">%define conditional cost volatility as a risk metric</span>
+
+g = riskCon(rc,riskC);  <span class="comment">%vector of risk measures for each strategy</span>
+</pre><h2>4. Define points of efficient frontier<a name="5"></a></h2><p>The efficient frontier is produced by finding the minimum-cost strategy for each risk level. Thus, setting the lower bound (<i>k</i>), upper bound (<i>endcon</i>), and granularity (<i>step</i>) of the risk levels gives the points to evaluate to determine the frontier.</p><pre class="codeinput">k = ---;    <span class="comment">%lower bound of risk level</span>
+endcon = ---; <span class="comment">%upper bound of risk level</span>
+step = ---;   <span class="comment">%step size between risk level points to evaluate</span>
+par = [ k endcon step];
+last = ((endcon-k)/step) + 1;	<span class="comment">%number of risk level points evaluated</span>
+</pre><h2>5. Curve-fit general functions of cost and risk<a name="6"></a></h2><p>See: <i><a href="setApproximationPaths.html">setApproximationPaths</a></i></p><pre class="codeinput">path(path, <span class="string">'../optimize/'</span>);
+path(path, <span class="string">'../optimize/np_regression/'</span>);
+
+setApproximationPaths   <span class="comment">%set path for curve-fitting method of training set</span>
+[fhat ghat rollhat] = optMeth(mt,x,f,g,rc,resultName,cost,dF_str,riskC.roll,roll_overlay);  <span class="comment">%compute parameters of cost, risk, and rollover functions</span>
+</pre><h2>6. Produce efficient frontier<a name="7"></a></h2><p>For each value of the risk measure in the specified interval, find the cost-minimizing strategy which satisfies both that risk constrant (i.e. has a risk equal to or less than that value) as well as the minimum issuance constraints.</p><p>The inputs to the optimization, for each risk level, via the MATLAB <i>fmincon</i> function, are:</p><div><ul><li>1 (<i>optFunc</i>) : function handle for OLS-estimated cost function being minimized</li><li>2 (<i>x0</i>) : start value of optimization</li><li>3-4 (<i>Constraints{1:2}</i>) : <i>A</i> and <i>b</i> in <i>A*x &lt;= b</i> describing minimum issuance constraints</li><li>5-6 (<i>Constraints{3:4}</i>) : <i>Aeq</i> and <i>beq</i> in <i>Aeq*x = beq</i> constraining allocations to sum to 1</li><li>7-8 (<i>Constraints{5:6}</i>) : <i>lb</i> and <i>ub</i>, lower (0) and upper (1) bounds for each allocation</li><li>9 (<i>nonLinCon</i>) : <i>nonlcon</i> non-linear constraint for risk level</li><li>10 (<i>options</i>) : options for this optimization, standard</li></ul></div><p>The key final outputs of the optimization for each risk level are saved in the vectors: <i>xstar</i> (cost-minimizing strategy for each risk level), and <i>fstar</i> (that minimum cost)</p><p>It is important to restate that this optimization is finding the lowest-cost strategy across the entire continuous space of possible strategies (which satisfy the constraints), all of whose cost and risk are computed via the general function curve-fitted above. Besides informing that function, the specific strategies evaluated in the training set have no role whatsoever here.</p><p>See: <i><a href="optMeth.html">optMeth</a></i>, <i><a href="constr.html">constr</a></i>, <i><a href="np_regression/@OLS/predict.html">predict</a></i>, <i><a href="objective/nonLinearConstraint.html">nonLinearConstraint</a></i></p><pre class="codeinput"><span class="comment">% Define function handle for function being optimized, with the fitted OLS model (i.e. general cost/risk functions) being passed in as an argument</span>
+optFunc = @(x) predict(fhat,x);
+
+rcq = [riskC.roll/dstock];  <span class="comment">%not used</span>
+
+<span class="comment">% Create cell array of minimum issuance constraints</span>
+[Constraints x0] = constr(ic,nInst,issConst);
+
+<span class="comment">% Set options for optimization (standard)</span>
+options = optimset(<span class="string">'MaxIter'</span>, 2000, <span class="string">'MaxFunEvals'</span>, 5000, <span class="string">'Display'</span>, <span class="string">'off'</span>, <span class="keyword">...</span>
+    <span class="string">'LargeScale'</span>, <span class="string">'off'</span>, <span class="string">'TolFun'</span>, 1e-8, <span class="string">'TolCon'</span>, 1e-8);
+
+<span class="comment">% Optimize cost for each risk value point</span>
+<span class="keyword">for</span> i =1:round(last)
+   <span class="keyword">if</span> roll_overlay == 1         <span class="comment">%if rollover is used as an additional constraint (not used)</span>
+         nonLinCon = @(x) nonLinearConstraint2(x,[1 1],[ghat rollhat],[k roll_overlay_value]);
+         [xstar(:,:,i), fstar(i), e_flag(i), output(i), lambda(i)]= <span class="keyword">...</span>
+             fmincon(optFunc, x0,Constraints{:},nonLinCon,options);
+   <span class="keyword">elseif</span> roll_overlay == 0     <span class="comment">%rollover here is not used as an additional constraint</span>
+       nonLinCon = @(x) nonLinearConstraint(x,ghat,k);
+        [xstar(:,:,i), fstar(i), e_flag(i), output(i), lambda(i)]= <span class="keyword">...</span>
+    fmincon(optFunc, x0,Constraints{:},nonLinCon,options);  <span class="comment">%call _fmincon_ MATLAB function with defined inputs</span>
+   <span class="keyword">end</span>
+
+<span class="comment">% Save result in file and move to next risk constraint value for next optimization</span>
+     eval([<span class="string">'save ~/CDSM-public/results/ns/optimizationResults/optResults'</span>,fileAdd,<span class="keyword">...</span>
+     <span class="string">' xstar fstar e_flag output lambda f x g par'</span>])
+    k=k+step;
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% optim_main.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This script is run for the PRODUCE EFFICIENT FRONTIER step of the model.
+% It uses the simulated training set of financing strategy evaluations (from DEBT
+% CHARGE ENGINE) to curve-fit general functions of cost and risk for any
+% strategy, and uses those functions to define an efficient frontier of
+% cost-risk trade-off (between efficient strategies).
+%
+% The optimization is done only over the 9 relevant instruments (as defined in _inst_), rather than the total from the training set. 
+
+
+%% Policy Inputs
+% These variables are defined via internal policy decision and are set to REPLACE_WITH_DASH_DASH- here as a placeholder:
+%
+% * _issConst_ (see Part 1) : minimum issuance constraints by instrument, in % terms (each term between 0 and 1, sum is less than 1)
+% * _rc_ (see Part 1) : choice of risk measure to use in optimization (string, see _riskCon.m_ for common measures) 
+% * _k_, _endcon_, _step_ (see Part 4): starting value, ending value, and interval of risk points evaluated for optimization 
+%
+
+
+%% 1. Specify instruments, constraints, risk measure, and other settings
+
+inst = [ 1 2 3 4 5 6 8 9 13];   %index of relevant sectors
+nInst = size(inst,2);
+issConst = - [ REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];   %minimum issuance constraint for each instrument
+
+path('../results/ns/',path)
+
+resultName= '_MMMYY_vname_block';    %name of result files
+mt = 'OLS';  % model used to curve-fit general cost/risk functions for strategies
+rc = 'REPLACE_WITH_DASH_DASH-'; % risk metric used for the efficient frontier
+ic = 'IC'; % issuance constraints on or off ('IC' or 'noIC')
+
+cost = 'percent';   % define settings for name of saved file 
+dF = []; 
+dF_str = num2str(dF*100);
+techstr = strcat(mt,'_',cost,dF_str,'_',rc,'_',ic);
+
+roll_overlay = 0;	%rollover as a second constraint in optimization (not done here)
+roll_overlay_value = [];
+fileAdd = strcat(resultName,techstr,num2str(roll_overlay_value));
+
+
+%% 2. Load file with training set results
+% Contains structure _s_ with model parameters and _m_ with summary metrics
+eval(['load ../results/ns/trainingSets/policyResults_policyPort',resultName,'_all']); 
+
+
+%% 3. Define cost and risk metrics for each financing strategy (from training set results)
+%
+% See: _<costMeasure.html costMeasure>_
+
+dstock = mean(m.totalStockYrmean,2);    %average debt stock for each year (across strategies)
+riskC.dstock = mean(dstock(6:10));  %average debt stock in Year 6-10 (across strategies)
+x = m.strategy(inst,:)';    %matrix of all debt strategies (with only issued instruments)
+f = costMeasure(cost,dF,m.percentCharges.avg,m.moyenne);    %vector of cost measures for each strategy
+riskC.roll = mean(m.issue.qBondRed.mean + m.issue.qBillRed.mean)';  %define rollover (average quarterly maturity) as a risk metric 
+riskC.refix_pct_gdp = mean(m.psm.pRfPg,1)'; %define refixing debt as a risk metric (not used) 
+riskC.cv = m.cv;    %define conditional cost volatility as a risk metric    
+
+g = riskCon(rc,riskC);  %vector of risk measures for each strategy
+
+
+%% 4. Define points of efficient frontier
+%
+% The efficient frontier is produced by finding the minimum-cost strategy
+% for each risk level. Thus, setting the lower bound (_k_), upper bound (_endcon_), and granularity (_step_) of the
+% risk levels gives the points to evaluate to determine the frontier.
+
+k = REPLACE_WITH_DASH_DASH-;    %lower bound of risk level
+endcon = REPLACE_WITH_DASH_DASH-; %upper bound of risk level
+step = REPLACE_WITH_DASH_DASH-;   %step size between risk level points to evaluate
+par = [ k endcon step];
+last = ((endcon-k)/step) + 1;	%number of risk level points evaluated  
+
+
+%% 5. Curve-fit general functions of cost and risk
+%
+% See: _<setApproximationPaths.html setApproximationPaths>_
+
+path(path, '../optimize/');
+path(path, '../optimize/np_regression/');
+
+setApproximationPaths   %set path for curve-fitting method of training set 
+[fhat ghat rollhat] = optMeth(mt,x,f,g,rc,resultName,cost,dF_str,riskC.roll,roll_overlay);  %compute parameters of cost, risk, and rollover functions
+
+
+%% 6. Produce efficient frontier
+% For each value of the risk measure in the specified interval, find the
+% cost-minimizing strategy which satisfies both that risk constrant (i.e. has a
+% risk equal to or less than that value) as well as the minimum issuance
+% constraints.
+%
+% The inputs to the optimization, for each risk level, via the MATLAB _fmincon_ function, are:
+    %
+    % * 1 (_optFunc_) : function handle for OLS-estimated cost function being minimized
+    % * 2 (_x0_) : start value of optimization
+    % * 3-4 (_Constraints{1:2}_) : _A_ and _b_ in _A*x <= b_ describing minimum issuance constraints
+    % * 5-6 (_Constraints{3:4}_) : _Aeq_ and _beq_ in _Aeq*x = beq_ constraining allocations to sum to 1
+    % * 7-8 (_Constraints{5:6}_) : _lb_ and _ub_, lower (0) and upper (1) bounds for each allocation
+    % * 9 (_nonLinCon_) : _nonlcon_ non-linear constraint for risk level
+    % * 10 (_options_) : options for this optimization, standard 
+    %
+%
+% The key final outputs of the optimization for each risk level are saved in the vectors:
+% _xstar_ (cost-minimizing strategy for each risk level), and _fstar_ (that
+% minimum cost)
+%
+% It is important to restate that this optimization is finding the lowest-cost strategy across
+% the entire continuous space of possible strategies (which satisfy the
+% constraints), all of whose cost and risk are computed via the general
+% function curve-fitted above. Besides informing that function, the specific strategies evaluated in the
+% training set have no role whatsoever here.
+%
+% See: _<optMeth.html optMeth>_, _<constr.html constr>_,
+% _<np_regression/@OLS/predict.html predict>_, _<objective/nonLinearConstraint.html nonLinearConstraint>_
+
+
+% Define function handle for function being optimized, with the fitted OLS model (i.e. general cost/risk functions) being passed in as an argument
+optFunc = @(x) predict(fhat,x); 
+
+rcq = [riskC.roll/dstock];  %not used 
+
+% Create cell array of minimum issuance constraints
+[Constraints x0] = constr(ic,nInst,issConst);
+
+% Set options for optimization (standard)
+options = optimset('MaxIter', 2000, 'MaxFunEvals', 5000, 'Display', 'off', ...
+    'LargeScale', 'off', 'TolFun', 1e-8, 'TolCon', 1e-8);   
+
+% Optimize cost for each risk value point
+for i =1:round(last)    
+   if roll_overlay == 1         %if rollover is used as an additional constraint (not used)
+         nonLinCon = @(x) nonLinearConstraint2(x,[1 1],[ghat rollhat],[k roll_overlay_value]);
+         [xstar(:,:,i), fstar(i), e_flag(i), output(i), lambda(i)]= ...
+             fmincon(optFunc, x0,Constraints{:},nonLinCon,options); 
+   elseif roll_overlay == 0     %rollover here is not used as an additional constraint  
+       nonLinCon = @(x) nonLinearConstraint(x,ghat,k);
+        [xstar(:,:,i), fstar(i), e_flag(i), output(i), lambda(i)]= ...     
+    fmincon(optFunc, x0,Constraints{:},nonLinCon,options);  %call _fmincon_ MATLAB function with defined inputs   
+   end
+    
+% Save result in file and move to next risk constraint value for next optimization
+     eval(['save ~/CDSM-public/results/ns/optimizationResults/optResults',fileAdd,...
+     ' xstar fstar e_flag output lambda f x g par'])
+    k=k+step;
+end
+##### SOURCE END #####
+--></body></html>

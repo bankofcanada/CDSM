@@ -1,0 +1,198 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>optMeth.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-17"><meta name="DC.source" content="optMeth.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>optMeth.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This function produces the parameters for general functions of cost, risk (for the given risk metric), and rollover for any financing strategy. This is done by curve-fitting the cost, risk, and rollover measures for the training set strategies on their instrument allocations, via OLS.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Function Syntax</a></li><li><a href="#3">1. Curve-fit general functions of cost and risk with training set results, using MARS (not used)</a></li><li><a href="#5">2. Curve-fit general functions of cost and risk with training set results, using OLS</a></li></ul></div><h2>Function Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [fhat ghat rollhat] = optMeth(mt,x,f,g,rc,resultName,cost,dF_str,roll,roll_overlay)
+</pre><p><i>mt</i> : non-parametric model used for estimating, OLS is standard</p><p><i>x</i> : instrument allocation for all strategies in training set</p><p><i>f</i> : cost measure for all strategies in training set</p><p><i>g</i> : risk measure for all strategies in training set</p><p><i>rc</i> : risk constraint (not used with OLS)</p><p><i>resultName</i>: name of result file being generated (not used with OLS)</p><p><i>cost</i> : cost setting (not used with OLS)</p><p><i>dF_str</i> : NULL</p><p><i>roll</i> : rollover measure for all strategies in training set</p><p><i>roll_overlay</i> : set to 0 here, no rollover as second risk constraint</p><h2>1. Curve-fit general functions of cost and risk with training set results, using MARS (not used)<a name="3"></a></h2><pre class="codeinput"><span class="keyword">switch</span> mt
+        <span class="keyword">case</span> <span class="string">'mars'</span> <span class="comment">%if MARS method is used; since MARS takes a long time, will first check for saved runs using the same training set</span>
+</pre><pre class="codeinput">        <span class="comment">% Cost</span>
+        fileName = strcat(<span class="string">'mars_'</span>,cost,dF_str,resultName);
+        <span class="keyword">try</span>
+            eval([<span class="string">'load ../optimize/curveFits/'</span>,fileName]);
+        <span class="keyword">catch</span>
+            fhat = train(mars(), x, f); <span class="comment">% usually Debt Charges</span>
+            eval([<span class="string">'save ../optimize/curveFits/'</span>,fileName,<span class="keyword">...</span>
+     <span class="string">' fhat'</span>])
+        <span class="keyword">end</span>
+        <span class="comment">%Risk</span>
+        fileName = strcat(<span class="string">'mars_'</span>,rc,resultName);
+        <span class="keyword">try</span>
+            eval([<span class="string">'load ../optimize/curveFits/'</span>,fileName]);
+        <span class="keyword">catch</span>
+            ghat = train(mars(), x, g); <span class="comment">% roll constraint</span>
+            eval([<span class="string">'save ../optimize/curveFits/'</span>,fileName,<span class="keyword">...</span>
+     <span class="string">' ghat'</span>])
+        <span class="keyword">end</span>
+        <span class="comment">% Rollover overlay, if necessary</span>
+        <span class="keyword">if</span> roll_overlay == 1
+            fileName = strcat(<span class="string">'mars_roll'</span>,resultName);
+            <span class="keyword">try</span>
+                eval([<span class="string">'load ../optimize/curveFits/'</span>,fileName]);
+            <span class="keyword">catch</span>
+                rollhat = train(mars(), x, roll); <span class="comment">% risk constraint</span>
+                eval([<span class="string">'save ../optimize/curveFits/'</span>,fileName,<span class="keyword">...</span>
+            <span class="string">' rollhat'</span>])
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            rollhat=[];
+        <span class="keyword">end</span>
+</pre><h2>2. Curve-fit general functions of cost and risk with training set results, using OLS<a name="5"></a></h2><p>See: <i><a href="np_regression\@OLS\train.html">train</a></i>, <i><a href="np_regression\@OLS\OLS.html">OLS</a></i></p><pre class="codeinput">    <span class="keyword">case</span> <span class="string">'OLS'</span>  <span class="comment">%if OLS method is used (standard)</span>
+        fhat = train(OLS(), x, f); <span class="comment">% approximate a general function of cost (on any allocation)</span>
+        ghat = train(OLS(), x, g); <span class="comment">% approximate a general function of risk (on any allocation)</span>
+    <span class="keyword">if</span> roll_overlay == 1
+        rollhat = train(OLS(), x, roll); <span class="comment">% approximate a general function of rollover (on any allocation)</span>
+    <span class="keyword">else</span>
+        rollhat = [];
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% optMeth.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This function produces the parameters for general functions of cost, risk (for the given
+% risk metric), and rollover for any financing strategy. This is done by curve-fitting the cost, risk, and rollover
+% measures for the training set strategies on their instrument allocations, via OLS.
+
+
+%% Function Syntax
+function [fhat ghat rollhat] = optMeth(mt,x,f,g,rc,resultName,cost,dF_str,roll,roll_overlay)
+%%
+% _mt_ : non-parametric model used for estimating, OLS is standard
+%
+% _x_ : instrument allocation for all strategies in training set
+%
+% _f_ : cost measure for all strategies in training set
+%
+% _g_ : risk measure for all strategies in training set
+%
+% _rc_ : risk constraint (not used with OLS)
+%
+% _resultName_: name of result file being generated (not used with OLS)
+%
+% _cost_ : cost setting (not used with OLS)
+%
+% _dF_str_ : NULL
+%
+% _roll_ : rollover measure for all strategies in training set
+%
+% _roll_overlay_ : set to 0 here, no rollover as second risk constraint
+
+
+%% 1. Curve-fit general functions of cost and risk with training set results, using MARS (not used)
+switch mt   
+        case 'mars' %if MARS method is used; since MARS takes a long time, will first check for saved runs using the same training set
+        % Cost
+        fileName = strcat('mars_',cost,dF_str,resultName);
+        try
+            eval(['load ../optimize/curveFits/',fileName]);
+        catch
+            fhat = train(mars(), x, f); % usually Debt Charges
+            eval(['save ../optimize/curveFits/',fileName,...
+     ' fhat'])
+        end
+        %Risk
+        fileName = strcat('mars_',rc,resultName);
+        try
+            eval(['load ../optimize/curveFits/',fileName]);
+        catch
+            ghat = train(mars(), x, g); % roll constraint
+            eval(['save ../optimize/curveFits/',fileName,...
+     ' ghat'])
+        end
+        % Rollover overlay, if necessary
+        if roll_overlay == 1    
+            fileName = strcat('mars_roll',resultName);
+            try
+                eval(['load ../optimize/curveFits/',fileName]);
+            catch
+                rollhat = train(mars(), x, roll); % risk constraint
+                eval(['save ../optimize/curveFits/',fileName,...
+            ' rollhat'])
+            end
+        else
+            rollhat=[];
+        end
+ 
+        
+%% 2. Curve-fit general functions of cost and risk with training set results, using OLS
+%
+% See: _<np_regression\@OLS\train.html train>_, _<np_regression\@OLS\OLS.html OLS>_
+    case 'OLS'  %if OLS method is used (standard)
+        fhat = train(OLS(), x, f); % approximate a general function of cost (on any allocation)
+        ghat = train(OLS(), x, g); % approximate a general function of risk (on any allocation)
+    if roll_overlay == 1    
+        rollhat = train(OLS(), x, roll); % approximate a general function of rollover (on any allocation)
+    else
+        rollhat = []; 
+    end
+end
+##### SOURCE END #####
+--></body></html>
