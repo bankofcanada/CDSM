@@ -67,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
   </style></head><body><div class="content"><h1>estimate_new.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>nelsonSiegel</i> class) estimates the parameters for vector autoregression (VAR) based on historical data</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Decompose yield curve into three Nelson-Siegel factors (level, slope, curvature) and compute their historical values. The three factors will be combined with the macro variables in the VAR parameterization.</a></li><li><a href="#4">2. Compute VAR parameters</a></li><li><a href="#5">3. Adjust VAR parameters manually</a></li><li><a href="#6">4. Save VAR parameters into the 'parameters' structure in the 'nelsonSiegel' class</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> ns  = estimate_new(ns,varargin);
-</pre><p><i>ns</i> : method is applied to, and updates, <i>nelsonSiegel</i> class</p><p><i>varargin</i> : optional inputs for VAR estimation settings</p><h2>1. Decompose yield curve into three Nelson-Siegel factors (level, slope, curvature) and compute their historical values. The three factors will be combined with the macro variables in the VAR parameterization.<a name="3"></a></h2><p>See: <i><a href="private/getFactors.html">getFactors</a></i></p><pre class="codeinput">[Xf,H,HSim] = getFactors(ns);
+</pre><p><i>ns</i> : method is applied to, and updates, <i>nelsonSiegel</i> class</p><p><i>varargin</i> : optional inputs for VAR estimation settings</p><h2>1. Decompose yield curve into three Nelson-Siegel factors (level, slope, curvature) and compute their historical values. The three factors will be combined with the macro variables in the VAR parameterization.<a name="3"></a></h2><p>See: <i><a href="../matlab/getFactors.html">getFactors</a></i></p><pre class="codeinput">[Xf,H,HSim] = getFactors(ns);
 </pre><h2>2. Compute VAR parameters<a name="4"></a></h2><p><i>See <a href="../matlab/computeVAR.html">computeVAR</a></i></p><pre class="codeinput">[para,X] = computeVAR(ns,Xf,varargin{:});
 </pre><h2>3. Adjust VAR parameters manually<a name="5"></a></h2><pre class="codeinput">para1=para;
 para.B(4,5) = para.B(4,5)-0.1;  <span class="comment">%Lower YGAP's lag-1 autocorrelation</span>
@@ -98,7 +98,7 @@ function ns  = estimate_new(ns,varargin);
 
 %% 1. Decompose yield curve into three Nelson-Siegel factors (level, slope, curvature) and compute their historical values. The three factors will be combined with the macro variables in the VAR parameterization. 
 %
-% See: _<private/getFactors.html getFactors>_
+% See: _<../matlab/getFactors.html getFactors>_
 [Xf,H,HSim] = getFactors(ns);
 
 
