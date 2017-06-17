@@ -151,7 +151,7 @@ Y_num=NaN(get(ns,<span class="string">'simT'</span>)*get(ns,<span class="string"
 </pre><h2>8. Save matrix of simulated yield curve and macroeconomic variables<a name="12"></a></h2><pre class="codeinput"><span class="comment">%Save only the quarterly yield curve and macro simulations (i.e. for first month of each quarter)</span>
 data.Z=data.Z(Q40,:,:);
 data.X=data.X(Q40,:,:);
-</pre><h2>9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation<a name="13"></a></h2><p>See: <i><a href="../matlab/getRiskPremia.html">getRiskPremia</a></i>, <i><a href="../@stochasticModel/getNominalPar.html">getNominalPar</a></i>, <i><a href="../@stochasticModel/getRealParNew.html">getRealParNew</a></i></p><pre class="codeinput">data.T=getRiskPremia(ns,data);  <span class="comment">%simulated term premia</span>
+</pre><h2>9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation<a name="13"></a></h2><p>See: <i><a href="../matlab/getRiskPremia.html">getRiskPremia</a></i>, <i><a href="../stochasticModel/getNominalPar.html">getNominalPar</a></i>, <i><a href="../stochasticModel/getRealParNew.html">getRealParNew</a></i></p><pre class="codeinput">data.T=getRiskPremia(ns,data);  <span class="comment">%simulated term premia</span>
 data.C=getNominalPar(ns,data);  <span class="comment">%simulated nominal par coupons</span>
 data.simTenor=get(ns,<span class="string">'simTenor'</span>);   <span class="comment">%relevant tenors</span>
 data.eInf = data.eInf(:,4*get(ns,<span class="string">'simTenor'</span>),:);    <span class="comment">%expected inflation for relevant tenors (at each simulated quarter)</span>
@@ -317,7 +317,7 @@ data.X=data.X(Q40,:,:);
 
 %% 9. Compute simulated nominal and real par rates, based on simulated yield curve variables and expected inflation
 %
-% See: _<../matlab/getRiskPremia.html getRiskPremia>_, _<../@stochasticModel/getNominalPar.html getNominalPar>_, _<../@stochasticModel/getRealParNew.html getRealParNew>_
+% See: _<../matlab/getRiskPremia.html getRiskPremia>_, _<../stochasticModel/getNominalPar.html getNominalPar>_, _<../stochasticModel/getRealParNew.html getRealParNew>_
 data.T=getRiskPremia(ns,data);  %simulated term premia
 data.C=getNominalPar(ns,data);  %simulated nominal par coupons
 data.simTenor=get(ns,'simTenor');   %relevant tenors
