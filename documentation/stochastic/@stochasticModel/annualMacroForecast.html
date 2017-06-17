@@ -1,0 +1,734 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>annualMacroForecast.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="annualMacroForecast.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>annualMacroForecast.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>stochasticModel</i> class) computes a set of macroeconomic forecasts for each simulated quarter, as of the start of that year. The forecasts are derived from simulated macro variables, and are used for computing the government's financial requirements.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Set Up</a></li><li><a href="#4">2. Obtain monthly starting lagged variables for last 12 months, depending on setting</a></li><li><a href="#5">3. Compute macroeconomic forecasts for VAR(1) specification.</a></li><li><a href="#7">4. Compute macroeconomic forecasts for VAR(2) specification.</a></li><li><a href="#10">5. Compute macroeconomic forecasts for VAR(6) specification.</a></li><li><a href="#12">6. Plot Charts</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> yMacro=annualMacroForecast(sm,data);
+</pre><p><i>sm</i> : method is applied to 'stochasticModel' class</p><p><i>data</i> : structure with the monthly simulated variables, which the macroeconomic forecasts are based on</p><p><i>yMacro</i> : matrix of quarterly macroeconomic forecasts, as of the start of that year</p><div><ol><li>expected average real GDP growth for that quarter</li><li>expected average inflation for the previous year (quarterly basis)</li><li>expected average inflation for that year (quarterly basis)</li><li>expected change in overnight rate for last 12 months (quarterly basis)</li></ol></div><p>In summary: simulated macro variables are on a monthly basis, macroeconomic forecasts are on a quarterly basis.</p><h2>1. Set Up<a name="3"></a></h2><p>See <i><a href="get_Xlag.html">get_Xlag</a></i></p><pre class="codeinput"><span class="keyword">if</span> isa(sm,<span class="string">'obsAffine'</span>); <span class="comment">%ensure correct number of lags</span>
+  lags = 2;
+<span class="keyword">else</span>;
+  lags = get(sm,<span class="string">'lags'</span>);
+<span class="keyword">end</span>;
+
+Q40 = [1:( 12/get(sm,<span class="string">'simN'</span>) ):( 12*get(sm,<span class="string">'simT'</span>) )] + lags;   <span class="comment">%index vector to convert variables to a quarterly basis, taking the second month from each quarter</span>
+para = get(sm,<span class="string">'parameters'</span>);    <span class="comment">%structure of VAR parameters</span>
+K=size(para.X,1);   <span class="comment">%number of variables</span>
+Xlag = get_Xlag(sm, get(sm, <span class="string">'startLag'</span>));   <span class="comment">%matrix of lagged variables</span>
+M=get(sm,<span class="string">'macro_data'</span>); <span class="comment">%matrix of historical macro data</span>
+
+beg=get(sm,<span class="string">'dim'</span>);  <span class="comment">%number of NS variables</span>
+mFactors = K-beg;   <span class="comment">%number of macro variables</span>
+</pre><h2>2. Obtain monthly starting lagged variables for last 12 months, depending on setting<a name="4"></a></h2><pre class="codeinput"><span class="keyword">switch</span> lower(get(sm,<span class="string">'startLag'</span>))
+  <span class="keyword">case</span> {<span class="string">'last'</span>, 0}  <span class="comment">%'last' setting: last 12 months of historical data</span>
+    Xyearlag(:,1:12) = M(1:mFactors,end-11:end);    <span class="comment">%lag 1</span>
+    Xyearlag2(:,1:12) = M(1:mFactors,end-12:end-1); <span class="comment">%lag 2</span>
+    Xyearlag13(:,1:12) = M(1:mFactors,end-23:end-12);   <span class="comment">%lag 13</span>
+  <span class="keyword">case</span> {<span class="string">'mean'</span>, 1}  <span class="comment">%'mean' setting: arithmetic mean from historical data</span>
+    Xyearlag = Xlag(ones(12,1),beg+1:beg+mFactors)';    <span class="comment">%lag 1</span>
+    Xyearlag2 = Xlag(ones(12,1),beg+1:beg+mFactors)';   <span class="comment">%lag 2</span>
+    Xyearlag13 = Xlag(ones(12,1),beg+1:beg+mFactors)';  <span class="comment">%lag 13</span>
+  <span class="keyword">case</span> {<span class="string">'ltm'</span>, 2}   <span class="comment">%'ltm' setting: long-term mean, pre-set or stationary mean from VAR(p)</span>
+    Xyearlag = Xlag(ones(12,1),beg+1:beg+mFactors)';    <span class="comment">%lag 1</span>
+    Xyearlag2 = Xlag(ones(12,1),beg+1:beg+mFactors)';   <span class="comment">%lag 2</span>
+    Xyearlag13 = Xlag(ones(12,1),beg+1:beg+mFactors)';  <span class="comment">%lag 13</span>
+  <span class="keyword">otherwise</span>
+    error(<span class="string">'wrong first lag argument'</span>);
+<span class="keyword">end</span>
+</pre><h2>3. Compute macroeconomic forecasts for VAR(1) specification.<a name="5"></a></h2><pre class="codeinput"><span class="keyword">if</span> lags==1;
+</pre><pre class="codeinput">  eMacro = zeros(40,beg,size(data.X,3));    <span class="comment">%Initialize matrix of expected macro variables</span>
+  yMacro = zeros(40,5,size(data.X,3));      <span class="comment">%Initialize matrix of realized macro variables</span>
+  <span class="keyword">for</span> i=1:get(sm,<span class="string">'numSims'</span>);
+    E_x = [];
+    Y_x = [];
+
+    <span class="comment">%Compute matrix of expected macro variables for each month, as of the start of that year.</span>
+    <span class="keyword">for</span> h=1:get(sm,<span class="string">'simT'</span>)*get(sm,<span class="string">'histN'</span>); <span class="comment">%for each simulated month</span>
+       <span class="keyword">if</span> mod(h-1,12)==0;
+        <span class="keyword">if</span> h==1;
+          E_x(:,h) = Xlag(1,:)';    <span class="comment">%for first month of simulation</span>
+        <span class="keyword">else</span>;
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)';  <span class="comment">%for first month of future years</span>
+        <span class="keyword">end</span>;
+      <span class="keyword">else</span>;
+        E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*E_x(:,h-1);  <span class="comment">%for months (2-12) after first, uses forecast for previous month</span>
+      <span class="keyword">end</span>;
+    <span class="keyword">end</span>;
+
+    <span class="comment">%1st macro forecast: expected average real GDP growth for that quarter</span>
+    yMacro(:,1,i) = E_x(beg+4,Q40).*(1+E_x(beg+1,Q40)); <span class="comment">%product of that quarter's expected potential output growth and expected output gap</span>
+
+    <span class="comment">%2nd macro forecast: expected average inflation for the previous year (quarterly basis)</span>
+ yMacro(1:sm.simN,2,i) = -1 + (1+mean(Xyearlag(5,:))).^(1/sm.simN); <span class="comment">%first year of simulation</span>
+    <span class="keyword">for</span> tt=sm.simN+1:sm.simN*get(sm,<span class="string">'simT'</span>)
+      <span class="keyword">if</span> mod(tt-1,sm.simN)==0
+        yMacro([tt:tt+sm.simN-1],2,i)= <span class="keyword">...</span>
+            -1 + (1+mean(data.X(Q40(tt-sm.simN:tt-1),beg+5,i))).^(1/sm.simN);   <span class="comment">%subsequent years</span>
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">%3rd macro forecast: expected average inflation for that year (quarterly basis)</span>
+    yMacro(:,3,i) = -1 + (1+E_x(beg+5,Q40)).^(1/sm.simN);
+
+    <span class="comment">%4th macro forecast: expected change in overnight rate in last 12 months (quarterly basis)</span>
+    rateDiff = E_x(beg+3,:) - [ Xyearlag(3,:)  E_x(beg+3,1:end-12) ];
+    yMacro(:,4,i) = rateDiff(Q40)/sm.simN;
+
+    <span class="comment">%5th macro forecast: expected lagged change in overnight rate is past 12 months (quarterly basis)</span>
+    rateDiff2 = [ Xyearlag(3,:) data.X(1:end-12,beg+3,i)' ] - <span class="keyword">...</span>
+        [ Xyearlag13(3,:) Xyearlag(3,:) data.X(1:end-24,beg+3,i)' ];
+    yMacro(:,5,i) = rateDiff2(Q40)/sm.simN;
+  <span class="keyword">end</span>;
+</pre><h2>4. Compute macroeconomic forecasts for VAR(2) specification.<a name="7"></a></h2><pre class="codeinput"><span class="keyword">elseif</span> lags==2;
+</pre><pre class="codeinput">  eMacro = zeros(40,beg,size(data.X,3));    <span class="comment">%Initialize matrix of expected macro variables</span>
+  yMacro = zeros(40,5,size(data.X,3));      <span class="comment">%Initialize matrix of realized macro variables</span>
+    <span class="keyword">for</span> i=1:get(sm,<span class="string">'numSims'</span>)
+    E_x = [];
+
+    <span class="comment">%Compute matrix of expected macro variables for each month, as of the start of that year.</span>
+    <span class="keyword">for</span> h=1:get(sm,<span class="string">'simT'</span>)*get(sm,<span class="string">'histN'</span>) <span class="comment">%for first month of a year</span>
+      <span class="keyword">if</span> mod(h-1,12)==0;
+        <span class="keyword">if</span> h==1;
+          E_x(:,h) = Xlag(2,:)';
+        <span class="keyword">else</span>
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'<span class="keyword">...</span>
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)';
+        <span class="keyword">end</span>
+
+      <span class="keyword">elseif</span> mod(h-2,12)==0;    <span class="comment">%for second month of a year, uses forecasts</span>
+        <span class="keyword">if</span> h==2;
+          E_x(:,h) = Xlag(1,:)';
+        <span class="keyword">else</span>
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*E_x(:,h-1)<span class="keyword">...</span>
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)';
+        <span class="keyword">end</span>
+
+      <span class="keyword">else</span>  <span class="comment">%for other months of a year, uses forecasts</span>
+        E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*E_x(:,h-1)<span class="keyword">...</span>
+          + para.B(:,K+2:2*K+1)*E_x(:,h-2);
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">%1st macro forecast: expected average real GDP growth for that quarter</span>
+    <span class="comment">%Since computation of expected variables in VAR(2) is conditional on previous</span>
+    <span class="comment">%quarter, use output gap relative to previous quarter</span>
+    <span class="keyword">switch</span> lower(get(sm,<span class="string">'startLag'</span>))
+        <span class="keyword">case</span> {<span class="string">'ltm'</span>, 0}
+            yMacro(1,1,i)=(((1+E_x(beg+1,Q40(1)))./(1+0))-1)+E_x(beg+4,Q40(1)); <span class="comment">%LTM starting point for output gap is 0</span>
+    	<span class="keyword">otherwise</span>
+    		yMacro(1,1,i)=(((1+E_x(beg+1,Q40(1)))./(1+M(1,end)))-1)+E_x(beg+4,Q40(1));
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> tt=2:4
+      yMacro(tt,1,i)=(((1+E_x(beg+1,Q40(tt)))./(1+E_x(beg+1,Q40(tt-1))))-1)<span class="keyword">...</span>
+    	  +E_x(beg+4,Q40(tt));
+    <span class="keyword">end</span>
+
+    <span class="keyword">for</span> tt=get(sm,<span class="string">'simN'</span>)+1:get(sm,<span class="string">'simN'</span>)*get(sm,<span class="string">'simT'</span>)
+      <span class="keyword">if</span> mod(tt-1,get(sm,<span class="string">'simN'</span>))==0;
+	yMacro(tt,1,i)=(((1+E_x(beg+1,Q40(tt)))./<span class="keyword">...</span>
+	    (1+data.X(Q40(tt-1),beg+1,i)))-1)+E_x(beg+4,Q40(tt));
+      <span class="keyword">else</span>
+    	yMacro(tt,1,i)=(((1+E_x(beg+1,Q40(tt)))./<span class="keyword">...</span>
+    	    (1+E_x(beg+1,Q40(tt-1))))-1)+E_x(beg+4,Q40(tt));
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">%2nd macro forecast: expected average inflation for the previous year (quarterly basis)</span>
+    yMacro(1:sm.simN,2,i) = -1 + (1+mean(Xyearlag(5,:))).^(1/sm.simN);
+    <span class="keyword">for</span> tt=sm.simN+1:sm.simN*get(sm,<span class="string">'simT'</span>)
+      <span class="keyword">if</span> mod(tt-1,sm.simN)==0
+        yMacro([tt:tt+sm.simN-1],2,i)= <span class="keyword">...</span>
+         -1 + (1+mean(data.X(Q40(tt-sm.simN:tt-1),beg+5,i))).^(1/sm.simN);
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">%3rd macro forecast: expected average inflation for that quarter (quarterly basis)</span>
+    yMacro(:,3,i) = -1 + (1+E_x(beg+5,Q40)).^(1/sm.simN);
+
+    <span class="comment">%4th macro forecast: expected change in overnight rate in last 12 months (quarterly basis)</span>
+    rateDiff = E_x(beg+3,:) - [ Xyearlag(3,:)  E_x(beg+3,1:end-12) ];
+    yMacro(:,4,i) = rateDiff(Q40)/sm.simN;
+
+    <span class="comment">%5th macro forecast: expected lagged change in overnight rate is past 12 months (quarterly basis)</span>
+    rateDiff2 = [ Xyearlag(3,:) data.X(3:end-12,beg+3,i)' ] - <span class="keyword">...</span>
+        [ Xyearlag13(3,:) Xyearlag(3,:) data.X(3:end-24,beg+3,i)' ];
+    yMacro(:,5,i) = rateDiff2(Q40)/sm.simN;
+  <span class="keyword">end</span>;
+</pre><h2>5. Compute macroeconomic forecasts for VAR(6) specification.<a name="10"></a></h2><pre class="codeinput"><span class="keyword">elseif</span> lags==6;
+  eMacro = zeros(40,beg,size(data.X,3));
+  yMacro = zeros(40,5,size(data.X,3));
+  <span class="keyword">for</span> i=1:get(sm,<span class="string">'numSims'</span>)
+    E_x = [];
+
+    <span class="comment">%Compute matrix of expected macro variables for each month, as of the start of that year. They all use forecasts.</span>
+    <span class="keyword">for</span> h=1:get(sm,<span class="string">'simT'</span>)*get(sm,<span class="string">'histN'</span>)
+      <span class="keyword">if</span> mod(h-1,12)==0;    <span class="comment">%first month in year</span>
+        <span class="keyword">if</span> h==1;
+          E_x(:,h) = Xlag(6,:)';
+        <span class="keyword">else</span>
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'<span class="keyword">...</span>
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'<span class="keyword">...</span>
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'<span class="keyword">...</span>
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'<span class="keyword">...</span>
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'<span class="keyword">...</span>
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+
+        <span class="keyword">end</span>
+
+      <span class="keyword">elseif</span> mod(h-2,12)==0;    <span class="comment">%second month in year</span>
+        <span class="keyword">if</span> h==2;
+          E_x(:,h) = Xlag(5,:)';
+        <span class="keyword">else</span>
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'<span class="keyword">...</span>
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'<span class="keyword">...</span>
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'<span class="keyword">...</span>
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'<span class="keyword">...</span>
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'<span class="keyword">...</span>
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        <span class="keyword">end</span>
+
+      <span class="keyword">elseif</span> mod(h-3,12)==0;    <span class="comment">%third month in year</span>
+        <span class="keyword">if</span> h==3;
+          E_x(:,h) = Xlag(4,:)';
+        <span class="keyword">else</span>
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'<span class="keyword">...</span>
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'<span class="keyword">...</span>
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'<span class="keyword">...</span>
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'<span class="keyword">...</span>
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'<span class="keyword">...</span>
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        <span class="keyword">end</span>
+
+      <span class="keyword">elseif</span> mod(h-4,12)==0;    <span class="comment">%fourth month in year</span>
+        <span class="keyword">if</span> h==4;
+          E_x(:,h) = Xlag(3,:)';
+        <span class="keyword">else</span>
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'<span class="keyword">...</span>
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'<span class="keyword">...</span>
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'<span class="keyword">...</span>
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'<span class="keyword">...</span>
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'<span class="keyword">...</span>
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        <span class="keyword">end</span>
+
+      <span class="keyword">elseif</span> mod(h-5,12)==0;    <span class="comment">%fifth month in year</span>
+        <span class="keyword">if</span> h==5;
+          E_x(:,h) = Xlag(2,:)';
+        <span class="keyword">else</span>
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'<span class="keyword">...</span>
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'<span class="keyword">...</span>
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'<span class="keyword">...</span>
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'<span class="keyword">...</span>
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'<span class="keyword">...</span>
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        <span class="keyword">end</span>
+
+      <span class="keyword">elseif</span> mod(h-6,12)==0;    <span class="comment">%sixth month in year</span>
+        <span class="keyword">if</span> h==6;
+          E_x(:,h) = Xlag(1,:)';
+        <span class="keyword">else</span>
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'<span class="keyword">...</span>
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'<span class="keyword">...</span>
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'<span class="keyword">...</span>
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'<span class="keyword">...</span>
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'<span class="keyword">...</span>
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        <span class="keyword">end</span>
+
+      <span class="keyword">else</span>  <span class="comment">%rest of months in year</span>
+        E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*E_x(:,h-1)<span class="keyword">...</span>
+          + para.B(:,K+2:2*K+1)*E_x(:,h-2) <span class="keyword">...</span>
+          + para.B(:,2*K+2:3*K+1)*E_x(:,h-3) <span class="keyword">...</span>
+          + para.B(:,3*K+2:4*K+1)*E_x(:,h-4) <span class="keyword">...</span>
+          + para.B(:,4*K+2:5*K+1)*E_x(:,h-5) <span class="keyword">...</span>
+          + para.B(:,5*K+2:6*K+1)*E_x(:,h-6) ;
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">%1st macro forecast: expected average real GDP growth for that quarter</span>
+    <span class="comment">%Since computation of expected variables in VAR(2) is conditional on previous</span>
+    <span class="comment">%quarter, use output gap relative to previous quarter</span>
+    yMacro(:,1,i) = E_x(beg+4,Q40)+((1+E_x(beg+1,Q40))./(1+E_x(beg+1,Q40-1))-1);
+
+    <span class="comment">%2nd macro forecast: expected average inflation for last year (quarterly basis)</span>
+    yMacro(1:sm.simN,2,i) = -1 + (1+mean(Xyearlag(5,:))).^(1/sm.simN);
+    <span class="keyword">for</span> tt=sm.simN+1:sm.simN*get(sm,<span class="string">'simT'</span>)
+      <span class="keyword">if</span> mod(tt-1,sm.simN)==0
+        <span class="comment">%yMacro([tt:tt+sm.simN-1],2,i)= ...</span>
+        <span class="comment">%  -1+geomean( 1+data.X(Q40(tt-sm.simN:tt-1),beg+1,i) );</span>
+        yMacro([tt:tt+sm.simN-1],2,i)= <span class="keyword">...</span>
+            -1 + (1+mean(data.X(Q40(tt-sm.simN:tt-1),beg+5,i))).^(1/sm.simN);
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">%3rd macro forecast: expected average inflation for that quarter (quarterly basis)</span>
+    yMacro(:,3,i) = -1 + (1+E_x(beg+5,Q40)).^(1/sm.simN);
+
+    <span class="comment">%4th macro forecast: expected change in overnight rate in last 12 months (quarterly basis)</span>
+    rateDiff = E_x(beg+3,:) - [ Xyearlag(3,:)  E_x(beg+3,1:end-12) ];
+    yMacro(:,4,i) = rateDiff(Q40)/sm.simN;
+
+    <span class="comment">%5th macro forecast: expected lagged change in overnight rate is past 12 months (quarterly basis)</span>
+    rateDiff2 = [ Xyearlag(3,:) data.X(1:end-12,beg+3,i)' ] - <span class="keyword">...</span>
+    [ Xyearlag13(3,:) Xyearlag(3,:) data.X(1:end-24,beg+3,i)' ];
+    yMacro(:,5,i) = rateDiff2(Q40)/sm.simN;
+  <span class="keyword">end</span>;
+<span class="keyword">end</span>;
+</pre><h2>6. Plot Charts<a name="12"></a></h2><pre class="codeinput"><span class="keyword">return</span>
+
+<span class="keyword">for</span> k=1:size(data.X,3)
+  err1(k,:)=1e4*mean(abs([data.eMacro(:,1,k) data.X(:,9,k) data.eMacro(:,1, <span class="keyword">...</span>
+						  k)-data.X(:,9,k)]));
+<span class="keyword">end</span>
+mean(err1)
+
+
+fH=[linspace(1,37,10)
+    linspace(2,38,10)
+    linspace(3,39,10)
+    linspace(4,40,10)]'
+
+
+<span class="keyword">for</span> k=1:size(data.X,3)
+  err1(k,:)=1e4*mean(abs([data.eMacro(:,1,k) <span class="keyword">...</span>
+		    data.X(:,9,k) <span class="keyword">...</span>
+		    data.eMacro(:,1,k)-data.X(:,9,k)]));
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> j=1:4
+  <span class="keyword">for</span> k=1:size(data.X,3)
+    forecast(k,:,j)=mean((data.eMacro(fH(:,j),1,k)));
+    err(k,:,j)=sqrt(sum((data.eMacro(fH(:,j),1,k)-data.X(fH(:,j),9,k)).^2)/9);
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+plot(linspace(0.25,1,4),1e4*mean(squeeze(forecast)),<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2.5)
+hold <span class="string">on</span>
+plot(linspace(0.25,1,4),1e4*mean(squeeze(forecast))+norminv(0.95)*1e4*mean(squeeze(err)),<span class="string">'r:'</span>,<span class="string">'LineWidth'</span>,2.5)
+plot(linspace(0.25,1,4),1e4*mean(squeeze(forecast))-norminv(0.95)*1e4*mean(squeeze(err)),<span class="string">'r:'</span>,<span class="string">'LineWidth'</span>,2.5)
+hold <span class="string">off</span>
+xlabel(<span class="string">'Time (yrs.)'</span>)
+ylabel(<span class="string">'Quarterly QDP (bps.)'</span>)
+set(gca,<span class="string">'XTick'</span>,[0.25 0.5 0.75 1]);
+set(gca,<span class="string">'XTickLabel'</span>,{<span class="string">'Q1'</span>;<span class="string">'Q2'</span>;<span class="string">'Q3'</span>;<span class="string">'Q4'</span>});
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% annualMacroForecast.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This method (on the _stochasticModel_ class) computes a set of macroeconomic forecasts for each simulated quarter, as of the start of that year. The forecasts are derived from simulated macro variables, and are used for computing the government's financial requirements.
+
+%% Method Syntax
+function yMacro=annualMacroForecast(sm,data);
+%%
+% _sm_ : method is applied to 'stochasticModel' class
+%
+% _data_ : structure with the monthly simulated variables, which the macroeconomic forecasts are based on
+%
+% _yMacro_ : matrix of quarterly macroeconomic forecasts, as of the start of that year
+    %
+    % # expected average real GDP growth for that quarter
+    % # expected average inflation for the previous year (quarterly basis)
+    % # expected average inflation for that year (quarterly basis)
+    % # expected change in overnight rate for last 12 months (quarterly basis)
+    %
+%
+% In summary: simulated macro variables are on a monthly basis, macroeconomic forecasts are on a quarterly basis.
+
+
+%% 1. Set Up
+%
+% See _<get_Xlag.html get_Xlag>_
+if isa(sm,'obsAffine'); %ensure correct number of lags
+  lags = 2;
+else;
+  lags = get(sm,'lags');
+end;
+
+Q40 = [1:( 12/get(sm,'simN') ):( 12*get(sm,'simT') )] + lags;   %index vector to convert variables to a quarterly basis, taking the second month from each quarter
+para = get(sm,'parameters');    %structure of VAR parameters
+K=size(para.X,1);   %number of variables
+Xlag = get_Xlag(sm, get(sm, 'startLag'));   %matrix of lagged variables
+M=get(sm,'macro_data'); %matrix of historical macro data
+
+beg=get(sm,'dim');  %number of NS variables
+mFactors = K-beg;   %number of macro variables
+
+
+%% 2. Obtain monthly starting lagged variables for last 12 months, depending on setting
+switch lower(get(sm,'startLag'))
+  case {'last', 0}  %'last' setting: last 12 months of historical data  
+    Xyearlag(:,1:12) = M(1:mFactors,end-11:end);    %lag 1
+    Xyearlag2(:,1:12) = M(1:mFactors,end-12:end-1); %lag 2
+    Xyearlag13(:,1:12) = M(1:mFactors,end-23:end-12);   %lag 13
+  case {'mean', 1}  %'mean' setting: arithmetic mean from historical data
+    Xyearlag = Xlag(ones(12,1),beg+1:beg+mFactors)';    %lag 1
+    Xyearlag2 = Xlag(ones(12,1),beg+1:beg+mFactors)';   %lag 2
+    Xyearlag13 = Xlag(ones(12,1),beg+1:beg+mFactors)';  %lag 13
+  case {'ltm', 2}   %'ltm' setting: long-term mean, pre-set or stationary mean from VAR(p)
+    Xyearlag = Xlag(ones(12,1),beg+1:beg+mFactors)';    %lag 1
+    Xyearlag2 = Xlag(ones(12,1),beg+1:beg+mFactors)';   %lag 2
+    Xyearlag13 = Xlag(ones(12,1),beg+1:beg+mFactors)';  %lag 13
+  otherwise
+    error('wrong first lag argument');
+end
+
+
+%% 3. Compute macroeconomic forecasts for VAR(1) specification.
+if lags==1;
+  eMacro = zeros(40,beg,size(data.X,3));    %Initialize matrix of expected macro variables    
+  yMacro = zeros(40,5,size(data.X,3));      %Initialize matrix of realized macro variables 
+  for i=1:get(sm,'numSims');
+    E_x = [];
+    Y_x = [];
+    
+    %Compute matrix of expected macro variables for each month, as of the start of that year.    
+    for h=1:get(sm,'simT')*get(sm,'histN'); %for each simulated month
+       if mod(h-1,12)==0;
+        if h==1;
+          E_x(:,h) = Xlag(1,:)';    %for first month of simulation
+        else;
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)';  %for first month of future years 
+        end;
+      else;
+        E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*E_x(:,h-1);  %for months (2-12) after first, uses forecast for previous month
+      end;
+    end;    
+    
+    %1st macro forecast: expected average real GDP growth for that quarter
+    yMacro(:,1,i) = E_x(beg+4,Q40).*(1+E_x(beg+1,Q40)); %product of that quarter's expected potential output growth and expected output gap
+    
+    %2nd macro forecast: expected average inflation for the previous year (quarterly basis)
+ yMacro(1:sm.simN,2,i) = -1 + (1+mean(Xyearlag(5,:))).^(1/sm.simN); %first year of simulation
+    for tt=sm.simN+1:sm.simN*get(sm,'simT')
+      if mod(tt-1,sm.simN)==0
+        yMacro([tt:tt+sm.simN-1],2,i)= ...
+            -1 + (1+mean(data.X(Q40(tt-sm.simN:tt-1),beg+5,i))).^(1/sm.simN);   %subsequent years
+      end
+    end
+    
+    %3rd macro forecast: expected average inflation for that year (quarterly basis)
+    yMacro(:,3,i) = -1 + (1+E_x(beg+5,Q40)).^(1/sm.simN);
+    
+    %4th macro forecast: expected change in overnight rate in last 12 months (quarterly basis)
+    rateDiff = E_x(beg+3,:) - [ Xyearlag(3,:)  E_x(beg+3,1:end-12) ];
+    yMacro(:,4,i) = rateDiff(Q40)/sm.simN;
+    
+    %5th macro forecast: expected lagged change in overnight rate is past 12 months (quarterly basis)
+    rateDiff2 = [ Xyearlag(3,:) data.X(1:end-12,beg+3,i)' ] - ...
+        [ Xyearlag13(3,:) Xyearlag(3,:) data.X(1:end-24,beg+3,i)' ];
+    yMacro(:,5,i) = rateDiff2(Q40)/sm.simN;
+  end;
+  
+
+
+  
+  
+%% 4. Compute macroeconomic forecasts for VAR(2) specification. 
+elseif lags==2;
+  eMacro = zeros(40,beg,size(data.X,3));    %Initialize matrix of expected macro variables 
+  yMacro = zeros(40,5,size(data.X,3));      %Initialize matrix of realized macro variables 
+    for i=1:get(sm,'numSims')
+    E_x = [];
+    
+    %Compute matrix of expected macro variables for each month, as of the start of that year.
+    for h=1:get(sm,'simT')*get(sm,'histN') %for first month of a year
+      if mod(h-1,12)==0; 
+        if h==1;
+          E_x(:,h) = Xlag(2,:)';    
+        else    
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'...
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)';
+        end
+
+      elseif mod(h-2,12)==0;    %for second month of a year, uses forecasts 
+        if h==2;    
+          E_x(:,h) = Xlag(1,:)';
+        else
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*E_x(:,h-1)...
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)';
+        end
+ 
+      else  %for other months of a year, uses forecasts 
+        E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*E_x(:,h-1)...
+          + para.B(:,K+2:2*K+1)*E_x(:,h-2);
+      end
+    end
+
+    %1st macro forecast: expected average real GDP growth for that quarter
+    %Since computation of expected variables in VAR(2) is conditional on previous
+    %quarter, use output gap relative to previous quarter
+    switch lower(get(sm,'startLag'))
+        case {'ltm', 0}
+            yMacro(1,1,i)=(((1+E_x(beg+1,Q40(1)))./(1+0))-1)+E_x(beg+4,Q40(1)); %LTM starting point for output gap is 0
+    	otherwise
+    		yMacro(1,1,i)=(((1+E_x(beg+1,Q40(1)))./(1+M(1,end)))-1)+E_x(beg+4,Q40(1));
+    end
+    for tt=2:4
+      yMacro(tt,1,i)=(((1+E_x(beg+1,Q40(tt)))./(1+E_x(beg+1,Q40(tt-1))))-1)...
+    	  +E_x(beg+4,Q40(tt));      
+    end
+    
+    for tt=get(sm,'simN')+1:get(sm,'simN')*get(sm,'simT')
+      if mod(tt-1,get(sm,'simN'))==0;
+	yMacro(tt,1,i)=(((1+E_x(beg+1,Q40(tt)))./...
+	    (1+data.X(Q40(tt-1),beg+1,i)))-1)+E_x(beg+4,Q40(tt));
+      else
+    	yMacro(tt,1,i)=(((1+E_x(beg+1,Q40(tt)))./...
+    	    (1+E_x(beg+1,Q40(tt-1))))-1)+E_x(beg+4,Q40(tt));
+      end
+    end
+   
+    %2nd macro forecast: expected average inflation for the previous year (quarterly basis)
+    yMacro(1:sm.simN,2,i) = -1 + (1+mean(Xyearlag(5,:))).^(1/sm.simN);
+    for tt=sm.simN+1:sm.simN*get(sm,'simT')
+      if mod(tt-1,sm.simN)==0
+        yMacro([tt:tt+sm.simN-1],2,i)= ...
+         -1 + (1+mean(data.X(Q40(tt-sm.simN:tt-1),beg+5,i))).^(1/sm.simN);
+      end
+    end
+
+    %3rd macro forecast: expected average inflation for that quarter (quarterly basis)
+    yMacro(:,3,i) = -1 + (1+E_x(beg+5,Q40)).^(1/sm.simN);
+        
+    %4th macro forecast: expected change in overnight rate in last 12 months (quarterly basis)
+    rateDiff = E_x(beg+3,:) - [ Xyearlag(3,:)  E_x(beg+3,1:end-12) ];
+    yMacro(:,4,i) = rateDiff(Q40)/sm.simN;
+    
+    %5th macro forecast: expected lagged change in overnight rate is past 12 months (quarterly basis)
+    rateDiff2 = [ Xyearlag(3,:) data.X(3:end-12,beg+3,i)' ] - ...
+        [ Xyearlag13(3,:) Xyearlag(3,:) data.X(3:end-24,beg+3,i)' ];
+    yMacro(:,5,i) = rateDiff2(Q40)/sm.simN;  
+  end;
+
+  
+%% 5. Compute macroeconomic forecasts for VAR(6) specification. 
+elseif lags==6;
+  eMacro = zeros(40,beg,size(data.X,3));
+  yMacro = zeros(40,5,size(data.X,3));
+  for i=1:get(sm,'numSims')
+    E_x = [];
+    
+    %Compute matrix of expected macro variables for each month, as of the start of that year. They all use forecasts.
+    for h=1:get(sm,'simT')*get(sm,'histN')
+      if mod(h-1,12)==0;    %first month in year
+        if h==1;
+          E_x(:,h) = Xlag(6,:)';
+        else
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'...
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'...
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'...
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'... 
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'...
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+  
+        end
+        
+      elseif mod(h-2,12)==0;    %second month in year
+        if h==2;    
+          E_x(:,h) = Xlag(5,:)';
+        else
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'...
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'...
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'...
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'... 
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'...
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        end
+       
+      elseif mod(h-3,12)==0;    %third month in year
+        if h==3;
+          E_x(:,h) = Xlag(4,:)';
+        else
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'...
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'...
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'...
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'... 
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'...
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        end
+    
+      elseif mod(h-4,12)==0;    %fourth month in year
+        if h==4;
+          E_x(:,h) = Xlag(3,:)';
+        else
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'...
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'...
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'...
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'... 
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'...
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        end
+
+      elseif mod(h-5,12)==0;    %fifth month in year
+        if h==5;
+          E_x(:,h) = Xlag(2,:)';
+        else
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'...
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'...
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'...
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'... 
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'...
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        end
+
+      elseif mod(h-6,12)==0;    %sixth month in year
+        if h==6;
+          E_x(:,h) = Xlag(1,:)';
+        else
+          E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*data.X(h-1,:,i)'...
+            + para.B(:,K+2:2*K+1)*data.X(h-2,:,i)'...
+          + para.B(:,2*K+2:3*K+1)*data.X(h-3,:,i)'...
+          + para.B(:,3*K+2:4*K+1)*data.X(h-4,:,i)'... 
+          + para.B(:,4*K+2:5*K+1)*data.X(h-5,:,i)'...
+          + para.B(:,5*K+2:6*K+1)*data.X(h-6,:,i)';
+        end
+
+      else  %rest of months in year
+        E_x(:,h) = para.B(:,1)+para.B(:,2:K+1)*E_x(:,h-1)...
+          + para.B(:,K+2:2*K+1)*E_x(:,h-2) ...
+          + para.B(:,2*K+2:3*K+1)*E_x(:,h-3) ...
+          + para.B(:,3*K+2:4*K+1)*E_x(:,h-4) ... 
+          + para.B(:,4*K+2:5*K+1)*E_x(:,h-5) ...
+          + para.B(:,5*K+2:6*K+1)*E_x(:,h-6) ;
+      end
+    end
+    
+    %1st macro forecast: expected average real GDP growth for that quarter
+    %Since computation of expected variables in VAR(2) is conditional on previous
+    %quarter, use output gap relative to previous quarter
+    yMacro(:,1,i) = E_x(beg+4,Q40)+((1+E_x(beg+1,Q40))./(1+E_x(beg+1,Q40-1))-1);
+   
+    %2nd macro forecast: expected average inflation for last year (quarterly basis)
+    yMacro(1:sm.simN,2,i) = -1 + (1+mean(Xyearlag(5,:))).^(1/sm.simN);
+    for tt=sm.simN+1:sm.simN*get(sm,'simT')
+      if mod(tt-1,sm.simN)==0
+        %yMacro([tt:tt+sm.simN-1],2,i)= ...
+        %  -1+geomean( 1+data.X(Q40(tt-sm.simN:tt-1),beg+1,i) );
+        yMacro([tt:tt+sm.simN-1],2,i)= ...
+            -1 + (1+mean(data.X(Q40(tt-sm.simN:tt-1),beg+5,i))).^(1/sm.simN);
+      end
+    end
+    
+    %3rd macro forecast: expected average inflation for that quarter (quarterly basis)
+    yMacro(:,3,i) = -1 + (1+E_x(beg+5,Q40)).^(1/sm.simN);
+    
+    %4th macro forecast: expected change in overnight rate in last 12 months (quarterly basis)
+    rateDiff = E_x(beg+3,:) - [ Xyearlag(3,:)  E_x(beg+3,1:end-12) ];
+    yMacro(:,4,i) = rateDiff(Q40)/sm.simN;
+    
+    %5th macro forecast: expected lagged change in overnight rate is past 12 months (quarterly basis)
+    rateDiff2 = [ Xyearlag(3,:) data.X(1:end-12,beg+3,i)' ] - ...
+    [ Xyearlag13(3,:) Xyearlag(3,:) data.X(1:end-24,beg+3,i)' ];
+    yMacro(:,5,i) = rateDiff2(Q40)/sm.simN;  
+  end;
+end; 
+  
+  
+%% 6. Plot Charts  
+return
+
+for k=1:size(data.X,3)
+  err1(k,:)=1e4*mean(abs([data.eMacro(:,1,k) data.X(:,9,k) data.eMacro(:,1, ...
+						  k)-data.X(:,9,k)]));
+end
+mean(err1)
+
+
+fH=[linspace(1,37,10)
+    linspace(2,38,10)
+    linspace(3,39,10)
+    linspace(4,40,10)]'
+
+
+for k=1:size(data.X,3)
+  err1(k,:)=1e4*mean(abs([data.eMacro(:,1,k) ...
+		    data.X(:,9,k) ...
+		    data.eMacro(:,1,k)-data.X(:,9,k)]));
+end
+
+for j=1:4
+  for k=1:size(data.X,3)
+    forecast(k,:,j)=mean((data.eMacro(fH(:,j),1,k)));
+    err(k,:,j)=sqrt(sum((data.eMacro(fH(:,j),1,k)-data.X(fH(:,j),9,k)).^2)/9);
+  end
+end
+
+
+plot(linspace(0.25,1,4),1e4*mean(squeeze(forecast)),'r','LineWidth',2.5)
+hold on
+plot(linspace(0.25,1,4),1e4*mean(squeeze(forecast))+norminv(0.95)*1e4*mean(squeeze(err)),'r:','LineWidth',2.5)
+plot(linspace(0.25,1,4),1e4*mean(squeeze(forecast))-norminv(0.95)*1e4*mean(squeeze(err)),'r:','LineWidth',2.5)
+hold off
+xlabel('Time (yrs.)')
+ylabel('Quarterly QDP (bps.)')
+set(gca,'XTick',[0.25 0.5 0.75 1]);
+set(gca,'XTickLabel',{'Q1';'Q2';'Q3';'Q4'});
+##### SOURCE END #####
+--></body></html>

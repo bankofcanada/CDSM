@@ -1,0 +1,226 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>simulateBig.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-17"><meta name="DC.source" content="simulateBig.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>simulateBig.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This method (on the <i>nelsonSiegel</i> class) produces the final data structures of simulation results. It breaks down the number of simulations into multiple smaller blocks, runs the specific <i>simulate.m</i> script (which simulates the macro and yield curve variables based on the VAR model) on those blocks, and combines their results.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Method Syntax</a></li><li><a href="#3">1. Set size for each block of simulations, default is 200</a></li><li><a href="#4">2. Simulate the variables in blocks (via <i>simulate.m</i>) and combine results</a></li></ul></div><h2>Method Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> data = simulateBig(varargin)
+</pre><p><i>ns</i> : method is applied to <i>nelsonSiegel</i> class</p><p>Optional inputs for: starting lag setting, shocked variable(s), user-defined block size</p><p><i>data</i> : structure containing all simulation results (blocks combined)</p><h2>1. Set size for each block of simulations, default is 200<a name="3"></a></h2><pre class="codeinput">sm = varargin{1};
+numSims = get(sm, <span class="string">'numSims'</span>);
+<span class="keyword">if</span> nargin &gt; 1 &amp;&amp; strcmpi(varargin{end-1},<span class="string">'Blocksize'</span>)
+  Blocksize = varargin{end};
+  varargin  = varargin(1:end-2);
+<span class="keyword">else</span>
+  Blocksize = 200;
+<span class="keyword">end</span>
+</pre><h2>2. Simulate the variables in blocks (via <i>simulate.m</i>) and combine results<a name="4"></a></h2><p>See: <i><a href="../@nelsonSiegel/simulate.html">simulate</a></i>, <i><a href="set.html">set</a></i></p><pre class="codeinput"><span class="comment">%one-block simulation</span>
+<span class="keyword">if</span> numSims &lt;= Blocksize
+  data = simulate(varargin{:});
+
+<span class="comment">%multiple-block simulation</span>
+<span class="keyword">elseif</span> numSims &gt; Blocksize
+  varargin{1} = set(sm,<span class="string">'numSims'</span>,Blocksize);
+  datablock = simulate(varargin{:});    <span class="comment">%simulate the first block</span>
+
+  <span class="keyword">try</span>
+    <span class="comment">%datablock = rmfield(datablock, 'eInf');</span>
+  <span class="keyword">end</span>
+
+  <span class="keyword">try</span>
+    data.simTenor = datablock.simTenor;
+    datablock = rmfield(datablock, <span class="string">'simTenor'</span>);     <span class="comment">%remove 'simTenor' from block simulation results</span>
+  <span class="keyword">end</span>
+
+  <span class="comment">%Initialize fields with a three-dimensional array to store the</span>
+  <span class="comment">%two-dimensional matrix result (for each simulation) across all simulations</span>
+  dataNames = fieldnames(datablock);
+  <span class="keyword">for</span> ff = 1:length(dataNames)
+    fieldSize = size( getfield(datablock,dataNames{ff}) );
+    data.(dataNames{ff}) = zeros( fieldSize(1),fieldSize(2),numSims );
+  <span class="keyword">end</span>
+
+  <span class="comment">%Assign results from first block simulation to array</span>
+  <span class="keyword">for</span> ff = 1:length(dataNames)
+    data.(dataNames{ff})(:,:,1:Blocksize)<span class="keyword">...</span>
+        = getfield( datablock, dataNames{ff} );
+  <span class="keyword">end</span>
+
+  <span class="comment">%Loop to simulate across rest of the blocks</span>
+  bTime = clock;
+  bb = 2;
+  <span class="keyword">while</span> bb &lt;= floor(numSims/Blocksize)
+    datablock = simulate(varargin{:});
+    <span class="keyword">for</span> ff = 1:length(dataNames)
+      data.(dataNames{ff})(:,:,(1+(bb-1)*Blocksize):bb*Blocksize)<span class="keyword">...</span>
+          = getfield( datablock, dataNames{ff} );
+    <span class="keyword">end</span>
+    fprintf( <span class="string">'\n Completed: %g   Remaining: %.2f minutes \n'</span>, <span class="keyword">...</span>
+             bb*Blocksize,(-1+numSims/bb/Blocksize)*(etime(clock,bTime)/60) );  <span class="comment">%display elapsed time after each block</span>
+    bb=bb+1;
+  <span class="keyword">end</span>
+
+  <span class="comment">%If the final block is not full size, simulate on the remainder and assign results normally</span>
+  <span class="keyword">if</span> (bb-1)*Blocksize ~= numSims
+    varargin{1} = set(sm,<span class="string">'numSims'</span>,numSims-(bb-1)*Blocksize);
+    datablock = simulate(varargin{:});
+    <span class="keyword">for</span> ff = 1:length(dataNames)
+      data.(dataNames{ff})(:,:,(1+(bb-1)*Blocksize):end)<span class="keyword">...</span>
+          = getfield( datablock, dataNames{ff} );
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% simulateBig.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This method (on the _nelsonSiegel_ class) produces the final data structures of simulation results. It breaks down the number of simulations into multiple smaller blocks, runs the specific _simulate.m_ script (which simulates the macro and yield curve variables based on the VAR model) on those blocks, and combines their results. 
+
+%% Method Syntax
+function data = simulateBig(varargin)
+%%
+% _ns_ : method is applied to _nelsonSiegel_ class
+%
+% Optional inputs for: starting lag setting, shocked variable(s), user-defined block size
+%
+% _data_ : structure containing all simulation results (blocks combined)
+
+
+%% 1. Set size for each block of simulations, default is 200
+sm = varargin{1};
+numSims = get(sm, 'numSims');
+if nargin > 1 && strcmpi(varargin{end-1},'Blocksize')
+  Blocksize = varargin{end};
+  varargin  = varargin(1:end-2);
+else 
+  Blocksize = 200;
+end
+
+
+%% 2. Simulate the variables in blocks (via _simulate.m_) and combine results
+%
+% See: _<../@nelsonSiegel/simulate.html simulate>_, _<set.html set>_
+
+%one-block simulation
+if numSims <= Blocksize  
+  data = simulate(varargin{:});
+
+%multiple-block simulation
+elseif numSims > Blocksize
+  varargin{1} = set(sm,'numSims',Blocksize);    
+  datablock = simulate(varargin{:});    %simulate the first block
+  
+  try
+    %datablock = rmfield(datablock, 'eInf');
+  end
+  
+  try
+    data.simTenor = datablock.simTenor;
+    datablock = rmfield(datablock, 'simTenor');     %remove 'simTenor' from block simulation results
+  end
+  
+  %Initialize fields with a three-dimensional array to store the
+  %two-dimensional matrix result (for each simulation) across all simulations
+  dataNames = fieldnames(datablock);
+  for ff = 1:length(dataNames)
+    fieldSize = size( getfield(datablock,dataNames{ff}) );
+    data.(dataNames{ff}) = zeros( fieldSize(1),fieldSize(2),numSims );
+  end
+  
+  %Assign results from first block simulation to array
+  for ff = 1:length(dataNames)
+    data.(dataNames{ff})(:,:,1:Blocksize)...
+        = getfield( datablock, dataNames{ff} );
+  end
+  
+  %Loop to simulate across rest of the blocks
+  bTime = clock;
+  bb = 2;
+  while bb <= floor(numSims/Blocksize)
+    datablock = simulate(varargin{:});
+    for ff = 1:length(dataNames)    
+      data.(dataNames{ff})(:,:,(1+(bb-1)*Blocksize):bb*Blocksize)...
+          = getfield( datablock, dataNames{ff} );
+    end
+    fprintf( '\n Completed: %g   Remaining: %.2f minutes \n', ...
+             bb*Blocksize,(-1+numSims/bb/Blocksize)*(etime(clock,bTime)/60) );  %display elapsed time after each block
+    bb=bb+1;
+  end
+
+  %If the final block is not full size, simulate on the remainder and assign results normally
+  if (bb-1)*Blocksize ~= numSims    
+    varargin{1} = set(sm,'numSims',numSims-(bb-1)*Blocksize);
+    datablock = simulate(varargin{:});
+    for ff = 1:length(dataNames)
+      data.(dataNames{ff})(:,:,(1+(bb-1)*Blocksize):end)...
+          = getfield( datablock, dataNames{ff} );
+    end
+  end
+end
+##### SOURCE END #####
+--></body></html>
