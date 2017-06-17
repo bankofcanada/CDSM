@@ -71,7 +71,7 @@ switch mt
         
 %% 2. Curve-fit general functions of cost and risk with training set results, using OLS
 %
-% See: _<np_regression\@OLS\train.html train>_, _<np_regression\@OLS\OLS.html OLS>_
+% See: _<np_regression\OLS\train.html train>_, _<np_regression\OLS\OLS.html OLS>_
     case 'OLS'  %if OLS method is used (standard)
         fhat = train(OLS(), x, f); % approximate a general function of cost (on any allocation)
         ghat = train(OLS(), x, g); % approximate a general function of risk (on any allocation)

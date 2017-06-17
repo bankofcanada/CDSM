@@ -117,7 +117,7 @@ setApproximationPaths   %set path for curve-fitting method of training set
 % training set have no role whatsoever here.
 %
 % See: _<optMeth.html optMeth>_, _<constr.html constr>_,
-% _<np_regression/@OLS/predict.html predict>_, _<objective/nonLinearConstraint.html nonLinearConstraint>_
+% _<np_regression/OLS/predict.html predict>_, _<objective/nonLinearConstraint.html nonLinearConstraint>_
 
 
 % Define function handle for function being optimized, with the fitted OLS model (i.e. general cost/risk functions) being passed in as an argument
