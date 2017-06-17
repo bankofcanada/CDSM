@@ -1,0 +1,238 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>makeStrategies.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="makeStrategies.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>makeStrategies.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This script is run for the MAKE STRATEGIES step of the model. It creates a set of representative financing strategies which are evaluated in the DEBT CHARGE ENGINE step to produce a training set for curve-fitting general functions of cost and risk for all strategies.</p><p>This representative set is thus meant to inform the cost and risk behavior of all strategies, with a focus on strategies that satisfy the minimum constraints - since those will form the relevant evaluation space for optimization. Thus, the specified minimum constraints are applied to some (1/6), but not all, of the strategies created here.</p><p>Note that the instruments being considered in these strategies (9) is a subset of the total instruments in the model (13).</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Policy Inputs</a></li><li><a href="#2">1. Set Up</a></li><li><a href="#3">2. Create extreme strategies</a></li><li><a href="#4">3. Create strategies that are consistent with minimum issuance constraints</a></li><li><a href="#5">4. Create random strategies</a></li><li><a href="#6">5. Create corner strategies (with at least one instrument at 0)</a></li><li><a href="#7">6. Combine different created strategies and randomize order</a></li><li><a href="#8">7. Save the strategies in blocks</a></li></ul></div><h2>Policy Inputs<a name="1"></a></h2><p>These variables are defined via internal policy decision and are set to --- here as a placeholder:</p><div><ul><li><i>ic</i> (see Part 3) : minimum issuance constraints by instrument, in % terms (each term between 0 and 1, sum is less than 1)</li></ul></div><h2>1. Set Up<a name="2"></a></h2><pre class="codeinput">N = 2000; <span class="comment">% Total number of strategies created</span>
+inc=linspace(1,0.5,20); <span class="comment">%vector of relevant single-instrument weights in extreme portfolios</span>
+A=[];
+blockSize=250; <span class="comment">% Number of strategies in each block, N/blockSize is number of blocks (an integer)</span>
+nInst = 9;  <span class="comment">% Number of instruments: 3m, 6m, 1y, 2y, 3y, 5y 10y, 30y, RRB</span>
+</pre><h2>2. Create extreme strategies<a name="3"></a></h2><p>In these strategies, a fixed extreme allocation is placed in one instrument and the rest is randomly allocated. With 9 instruments and 20 extreme weights (0.5,0.53,...,0.97,1) to consider, there are 9x20 = 180 strategies generated this way.</p><pre class="codeinput"> <span class="keyword">for</span> k=1:length(inc)    <span class="comment">%loop over each relevant extreme weight (0.5,...,1)</span>
+   randtemp =abs(randn(9));
+   randtemp = randtemp - diag(diag(randtemp));
+   randtemp = (1-inc(k)) * (randtemp ./ (sum(randtemp')'*ones(1,nInst)));   <span class="comment">% remaining instruments randomly allocated</span>
+   temp = randtemp + inc(k)*eye(nInst); <span class="comment">% allocation in one instrument is high (0.5,...,1)</span>
+
+   A = [ A; temp(:,1:6) zeros(nInst,1) temp(:,7:8) zeros(nInst,3) temp(:,9) ];  <span class="comment">%A is final matrix of extreme strategies</span>
+
+ <span class="keyword">end</span>
+</pre><h2>3. Create strategies that are consistent with minimum issuance constraints<a name="4"></a></h2><p>In these strategies, a fixed allocation amount is placed in each instrument to satisfy their minimum constraints and the rest is randomly allocated. 1/6 of all the strategies, i.e. 1/6 x 2000 = 333 strategies are generated this way.</p><p>See: <i><a href="icWts.html">icWts</a></i></p><pre class="codeinput">ic = [ --- --- --- --- --- --- --- --- ---];   <span class="comment">%minimum issuance constraints for each instrument</span>
+ic_wts = icWts(ic,round(N/6));  <span class="comment">%ic_wts is final matrix of constraint-consistent strategies</span>
+</pre><h2>4. Create random strategies<a name="5"></a></h2><p>The remaining strategies are randomly allocated, with no constraints. Some of these will be replaced by corner strategies. There are thus a maximum 2000 - 180 - 333 = 1487 strategies generated this way.</p><pre class="codeinput">randU=abs(randn(N-size(A,1)-size(ic_wts,1),nInst)); <span class="comment">%fully random allocation</span>
+allPorts=randU./kron(sum(randU'),ones(nInst,1))';   <span class="comment">%allPorts is matrix of random strategies</span>
+</pre><h2>5. Create corner strategies (with at least one instrument at 0)<a name="6"></a></h2><p>This takes one of the random strategies, and sets the allocation of one instrument to 0 and increases the allocation of the others proportionally. For each instrument, as well as for the pair of 30Y nominal and RRB, this is done for 1/100 of the strategies; i.e. 2000 x 1/100 x 10 = 200 in total. (Thus, there are 1487 - 180 = 1287 random strategies in the set).</p><pre class="codeinput"><span class="keyword">if</span> N&gt;=1200  <span class="comment">%only put these in if the set of strategies sufficiently large (it is here)</span>
+    p = ceil(0.01*N);   <span class="comment">%done for 1/100 of all the strategies, for each instrument</span>
+    spot = length(allPorts) - (nInst+1)*p;
+    <span class="keyword">for</span> i=1:nInst   <span class="comment">%loop across each instrument</span>
+        <span class="keyword">for</span> j=1:p   <span class="comment">%do is 2000 x 1/100 = 20 times for each instrument</span>
+            spot=spot+1;
+            allPorts(spot,i) = 0;   <span class="comment">%set that instrument's allocation to 0</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    allPorts(spot+1:spot+p,8:9) = 0;    <span class="comment">%set the 30Y nominal and RRB allocations to 0 (20 times)</span>
+    allPorts = allPorts ./ (sum(allPorts')'*ones(1,nInst)); <span class="comment">%allPorts is final matrix of random strategies, adjusted for corner strategies</span>
+<span class="keyword">end</span>
+</pre><h2>6. Combine different created strategies and randomize order<a name="7"></a></h2><pre class="codeinput">allPorts=[allPorts; ic_wts];    <span class="comment">%combine random and issuance-constrained strategies</span>
+allPorts=[allPorts(:,1:6) zeros(length(allPorts),1) allPorts(:,7:8) zeros(length(allPorts),3) allPorts(:,9)];
+allPorts=[A; allPorts]; <span class="comment">%combine random and extreme strategies</span>
+
+<span class="comment">% Randomize order so that each block (which is run separately) contains a similar sample of the</span>
+<span class="comment">% representative strategies</span>
+x = linspace(1,N,N);
+
+<span class="keyword">for</span> i = 1:N
+   c = x(i);
+   c2 = ceil(N*rand(1));
+   x(i) = x(c2);
+   x(c2) = c;
+<span class="keyword">end</span>
+seq=[];
+seq = x;
+allPorts = allPorts(x,:);
+</pre><h2>7. Save the strategies in blocks<a name="8"></a></h2><p>Blocks will be evaluated separately in a parallel process, and results will be merged.</p><pre class="codeinput"><span class="keyword">for</span> i=1:N/blockSize
+  ports=allPorts((i-1)*blockSize+1:i*blockSize,:);
+  eval([<span class="string">'save ~/CDSM-public/dataFiles/policyPort_MMMYY_vname_block'</span>,num2str(i),<span class="string">'.mat ports seq'</span>]);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% makeStrategies.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This script is run for the MAKE STRATEGIES step of the model. It creates
+% a set of representative financing strategies which are evaluated in the
+% DEBT CHARGE ENGINE step to produce a training set for curve-fitting general functions of
+% cost and risk for all strategies. 
+% 
+% This representative set is thus meant to inform the cost and risk
+% behavior of all strategies, with a focus on strategies that satisfy the minimum
+% constraints - since those will form the relevant evaluation space for
+% optimization. Thus, the specified minimum constraints are applied to some
+% (1/6), but not all, of the strategies created here.
+%
+% Note that the instruments being considered in these strategies (9) is a
+% subset of the total instruments in the model (13). 
+
+
+%% Policy Inputs
+% These variables are defined via internal policy decision and are set to REPLACE_WITH_DASH_DASH- here as a placeholder:
+%
+% * _ic_ (see Part 3) : minimum issuance constraints by instrument, in % terms (each term between 0 and 1, sum is less than 1)
+%
+
+
+%% 1. Set Up
+N = 2000; % Total number of strategies created
+inc=linspace(1,0.5,20); %vector of relevant single-instrument weights in extreme portfolios
+A=[];
+blockSize=250; % Number of strategies in each block, N/blockSize is number of blocks (an integer)
+nInst = 9;  % Number of instruments: 3m, 6m, 1y, 2y, 3y, 5y 10y, 30y, RRB
+
+
+%% 2. Create extreme strategies
+% In these strategies, a fixed extreme allocation is placed in one instrument and the rest is randomly allocated. With 9 instruments and 20 extreme weights (0.5,0.53,...,0.97,1) to consider, there are 9x20 = 180 strategies generated this way. 
+ for k=1:length(inc)    %loop over each relevant extreme weight (0.5,...,1)
+   randtemp =abs(randn(9));
+   randtemp = randtemp - diag(diag(randtemp));
+   randtemp = (1-inc(k)) * (randtemp ./ (sum(randtemp')'*ones(1,nInst)));   % remaining instruments randomly allocated
+   temp = randtemp + inc(k)*eye(nInst); % allocation in one instrument is high (0.5,...,1)
+     
+   A = [ A; temp(:,1:6) zeros(nInst,1) temp(:,7:8) zeros(nInst,3) temp(:,9) ];  %A is final matrix of extreme strategies
+   
+ end
+
+ 
+%% 3. Create strategies that are consistent with minimum issuance constraints
+% In these strategies, a fixed allocation amount is placed in each
+% instrument to satisfy their minimum constraints and the rest is randomly
+% allocated. 1/6 of all the strategies, i.e. 1/6 x 2000 = 333 strategies
+% are generated this way.
+%
+% See: _<icWts.html icWts>_
+ic = [ REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];   %minimum issuance constraints for each instrument
+ic_wts = icWts(ic,round(N/6));  %ic_wts is final matrix of constraint-consistent strategies
+
+
+%% 4. Create random strategies
+% The remaining strategies are randomly allocated, with no constraints.
+% Some of these will be replaced by corner strategies. There are thus a
+% maximum 2000 - 180 - 333 = 1487 strategies generated this way.
+randU=abs(randn(N-size(A,1)-size(ic_wts,1),nInst)); %fully random allocation
+allPorts=randU./kron(sum(randU'),ones(nInst,1))';   %allPorts is matrix of random strategies
+
+
+%% 5. Create corner strategies (with at least one instrument at 0)
+% This takes one of the random strategies, and sets the allocation of one instrument to 0 and increases the
+% allocation of the others proportionally. For each instrument, as well as for the pair of 30Y nominal and RRB, this is
+% done for 1/100 of the strategies; i.e. 2000 x 1/100 x 10 = 200 in total.
+% (Thus, there are 1487 - 180 = 1287 random strategies in the set).
+
+if N>=1200  %only put these in if the set of strategies sufficiently large (it is here)
+    p = ceil(0.01*N);   %done for 1/100 of all the strategies, for each instrument
+    spot = length(allPorts) - (nInst+1)*p;
+    for i=1:nInst   %loop across each instrument
+        for j=1:p   %do is 2000 x 1/100 = 20 times for each instrument
+            spot=spot+1;
+            allPorts(spot,i) = 0;   %set that instrument's allocation to 0
+        end
+    end    
+    allPorts(spot+1:spot+p,8:9) = 0;    %set the 30Y nominal and RRB allocations to 0 (20 times)
+    allPorts = allPorts ./ (sum(allPorts')'*ones(1,nInst)); %allPorts is final matrix of random strategies, adjusted for corner strategies
+end
+
+
+%% 6. Combine different created strategies and randomize order
+allPorts=[allPorts; ic_wts];    %combine random and issuance-constrained strategies
+allPorts=[allPorts(:,1:6) zeros(length(allPorts),1) allPorts(:,7:8) zeros(length(allPorts),3) allPorts(:,9)];
+allPorts=[A; allPorts]; %combine random and extreme strategies
+
+% Randomize order so that each block (which is run separately) contains a similar sample of the
+% representative strategies
+x = linspace(1,N,N);
+
+for i = 1:N
+   c = x(i);
+   c2 = ceil(N*rand(1));
+   x(i) = x(c2);
+   x(c2) = c;
+end
+seq=[];
+seq = x;
+allPorts = allPorts(x,:);  
+  
+
+%% 7. Save the strategies in blocks
+%%
+% Blocks will be evaluated separately in a parallel process, and results will be merged.
+for i=1:N/blockSize
+  ports=allPorts((i-1)*blockSize+1:i*blockSize,:);  
+  eval(['save ~/CDSM-public/dataFiles/policyPort_MMMYY_vname_block',num2str(i),'.mat ports seq']);
+end
+##### SOURCE END #####
+--></body></html>

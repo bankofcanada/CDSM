@@ -1,0 +1,252 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>main.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-17"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>main.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This script is run for the DEBT CHARGE ENGINE step of the model. It evaluates the cost and risk of each financing strategy (from the MAKE STRATEGIES step) under a subset of the economic scenarios (from the GENERATE SCENARIOS step). It is run once for each strategy in the defined block through a Linux shell script. Running this for all blocks produces the training set result which is used to curve-fit general functions of cost and risk for all strategies - which is the basis for optimization (in the PRODUCE EFFICIENT FRONTIER step).</p><p>This script can also be run directly to evaluate the cost and risk of specific strategies.</p><p>The inputs and results from these evaluations are stored across several matrix variables, which saved in one of the following structures:</p><div><ul><li><i>s</i> : parameters of the simulation</li><li><i>u</i> : utility matrices describing debt instrument properties</li><li><i>o</i> : information on old debt (i.e. debt issued before start of simulation), overwritten with each strategy</li><li><i>n</i> : information on new debt (i.e. debt issued during simulation), overwritten with each strategy</li><li><i>t</i> : information on total debt, overwritten with each strategy</li><li><i>f</i> : information on financial requirements, overwritten with each strategy</li><li><i>m</i> : summary metrics (e.g. cost and risk) for the strategies, from simulation</li></ul></div><p>When analyzing the code and results, it is important to note a few key variable inputs, which determine the majority of matrix dimensions and loop sizes:</p><div><ul><li>Number of instruments (<i>s.nInst</i>) : 13 in this case (3m, 6m, 12m, 2Y, 3Y, 5Y, 7Y, 10Y, 30Y, 2Y RRB, 5Y RRB, 10Y RRB, 30Y RRB), note index of each instrument</li><li>Number of strategies (<i>s.nPoids</i>) : 250 in this case (block size for training set), much fewer if running individual strategies</li><li>Number of simulations selected (<i>s.nscenario</i>) : 4000 in this case</li><li>Number of quarters in simulation (<i>s.nPeriod</i>) : 40 in this case (10-year simulation)</li><li>Maximum instrument maturity in quarters (<i>s.maxMat</i>) : 120 in this case (30-year bond)</li></ul></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Policy Inputs</a></li><li><a href="#2">1. Set Up</a></li><li><a href="#3">2. Load settings</a></li><li><a href="#4">3. Load financing strategies to evaluate.</a></li><li><a href="#5">4. Load files with combined macroeconomic and interest rate scenarios</a></li><li><a href="#6">5. Set up utility matrices describing instrument properties</a></li><li><a href="#7">6. Evaluate the financing strategies and save results</a></li></ul></div><h2>Policy Inputs<a name="1"></a></h2><p>These variables are defined via internal policy decision and are set to --- here as a placeholder:</p><div><ul><li><i>ports</i> (see Part 3): defined individual strategies to evaluate, if setting defined (each term between 0 and 1, terms for a strategy must add to 1)</li></ul></div><h2>1. Set Up<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Set path</span>
+path(path,<span class="string">'../stochastic'</span>);
+path(path,<span class="string">'../stochastic/matlab'</span>);
+<span class="comment">%path(path,'../practice/');</span>
+modelType = <span class="string">'ns'</span>;
+
+tic;
+warning <span class="string">off</span>;
+randomize = 1; <span class="comment">% Setting for how the subset of economic scenarios is selected (0 - in order, 1 - randomly)</span>
+</pre><h2>2. Load settings<a name="3"></a></h2><p>The main user-specific policy inputs are defined here.</p><p>See: <i><a href="initS.html">initS</a></i></p><pre class="codeinput">initS;
+</pre><h2>3. Load financing strategies to evaluate.<a name="4"></a></h2><p>If running a training set, load the <i>strategyFile</i> (name defined in Shell script). If running individual strategies, define the strategies manually.</p><p>Each financing strategy is completely defined by a 13x1 vector describing the percentage allocation for each instrument in steady-state.</p><pre class="codeinput">load(strategyFile);       <span class="comment">%comment out if running area portfolio</span>
+<span class="comment">%ports = [ --- --- --- --- --- --- --- --- --- --- --- --- --- ];    %[3m, 6m, 12m, 2Y, 3Y, 5Y, 7Y, 10Y, 30Y, 2Y RRB, 5Y RRB, 10Y RRB, 30Y RRB], comment out if running training set</span>
+</pre><h2>4. Load files with combined macroeconomic and interest rate scenarios<a name="5"></a></h2><p>See: <i><a href="loadFiles.html">loadFiles</a></i></p><pre class="codeinput">loadFiles;
+</pre><h2>5. Set up utility matrices describing instrument properties<a name="6"></a></h2><p>See: <i><a href="createUtilityMatrices.html">createUtilityMatrices</a></i></p><pre class="codeinput"><span class="keyword">if</span> exist(<span class="string">'data'</span>)
+  s.vZ = mean(mean(data.Z,1),3);    <span class="comment">%average simulated rates for each tenor</span>
+  s.zterms = 4*get(mObject,<span class="string">'simTenor'</span>); <span class="comment">%vector of tenors (in terms of # of quarters)</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Create utility matrix describing what the TTM (in quarters) is for a given instrument in a given quarter</span>
+[u]=createUtilityMatrices(s);
+s.ttm = u.ttm;
+
+bTime=clock;
+</pre><h2>6. Evaluate the financing strategies and save results<a name="7"></a></h2><p>This is done by running a nested loop:</p><div><ul><li>1st level, across all financing strategies (indexed by <i>p</i>)</li><li>2nd level, across all scenarios (indexed by <i>k</i>) for each strategy</li><li>3rd level, across all quarters (indexed by <i>i</i>) in each scenario for each strategy</li></ul></div><p>See: <i><a href="initializePortfolio_new.html">initializePortfolio_new</a></i>, <i><a href="runSingleRealization.html">runSingleRealization</a></i>, <i><a href="saveIntermediateResults.html">saveIntermediateResults</a></i>, <i><a href="computeSummaryStats_min.html">computeSummaryStats_min</a></i>, <i><a href="saveSimulationResults.html">saveSimulationResults</a></i></p><pre class="codeinput"><span class="keyword">for</span> p=1:s.npoids    <span class="comment">%loop across all strategies</span>
+  s.weight= ports(p,:);     <span class="comment">% vector of steady-state portfolio weights representing that strategy</span>
+  avgIss = zeros(13,s.nperiod);
+  disp([<span class="string">'Financing Strategy '</span> num2str(p) <span class="string">' --&gt; Elapsed time: '</span> <span class="keyword">...</span>
+	num2str(etime(clock,bTime)/60)]);
+  [s,o,n,t,f,ttm]=initializePortfolio_new(s,u,LTM); <span class="comment">% create variables describing the maturity profile of the starting steady-state portfolio under that strategy</span>
+  <span class="keyword">for</span> k=1:s.nscenario   <span class="comment">%loop across all scenarios (for that strategy)</span>
+    <span class="keyword">if</span>(mod(k,1000)==0)
+      disp([<span class="string">'   Simulation: '</span> num2str(k) <span class="string">' --&gt; Elapsed time: '</span> <span class="keyword">...</span>
+	    num2str(etime(clock,bTime)/60)]);
+    <span class="keyword">end</span>
+    <span class="keyword">switch</span> s.model
+        <span class="keyword">case</span> <span class="string">'full'</span>
+            <span class="comment">%Evaluate financing strategy _p_ under scenario _k_, across all quarters</span>
+            runSingleRealization
+        <span class="keyword">case</span> <span class="string">'restricted'</span>
+            runSingleRealization_restr;     <span class="comment">%restricted model (not used)</span>
+    <span class="keyword">end</span>
+    saveIntermediateResults;    <span class="comment">%save key results for that scenario (for that strategy)</span>
+  <span class="keyword">end</span>
+  computeSummaryStats_min;  <span class="comment">%compute summary metrics for that strategy, for use in optimization</span>
+  saveSimulationResults;    <span class="comment">%save results from evaluation</span>
+  cpuTimePerStrategy(p)=etime(clock,bTime);
+<span class="keyword">end</span>
+toc;
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% main.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This script is run for the DEBT CHARGE ENGINE step of the model. It
+% evaluates the cost and risk of each financing strategy (from the MAKE
+% STRATEGIES step) under a subset of the economic scenarios (from the
+% GENERATE SCENARIOS step). It is run once for each strategy in the
+% defined block through a Linux shell script. Running this for all blocks
+% produces the training set result which is used to curve-fit general functions of
+% cost and risk for all strategies - which is the basis for optimization (in the PRODUCE EFFICIENT FRONTIER step).
+%
+% This script can also be run directly to evaluate the cost and risk of specific strategies.
+%
+% The inputs and results from these evaluations are stored across several
+% matrix variables, which saved in one of the following structures:
+%
+% * _s_ : parameters of the simulation
+% * _u_ : utility matrices describing debt instrument properties
+% * _o_ : information on old debt (i.e. debt issued before start of simulation), overwritten with each strategy
+% * _n_ : information on new debt (i.e. debt issued during simulation), overwritten with each strategy
+% * _t_ : information on total debt, overwritten with each strategy
+% * _f_ : information on financial requirements, overwritten with each strategy
+% * _m_ : summary metrics (e.g. cost and risk) for the strategies, from simulation
+%
+% When analyzing the code and results, it is important to note a few key variable inputs, which determine the majority of matrix dimensions and loop sizes: 
+%
+% * Number of instruments (_s.nInst_) : 13 in this case (3m, 6m, 12m, 2Y,
+% 3Y, 5Y, 7Y, 10Y, 30Y, 2Y RRB, 5Y RRB, 10Y RRB, 30Y RRB), note index of
+% each instrument
+% * Number of strategies (_s.nPoids_) : 250 in this case (block size for training set), much fewer if running individual strategies
+% * Number of simulations selected (_s.nscenario_) : 4000 in this case
+% * Number of quarters in simulation (_s.nPeriod_) : 40 in this case (10-year simulation)
+% * Maximum instrument maturity in quarters (_s.maxMat_) : 120 in this case (30-year bond)
+
+
+%% Policy Inputs
+% These variables are defined via internal policy decision and are set to REPLACE_WITH_DASH_DASH- here as a placeholder:
+%
+% * _ports_ (see Part 3): defined individual strategies to evaluate, if setting defined (each term between 0 and 1, terms for a strategy must add to 1) 
+
+
+%% 1. Set Up
+
+% Set path
+path(path,'../stochastic');
+path(path,'../stochastic/matlab');
+%path(path,'../practice/');
+modelType = 'ns';
+
+tic;
+warning off;
+randomize = 1; % Setting for how the subset of economic scenarios is selected (0 - in order, 1 - randomly)
+
+
+%% 2. Load settings
+% The main user-specific policy inputs are defined here.
+%
+% See: _<initS.html initS>_
+initS;  
+
+
+%% 3. Load financing strategies to evaluate.
+% If running a training set, load the _strategyFile_ (name defined in Shell
+% script). If running individual strategies, define the strategies manually.
+%
+% Each financing strategy is completely defined by a 13x1 vector describing
+% the percentage allocation for each instrument in steady-state.
+
+load(strategyFile);       %comment out if running area portfolio
+%ports = [ REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- ];    %[3m, 6m, 12m, 2Y, 3Y, 5Y, 7Y, 10Y, 30Y, 2Y RRB, 5Y RRB, 10Y RRB, 30Y RRB], comment out if running training set
+
+
+%% 4. Load files with combined macroeconomic and interest rate scenarios
+%
+% See: _<loadFiles.html loadFiles>_
+loadFiles;
+
+
+%% 5. Set up utility matrices describing instrument properties
+%
+% See: _<createUtilityMatrices.html createUtilityMatrices>_
+
+if exist('data')
+  s.vZ = mean(mean(data.Z,1),3);    %average simulated rates for each tenor
+  s.zterms = 4*get(mObject,'simTenor'); %vector of tenors (in terms of # of quarters)
+end
+
+% Create utility matrix describing what the TTM (in quarters) is for a given instrument in a given quarter
+[u]=createUtilityMatrices(s);    
+s.ttm = u.ttm;
+
+bTime=clock;
+
+
+%% 6. Evaluate the financing strategies and save results
+% This is done by running a nested loop:
+%
+% * 1st level, across all financing strategies (indexed by _p_)
+% * 2nd level, across all scenarios (indexed by _k_) for each strategy
+% * 3rd level, across all quarters (indexed by _i_) in each scenario for each strategy
+%
+% See: _<initializePortfolio_new.html initializePortfolio_new>_,
+% _<runSingleRealization.html runSingleRealization>_, _<saveIntermediateResults.html saveIntermediateResults>_, _<computeSummaryStats_min.html computeSummaryStats_min>_, _<saveSimulationResults.html saveSimulationResults>_
+
+for p=1:s.npoids    %loop across all strategies
+  s.weight= ports(p,:);     % vector of steady-state portfolio weights representing that strategy
+  avgIss = zeros(13,s.nperiod);
+  disp(['Financing Strategy ' num2str(p) ' REPLACE_WITH_DASH_DASH> Elapsed time: ' ...
+	num2str(etime(clock,bTime)/60)]);    
+  [s,o,n,t,f,ttm]=initializePortfolio_new(s,u,LTM); % create variables describing the maturity profile of the starting steady-state portfolio under that strategy  
+  for k=1:s.nscenario   %loop across all scenarios (for that strategy)
+    if(mod(k,1000)==0)
+      disp(['   Simulation: ' num2str(k) ' REPLACE_WITH_DASH_DASH> Elapsed time: ' ...
+	    num2str(etime(clock,bTime)/60)]); 
+    end
+    switch s.model
+        case 'full'
+            %Evaluate financing strategy _p_ under scenario _k_, across all quarters
+            runSingleRealization    
+        case 'restricted'
+            runSingleRealization_restr;     %restricted model (not used)  
+    end
+    saveIntermediateResults;    %save key results for that scenario (for that strategy)
+  end 
+  computeSummaryStats_min;  %compute summary metrics for that strategy, for use in optimization
+  saveSimulationResults;    %save results from evaluation
+  cpuTimePerStrategy(p)=etime(clock,bTime);
+end
+toc;
+##### SOURCE END #####
+--></body></html>

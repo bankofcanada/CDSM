@@ -1,0 +1,259 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>initSpen_F.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="initSpenF_wts.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>initSpen_F.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This subroutine loads the parameters describing the penalty functions - for increasing effective coupon rates on debt when issuance amount is outside allowable ranges.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">1. Define allowable ranges for each instrument</a></li><li><a href="#2">2. Define point estimates for additional coupon associated with amounts of over-issuance</a></li><li><a href="#4">3. Regress point estimates into continuous penalty functions</a></li></ul></div><h2>1. Define allowable ranges for each instrument<a name="1"></a></h2><pre class="codeinput">s.nNomInst = 9;
+
+s.issueRanges=[ ---  ---;    <span class="comment">% 3m</span>
+                ---  ---;     <span class="comment">% 6m</span>
+                ---  ---;  <span class="comment">% 12m</span>
+                ---  ---;     <span class="comment">% 2Y</span>
+                ---  ---;     <span class="comment">% 3Y</span>
+                ---  ---;     <span class="comment">% 5Y</span>
+                ---  ---;     <span class="comment">% 7Y</span>
+                ---  ---;     <span class="comment">% 10Y</span>
+                ---  ---;      <span class="comment">% 30Y</span>
+                ---  ---;      <span class="comment">% 2Y RRB</span>
+                ---  ---;      <span class="comment">% 5Y RRB</span>
+                ---  ---;      <span class="comment">% 10Y RRB</span>
+                ---  ---];       <span class="comment">% 30Y RRB</span>
+</pre><h2>2. Define point estimates for additional coupon associated with amounts of over-issuance<a name="2"></a></h2><pre class="codeinput"><span class="comment">% 3-month</span>
+x_upper(1,:) = [s.issueRanges(1,2)+[--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(1,:) = [--- --- --- --- --- --- --- --- --- --- ---]; <span class="comment">% 1</span>
+
+<span class="comment">% 6-month</span>
+x_upper(2,:) = [s.issueRanges(2,2) + [--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(2,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 12-month</span>
+x_upper(3,:) = [s.issueRanges(3,2) + [--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(3,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 2-year</span>
+x_upper(4,:) = [s.issueRanges(4,2)+ [--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(4,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 3-year</span>
+x_upper(5,:) = [s.issueRanges(5,2)+ [--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(5,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 5-year</span>
+x_upper(6,:) = [s.issueRanges(6,2)+[--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(6,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 7-year</span>
+x_upper(7,:) = [s.issueRanges(7,2)+[--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(7,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 10-year</span>
+x_upper(8,:) = [s.issueRanges(8,2) + [--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(8,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 30-year</span>
+x_upper(9,:) = [s.issueRanges(9,2) + [--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(9,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 2-year RRB</span>
+x_upper(s.nNomInst+1,:) = [s.issueRanges(s.nNomInst+1,2) --- --- --- --- --- --- --- --- --- --- ---];
+p_upper(s.nNomInst+1,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 5-year RRB</span>
+x_upper(s.nNomInst+2,:) = [s.issueRanges(s.nNomInst+2,2) --- --- --- --- --- --- --- --- --- --- ---];
+p_upper(s.nNomInst+2,:) = [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 10-year RRB</span>
+x_upper(s.nNomInst+3,:) = [s.issueRanges(s.nNomInst+3,2) --- --- --- --- --- --- --- --- --- --- ---];
+p_upper(s.nNomInst+3,:) =  [--- --- --- --- --- --- --- --- --- --- ---];
+
+<span class="comment">% 30-year RRB</span>
+</pre><pre class="codeinput">x_upper(s.nNomInst+4,:) = [s.issueRanges(s.nNomInst+4,2)+[--- --- --- --- --- --- --- --- --- --- ---]];
+p_upper(s.nNomInst+4,:) =  [--- --- --- --- --- --- --- --- --- --- ---];
+</pre><h2>3. Regress point estimates into continuous penalty functions<a name="4"></a></h2><pre class="codeinput"><span class="keyword">for</span> k=1:s.nNomInst+4;
+  X=[ones(11,1) x_upper(k,:)' (x_upper(k,:).^2)'];
+  s.beta(:,k)=inv(X'*X)*X'*p_upper(k,:)';
+<span class="keyword">end</span>
+s.m1(1)=---/(s.issueRanges(1,1)^2);
+s.m1(2)=---/(s.issueRanges(2,1)^2);
+s.m1(3)=---/(s.issueRanges(3,1)^2);
+s.m1(4)=---/(s.issueRanges(4,1)^2);
+s.m1(5)=---/(s.issueRanges(5,1)^2);
+s.m1(6)=---/(s.issueRanges(6,1)^2);
+s.m1(7)=---/(s.issueRanges(7,1)^2);
+s.m1(8)=---/(s.issueRanges(8,1)^2);
+s.m1(9)=---/(s.issueRanges(9,1)^2);
+s.m1(s.nNomInst+1)=---/(s.issueRanges(s.nNomInst+1,1)^2);
+s.m1(s.nNomInst+2)=---/(s.issueRanges(s.nNomInst+2,1)^2);
+s.m1(s.nNomInst+3)=---/(s.issueRanges(s.nNomInst+3,1)^2);
+s.m1(s.nNomInst+4)=---/(s.issueRanges(s.nNomInst+4,1)^2);
+
+s.penFactor(1:13) = 1;
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% initSpen_F.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This subroutine loads the parameters describing the penalty functions - for increasing effective coupon rates on debt when issuance amount is outside allowable ranges.
+
+
+%% 1. Define allowable ranges for each instrument
+s.nNomInst = 9;
+
+s.issueRanges=[ REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;    % 3m 
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;     % 6m 
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;  % 12m
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;     % 2Y
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;     % 3Y
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;     % 5Y
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;     % 7Y
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;     % 10Y
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;      % 30Y
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;      % 2Y RRB
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;      % 5Y RRB
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-;      % 10Y RRB
+                REPLACE_WITH_DASH_DASH-  REPLACE_WITH_DASH_DASH-];       % 30Y RRB
+
+
+%% 2. Define point estimates for additional coupon associated with amounts of over-issuance            
+
+% 3-month
+x_upper(1,:) = [s.issueRanges(1,2)+[REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(1,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]; % 1 
+
+% 6-month
+x_upper(2,:) = [s.issueRanges(2,2) + [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(2,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 12-month
+x_upper(3,:) = [s.issueRanges(3,2) + [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(3,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 2-year
+x_upper(4,:) = [s.issueRanges(4,2)+ [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(4,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 3-year
+x_upper(5,:) = [s.issueRanges(5,2)+ [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(5,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]; 
+
+% 5-year
+x_upper(6,:) = [s.issueRanges(6,2)+[REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(6,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 7-year
+x_upper(7,:) = [s.issueRanges(7,2)+[REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(7,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 10-year
+x_upper(8,:) = [s.issueRanges(8,2) + [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(8,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 30-year
+x_upper(9,:) = [s.issueRanges(9,2) + [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(9,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 2-year RRB
+x_upper(s.nNomInst+1,:) = [s.issueRanges(s.nNomInst+1,2) REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+p_upper(s.nNomInst+1,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 5-year RRB
+x_upper(s.nNomInst+2,:) = [s.issueRanges(s.nNomInst+2,2) REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+p_upper(s.nNomInst+2,:) = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 10-year RRB
+x_upper(s.nNomInst+3,:) = [s.issueRanges(s.nNomInst+3,2) REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+p_upper(s.nNomInst+3,:) =  [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+% 30-year RRB
+x_upper(s.nNomInst+4,:) = [s.issueRanges(s.nNomInst+4,2)+[REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]];
+p_upper(s.nNomInst+4,:) =  [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-];
+
+
+%% 3. Regress point estimates into continuous penalty functions
+for k=1:s.nNomInst+4;
+  X=[ones(11,1) x_upper(k,:)' (x_upper(k,:).^2)'];
+  s.beta(:,k)=inv(X'*X)*X'*p_upper(k,:)';  
+end
+s.m1(1)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(1,1)^2);          
+s.m1(2)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(2,1)^2);          
+s.m1(3)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(3,1)^2);          
+s.m1(4)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(4,1)^2);          
+s.m1(5)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(5,1)^2);          
+s.m1(6)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(6,1)^2);          
+s.m1(7)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(7,1)^2);          
+s.m1(8)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(8,1)^2);          
+s.m1(9)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(9,1)^2);          
+s.m1(s.nNomInst+1)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(s.nNomInst+1,1)^2); 
+s.m1(s.nNomInst+2)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(s.nNomInst+2,1)^2);
+s.m1(s.nNomInst+3)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(s.nNomInst+3,1)^2);          
+s.m1(s.nNomInst+4)=REPLACE_WITH_DASH_DASH-/(s.issueRanges(s.nNomInst+4,1)^2);
+
+s.penFactor(1:13) = 1;
+##### SOURCE END #####
+--></body></html>

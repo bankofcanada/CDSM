@@ -1,0 +1,355 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>portfolioSummaryMeasures1.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="portfolioSummaryMeasures1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>portfolioSummaryMeasures1.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This subroutine computes a few common summary metrics of the debt portfolio as of that quarter (for that scenario for that strategy).</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">1. Compute portfolio summary metrics, i.e. fixed-floating ratio and ATM</a></li><li><a href="#2">2. Plot Results</a></li></ul></div><h2>1. Compute portfolio summary metrics, i.e. fixed-floating ratio and ATM<a name="1"></a></h2><pre class="codeinput"><span class="comment">% Adjust for non-market debt</span>
+<span class="keyword">if</span> exist(<span class="string">'fAdj'</span>)==0
+fA=[163 165 168 170 172 174;
+    42 41 41 41 41 41];
+<span class="keyword">for</span> kk=1:2
+  fAdj(kk,:)=interp1(linspace(1,6,6),fA(kk,:),<span class="keyword">...</span>
+		    linspace(1,s.nperiod/4,s.nperiod),<span class="string">'cubic'</span>,<span class="string">'extrap'</span>);
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> strcmp(s.model,<span class="string">'full'</span>)
+  <span class="comment">% Adjust the RRB cashflows for cumulative actual CPI to date and assumed inflation for the coming periods</span>
+  adjustCPI=ones(s.nInst,s.maxMat);
+  adjustCPI(s.nNomInst+1:s.nInst,:)=CPI(i)*flatCPI(s.nNomInst+1:s.nInst,:);
+
+  adj(i) = sum(sum(adjustCPI(s.nNomInst+1:s.nInst,5:end).*t.maturity(s.nNomInst+1:s.nInst,i+5:i+s.maxMat) - <span class="keyword">...</span>
+                t.maturity(s.nNomInst+1:s.nInst,i+5:i+s.maxMat)));  <span class="comment">% adjustment for inflation-linked debt</span>
+
+  <span class="comment">% Compute the fixed-floating ratio ("floating" debt is debt maturing in next four quarters)</span>
+  nmd(i) = sum(fAdj(1:2,i));
+  fxfl(k,i)=(f.outstanding(i)+nmd(i)+ adj(i)<span class="keyword">...</span>
+	     -sum(sum(t.maturity(3:s.nInst,i+1:i+4)))<span class="keyword">...</span>
+	     -fAdj(2,i)<span class="keyword">...</span>
+	     -t.maturity(1,i+1)-sum(t.maturity(2,i+1:i+2))<span class="keyword">...</span>
+	     -0.5*sum(sum(adjustCPI(s.nNomInst+1:s.nInst,5:end).*t.maturity(s.nNomInst+1:s.nInst,i+5:i+s.maxMat))))/<span class="keyword">...</span>
+	    (f.outstanding(i)+nmd(i)+adj(i));
+  rfxPgdp(k,i) = ((f.outstanding(i)+nmd(i)+adj(i))*(1-fxfl(k,i)))/GDP(i);
+
+  <span class="comment">% ATM is the average term to maturity</span>
+  ATM(k,i)=sum(adjustCPI.*t.maturity(:,(i+1):(i+s.maxMat))*(ttm'/4),1)/ <span class="keyword">...</span>
+	   (f.outstanding(i)+adj(i));
+
+  <span class="comment">% Compute the portfolio duration with current discount factor</span>
+  dfactor=kron((1+interp1([0.25 0.5 1 u.numPeriods(1:s.nNomBnds)./4],coupon(k,:,i),ttm/4)).^(-ttm/ <span class="keyword">...</span>
+						  4),ones(s.nInst,1));
+  cpns=n.newaccrual(:,(i+1):(i+s.maxMat))+o.initialaccrual(:,(i+1):(i+s.maxMat));
+  prin=adjustCPI.*t.maturity(:,(i+1):(i+s.maxMat));
+  mv=(cpns+prin).*dfactor;
+  mDuration(k,i)=sum(mv*(ttm'/4),1)/sum(sum(mv));
+<span class="keyword">else</span>
+  fxfl(i)=(f.outstanding(i)-sum(sum(t.maturity(s.nBill:s.nNomInst,i+1:i+4)))-t.maturity(1,i+1) <span class="keyword">...</span>
+	     -sum(t.maturity(2,i+1:i+2)))/f.outstanding(i);
+  ATM(i)=sum(t.maturity(:,(i+1):(i+s.maxMat))*ttm')/f.outstanding(i);
+<span class="keyword">end</span>
+
+
+<span class="keyword">return</span>;
+</pre><h2>2. Plot Results<a name="2"></a></h2><pre class="codeinput">delta(1,:)=norminv(0.95)*linspace(0.5,4.25,25);
+
+[AX,H1,H2]=plotyy(delta(1,:),100*mean(squeeze(m.psm.pFF))',delta(1,:),<span class="keyword">...</span>
+		  mean(squeeze(m.psm.pATM)))
+set(H1,<span class="string">'LineStyle'</span>,<span class="string">'--'</span>)
+set(H2,<span class="string">'LineStyle'</span>,<span class="string">':'</span>,<span class="string">'LineWidth'</span>,3)
+set(get(AX(1),<span class="string">'Ylabel'</span>),<span class="string">'String'</span>,<span class="string">'Fixed-Debt Ratio (%)'</span>)
+set(get(AX(2),<span class="string">'Ylabel'</span>),<span class="string">'String'</span>,<span class="string">'Market-Debt ATM (yrs.)'</span>)
+xlabel(<span class="string">'Risk Constraint (CAD)'</span>)
+axis(AX(1),[delta(1) delta(end) 20 100])
+axis(AX(2),[delta(1) delta(end) 0 8])
+
+delta=norminv(0.95)*linspace(2.72,4.25,25);
+
+[AX,H1,H2]=plotyy(delta,100*mean(squeeze(m.psm.pFF))',delta,<span class="keyword">...</span>
+		  mean(squeeze(m.psm.pATM)));
+
+set(H1,<span class="string">'LineStyle'</span>,<span class="string">'--'</span>)
+set(H2,<span class="string">'LineStyle'</span>,<span class="string">':'</span>,<span class="string">'LineWidth'</span>,3)
+set(get(AX(1),<span class="string">'Ylabel'</span>),<span class="string">'String'</span>,<span class="string">'Fixed-Debt Ratio (%)'</span>)
+set(get(AX(2),<span class="string">'Ylabel'</span>),<span class="string">'String'</span>,<span class="string">'Market-Debt ATM (yrs.)'</span>)
+xlabel(<span class="string">'Risk Constraint (CAD)'</span>)
+set(AX(1),<span class="string">'YTickLabelMode'</span>,<span class="string">'manual'</span>)
+set(AX(1),<span class="string">'YTick'</span>,[0 20 40 60 80 100])
+axis(AX(1),[delta(1) delta(end) 0 100])
+set(AX(2),<span class="string">'YTickLabelMode'</span>,<span class="string">'manual'</span>)
+set(AX(2),<span class="string">'YTick'</span>,[0 2 4 6 8 s.nperiod/4])
+axis(AX(2),[delta(1) delta(end) 0 s.nperiod/4])
+
+subplot(2,2,1)
+A=squeeze(m.percentMean);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,1),<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2.5);
+hold <span class="string">on</span>
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,2),<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,3),<span class="string">'k'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,4),<span class="string">'g'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,5),<span class="string">'c'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,6),<span class="string">'m'</span>,<span class="string">'LineWidth'</span>,2.5);
+hold <span class="string">off</span>
+axis <span class="string">tight</span>
+xlabel(<span class="string">'Time (yrs.)'</span>)
+ylabel(<span class="string">'Per cent'</span>)
+title(<span class="string">'Expected Cost'</span>);
+legend(<span class="string">'Current'</span>,<span class="string">'Historical'</span>,<span class="string">'Optimal $2.3B'</span>,<span class="string">'\uparrow 2nd-yr Risk'</span>,<span class="keyword">...</span>
+       <span class="string">'No 30Y'</span>,<span class="string">'No RRB'</span>);
+subplot(2,2,2)
+A=squeeze(m.car.aCaR);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,1),<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2.5);
+hold <span class="string">on</span>
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,2),<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,3),<span class="string">'k'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,4),<span class="string">'g'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,5),<span class="string">'c'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,6),<span class="string">'m'</span>,<span class="string">'LineWidth'</span>,2.5);
+hold <span class="string">off</span>
+axis <span class="string">tight</span>
+xlabel(<span class="string">'Time (yrs.)'</span>)
+ylabel(<span class="string">'CAD billions'</span>)
+title(<span class="string">'Absolute CaR'</span>);
+subplot(2,2,3)
+A=squeeze(m.car.rCaR);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,1),<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2.5);
+hold <span class="string">on</span>
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,2),<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,3),<span class="string">'k'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,4),<span class="string">'g'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,5),<span class="string">'c'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,6),<span class="string">'m'</span>,<span class="string">'LineWidth'</span>,2.5);
+hold <span class="string">off</span>
+axis <span class="string">tight</span>
+xlabel(<span class="string">'Time (yrs.)'</span>)
+ylabel(<span class="string">'CAD billions'</span>)
+title(<span class="string">'Relative CaR'</span>);
+subplot(2,2,4)
+A=squeeze(m.bar.base.rCaR);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,1),<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2.5);
+hold <span class="string">on</span>
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,2),<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,3),<span class="string">'k'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,4),<span class="string">'g'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,5),<span class="string">'c'</span>,<span class="string">'LineWidth'</span>,2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,6),<span class="string">'m'</span>,<span class="string">'LineWidth'</span>,2.5);
+hold <span class="string">off</span>
+axis <span class="string">tight</span>
+xlabel(<span class="string">'Time (yrs.)'</span>)
+ylabel(<span class="string">'CAD billions'</span>)
+title(<span class="string">'Relative BaR'</span>);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% portfolioSummaryMeasures1.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This subroutine computes a few common summary metrics of the debt
+% portfolio as of that quarter (for that scenario for that strategy).
+
+
+%% 1. Compute portfolio summary metrics, i.e. fixed-floating ratio and ATM
+
+% Adjust for non-market debt
+if exist('fAdj')==0
+fA=[163 165 168 170 172 174;
+    42 41 41 41 41 41];
+for kk=1:2
+  fAdj(kk,:)=interp1(linspace(1,6,6),fA(kk,:),...
+		    linspace(1,s.nperiod/4,s.nperiod),'cubic','extrap');
+end
+end
+
+if strcmp(s.model,'full')
+  % Adjust the RRB cashflows for cumulative actual CPI to date and assumed inflation for the coming periods
+  adjustCPI=ones(s.nInst,s.maxMat);
+  adjustCPI(s.nNomInst+1:s.nInst,:)=CPI(i)*flatCPI(s.nNomInst+1:s.nInst,:);
+  
+  adj(i) = sum(sum(adjustCPI(s.nNomInst+1:s.nInst,5:end).*t.maturity(s.nNomInst+1:s.nInst,i+5:i+s.maxMat) - ...
+                t.maturity(s.nNomInst+1:s.nInst,i+5:i+s.maxMat)));  % adjustment for inflation-linked debt
+  
+  % Compute the fixed-floating ratio ("floating" debt is debt maturing in next four quarters)
+  nmd(i) = sum(fAdj(1:2,i));
+  fxfl(k,i)=(f.outstanding(i)+nmd(i)+ adj(i)...
+	     -sum(sum(t.maturity(3:s.nInst,i+1:i+4)))...
+	     -fAdj(2,i)...
+	     -t.maturity(1,i+1)-sum(t.maturity(2,i+1:i+2))...
+	     -0.5*sum(sum(adjustCPI(s.nNomInst+1:s.nInst,5:end).*t.maturity(s.nNomInst+1:s.nInst,i+5:i+s.maxMat))))/...
+	    (f.outstanding(i)+nmd(i)+adj(i));
+  rfxPgdp(k,i) = ((f.outstanding(i)+nmd(i)+adj(i))*(1-fxfl(k,i)))/GDP(i);
+  
+  % ATM is the average term to maturity
+  ATM(k,i)=sum(adjustCPI.*t.maturity(:,(i+1):(i+s.maxMat))*(ttm'/4),1)/ ...
+	   (f.outstanding(i)+adj(i)); 
+  
+  % Compute the portfolio duration with current discount factor
+  dfactor=kron((1+interp1([0.25 0.5 1 u.numPeriods(1:s.nNomBnds)./4],coupon(k,:,i),ttm/4)).^(-ttm/ ...
+						  4),ones(s.nInst,1)); 
+  cpns=n.newaccrual(:,(i+1):(i+s.maxMat))+o.initialaccrual(:,(i+1):(i+s.maxMat));
+  prin=adjustCPI.*t.maturity(:,(i+1):(i+s.maxMat));
+  mv=(cpns+prin).*dfactor;
+  mDuration(k,i)=sum(mv*(ttm'/4),1)/sum(sum(mv));
+else 
+  fxfl(i)=(f.outstanding(i)-sum(sum(t.maturity(s.nBill:s.nNomInst,i+1:i+4)))-t.maturity(1,i+1) ...
+	     -sum(t.maturity(2,i+1:i+2)))/f.outstanding(i);
+  ATM(i)=sum(t.maturity(:,(i+1):(i+s.maxMat))*ttm')/f.outstanding(i);
+end
+
+
+return;
+
+
+%% 2. Plot Results
+delta(1,:)=norminv(0.95)*linspace(0.5,4.25,25);
+
+[AX,H1,H2]=plotyy(delta(1,:),100*mean(squeeze(m.psm.pFF))',delta(1,:),...
+		  mean(squeeze(m.psm.pATM)))
+set(H1,'LineStyle','REPLACE_WITH_DASH_DASH')
+set(H2,'LineStyle',':','LineWidth',3)
+set(get(AX(1),'Ylabel'),'String','Fixed-Debt Ratio (%)')
+set(get(AX(2),'Ylabel'),'String','Market-Debt ATM (yrs.)')
+xlabel('Risk Constraint (CAD)')
+axis(AX(1),[delta(1) delta(end) 20 100])
+axis(AX(2),[delta(1) delta(end) 0 8])
+
+delta=norminv(0.95)*linspace(2.72,4.25,25);  
+
+[AX,H1,H2]=plotyy(delta,100*mean(squeeze(m.psm.pFF))',delta,...
+		  mean(squeeze(m.psm.pATM)));
+
+set(H1,'LineStyle','REPLACE_WITH_DASH_DASH')
+set(H2,'LineStyle',':','LineWidth',3)
+set(get(AX(1),'Ylabel'),'String','Fixed-Debt Ratio (%)')
+set(get(AX(2),'Ylabel'),'String','Market-Debt ATM (yrs.)')
+xlabel('Risk Constraint (CAD)')
+set(AX(1),'YTickLabelMode','manual')
+set(AX(1),'YTick',[0 20 40 60 80 100])
+axis(AX(1),[delta(1) delta(end) 0 100])
+set(AX(2),'YTickLabelMode','manual')
+set(AX(2),'YTick',[0 2 4 6 8 s.nperiod/4])
+axis(AX(2),[delta(1) delta(end) 0 s.nperiod/4])
+
+subplot(2,2,1)
+A=squeeze(m.percentMean);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,1),'r','LineWidth',2.5);
+hold on
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,2),'b','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,3),'k','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,4),'g','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,5),'c','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),100*A(:,6),'m','LineWidth',2.5);
+hold off
+axis tight
+xlabel('Time (yrs.)')
+ylabel('Per cent')
+title('Expected Cost');
+legend('Current','Historical','Optimal $2.3B','\uparrow 2nd-yr Risk',...
+       'No 30Y','No RRB');
+subplot(2,2,2)
+A=squeeze(m.car.aCaR);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,1),'r','LineWidth',2.5);
+hold on
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,2),'b','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,3),'k','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,4),'g','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,5),'c','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,6),'m','LineWidth',2.5);
+hold off
+axis tight
+xlabel('Time (yrs.)')
+ylabel('CAD billions')
+title('Absolute CaR');
+subplot(2,2,3)
+A=squeeze(m.car.rCaR);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,1),'r','LineWidth',2.5);
+hold on
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,2),'b','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,3),'k','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,4),'g','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,5),'c','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,6),'m','LineWidth',2.5);
+hold off
+axis tight
+xlabel('Time (yrs.)')
+ylabel('CAD billions')
+title('Relative CaR');
+subplot(2,2,4)
+A=squeeze(m.bar.base.rCaR);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,1),'r','LineWidth',2.5);
+hold on
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,2),'b','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,3),'k','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,4),'g','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,5),'c','LineWidth',2.5);
+plot(linspace(1,s.nperiod/4,s.nperiod/4),A(:,6),'m','LineWidth',2.5);
+hold off
+axis tight
+xlabel('Time (yrs.)')
+ylabel('CAD billions')
+title('Relative BaR');
+##### SOURCE END #####
+--></body></html>

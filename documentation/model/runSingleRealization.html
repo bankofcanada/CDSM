@@ -1,0 +1,273 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>runSingleRealization.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="runSingleRealization.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>runSingleRealization.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This subroutine, called for each financing strategy under each scenario, evaluates the given strategy under the given scenario. This is done by computing financial requirements, issuance amounts, debt costs, and portfolio summary measures, in order, for each quarter.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">1. Set up values for CPI, GDP, and coupons</a></li><li><a href="#2">2. Initialize matrices to store results</a></li><li><a href="#3">3. Evaluate each simulated quarter</a></li><li><a href="#4">4. Aggregate and store key variables</a></li></ul></div><h2>1. Set up values for CPI, GDP, and coupons<a name="1"></a></h2><pre class="codeinput">CPI(1) = ((1+X0(1,s.dim+5,k))^(1/4));   <span class="comment">%CPI is set to be 1 at start, so CPI in first quarter is just (1 + inflation) converted quarterly</span>
+GDP(1) = s.initialGDP;  <span class="comment">%Initial GDP defined in settings</span>
+meanCPI = (1+mean(X0(:,s.dim+5,k)))^(1/4);  <span class="comment">%average inflation from scenario</span>
+meanGDP = (1+mean(X0(:,s.dim+6,k)));    <span class="comment">%average GDP growth from scenario</span>
+
+
+<span class="keyword">for</span> tt = 2:s.nperiod + s.maxMat
+    <span class="comment">%For each quarter in horizon, compute CPI and GDP based on the value</span>
+    <span class="comment">%last quarter and the relevant macro variable this quarter (inflation</span>
+    <span class="comment">%and GDP growth)</span>
+  <span class="keyword">if</span> tt&lt;=s.nperiod
+    CPI(tt) = CPI(tt-1)*( (1+X0(tt,s.dim+5,k))^(1/4) );
+    GDP(tt) = GDP(tt-1)*( (1+X0(tt,s.dim+6,k)));
+    <span class="comment">%For quarters beyond horizon, inflation and GDP growth assumed to be</span>
+    <span class="comment">%average from scenario</span>
+  <span class="keyword">else</span>
+    CPI(tt) = CPI(tt-1)*meanCPI;
+    GDP(tt) = GDP(tt-1)*meanGDP;
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+clear <span class="string">meanCPI</span> <span class="string">meanGDP</span>
+
+flatCPI(1:s.nNomInst,:)=ones(s.nNomInst,120);
+flatCPI(s.nNomInst+1:s.nInst,:)=kron((1+LTM(s.dim+5)).^linspace(0.25,30,120),ones(4,1));    <span class="comment">%Compute CPI assuming inflation constant at long-term mean</span>
+
+scen(1:s.nNomInst,:)=squeeze(coupon(k,:,1:s.nperiod));  <span class="comment">%nominal bond coupons each quarter</span>
+scen(s.nNomInst+1:s.nInst,:)=squeeze(realcoupon(k,[1 2 3 4],1:s.nperiod));  <span class="comment">%real return bond coupons each quarter</span>
+</pre><h2>2. Initialize matrices to store results<a name="2"></a></h2><pre class="codeinput">totalcost=zeros(s.nInst,s.nperiod);     <span class="comment">% totalcost is the "accrual" cost of all the new debt for every quarter. (check)</span>
+
+t.cash=zeros(1,s.nperiod);
+t.maturity=o.initialmaturity;
+t.maturityReal = [o.initialmaturity(1:s.nNomInst,:); [o.initialmaturityReal(s.nNomInst+1:s.nInst,:) zeros(4,s.nperiod)] ];
+n.maturity = zeros(s.nInst,s.nperiod + s.maxMat);
+n.maturityReal = zeros(s.nInst,s.nperiod + s.maxMat);
+n.newaccrual = zeros(s.nInst,s.nperiod + s.maxMat);
+realcost=zeros(s.nInst,s.nperiod + s.maxMat);
+realcost(s.nNomInst+1:s.nInst,1:120) = o.initialaccrualReal(s.nNomInst+1:s.nInst,1:120);    <span class="comment">%include costs of old RRBs in matrix of new debt costs for ease of computation (since those values will change from quarter-to-quarter due to inflation uplift)</span>
+
+f.outstanding=s.value.*ones(1,s.nperiod);
+f.dstock_adj = ones(1,s.nperiod/4);
+</pre><h2>3. Evaluate each simulated quarter<a name="3"></a></h2><p>The following are computed for each quarter, in order:</p><div><ul><li>(1) financial requirements</li><li>(2) issuance amounts</li><li>(3) debt costs</li><li>(4) portfolio summary measures</li></ul></div><p>The evaluation for each quarter is based on the scenario information and the results from previous quarters.</p><p>See: <i><a href="getFinancialRequirements.html">getFinancialRequirements</a></i>, <i><a href="issuanceProcess.html">issuanceProcess</a></i>, <i><a href="computeDebtCharges.html">computeDebtCharges</a></i>, <i><a href="portfolioSummaryMeasures1.html">portfolioSummaryMeasures1</a></i></p><pre class="codeinput"><span class="keyword">for</span> i=1:s.nperiod   <span class="comment">%loop across all quarters</span>
+  <span class="comment">% Compute financial requirements for this quarter</span>
+  getFinancialRequirements;
+  <span class="comment">% Compute issuance amounts for this quarter, and update future maturing amounts accordingly</span>
+  issuanceProcess;
+  <span class="comment">% Compute debt costs for this quarter</span>
+  computeDebtCharges;
+  <span class="comment">% Compute portfolio summary metrics</span>
+  portfolioSummaryMeasures1;
+<span class="keyword">end</span>
+</pre><h2>4. Aggregate and store key variables<a name="4"></a></h2><pre class="codeinput">avgIss = ((k-1)/k)*avgIss + (1/k)*n.issuance(:,1:s.nperiod);
+
+<span class="comment">%Store variables describing financial requirements in each quarter</span>
+totalStock(k,:)=f.outstanding;
+totalFR(k,:,1)=f.finreq;
+totalFR(k,:,2)=f.finreq_raw;
+totalFR(k,:,3)=f.Expenses;
+totalFR(k,:,4)=f.Revenues;
+totalFR(k,:,5)=f.expectedExpenses;
+totalFR(k,:,6)=f.expectedRevenues;
+totalFR(k,:,7)=f.eDC;
+totalFR(k,:,8)=f.Adjust;
+
+nominalStock(k,:) = sum(n.nominalMaturity,1)+t.cash;    <span class="comment">%matrix of total debt stock for each quarter (for each scenario)</span>
+realStock(k,:) = (sum(n.nominalMaturity(1:s.nNomInst,:),1)+t.cash)./CPI(1:s.nperiod) + <span class="keyword">...</span>
+    sum(t.maturity(s.nNomInst+1:s.nInst,1:s.nperiod))./CPI(1:s.nperiod);    <span class="comment">%debt stock in real terms</span>
+
+<span class="keyword">for</span> j=1:(s.nperiod/4)
+  Year(k,j) = sum(total(4*j-3:4*j));        <span class="comment">%matrix of debt cost for each year (for each scenario)</span>
+  RRBCpn(k,j) = sum(totalRealCpn(4*j-3:4*j));   <span class="comment">%total yearly RRB coupons</span>
+  RRBPrn(k,j) = sum(totalRealPrn(4*j-3:4*j));   <span class="comment">%total yearly outflows for RRB principal uplift</span>
+<span class="keyword">end</span>
+
+Outs(:,:,k) = t.detailedoutstanding;    <span class="comment">%3D array of outstanding amount by sector each quarter (for each scenario)</span>
+
+<span class="keyword">if</span> s.realFlag==1;   <span class="comment">%adjust values to real terms if setting on (not used)</span>
+  Year(k,:) = Year(k,:)./CPI(linspace(1,s.nperiod/4,s.nperiod/4)*4);
+  <span class="keyword">for</span> w=1:size(totalFR,3)
+    totalFR(k,:,w)=totalFR(k,:,w)./CPI(linspace(1,s.nperiod,s.nperiod));
+  <span class="keyword">end</span>
+  totalStock(k,:) = totalStock(k,:)./CPI(linspace(1,s.nperiod,s.nperiod));
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% runSingleRealization.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This subroutine, called for each financing strategy under each scenario,
+% evaluates the given strategy under the given scenario. This is done by
+% computing financial requirements, issuance amounts, debt costs, and
+% portfolio summary measures, in order, for each quarter.
+
+
+%% 1. Set up values for CPI, GDP, and coupons
+CPI(1) = ((1+X0(1,s.dim+5,k))^(1/4));   %CPI is set to be 1 at start, so CPI in first quarter is just (1 + inflation) converted quarterly
+GDP(1) = s.initialGDP;  %Initial GDP defined in settings
+meanCPI = (1+mean(X0(:,s.dim+5,k)))^(1/4);  %average inflation from scenario 
+meanGDP = (1+mean(X0(:,s.dim+6,k)));    %average GDP growth from scenario
+
+
+for tt = 2:s.nperiod + s.maxMat
+    %For each quarter in horizon, compute CPI and GDP based on the value
+    %last quarter and the relevant macro variable this quarter (inflation
+    %and GDP growth)
+  if tt<=s.nperiod
+    CPI(tt) = CPI(tt-1)*( (1+X0(tt,s.dim+5,k))^(1/4) ); 
+    GDP(tt) = GDP(tt-1)*( (1+X0(tt,s.dim+6,k)));
+    %For quarters beyond horizon, inflation and GDP growth assumed to be
+    %average from scenario
+  else
+    CPI(tt) = CPI(tt-1)*meanCPI;
+    GDP(tt) = GDP(tt-1)*meanGDP;
+  end
+end
+clear meanCPI meanGDP
+
+flatCPI(1:s.nNomInst,:)=ones(s.nNomInst,120);   
+flatCPI(s.nNomInst+1:s.nInst,:)=kron((1+LTM(s.dim+5)).^linspace(0.25,30,120),ones(4,1));    %Compute CPI assuming inflation constant at long-term mean
+
+scen(1:s.nNomInst,:)=squeeze(coupon(k,:,1:s.nperiod));  %nominal bond coupons each quarter
+scen(s.nNomInst+1:s.nInst,:)=squeeze(realcoupon(k,[1 2 3 4],1:s.nperiod));  %real return bond coupons each quarter
+
+
+%% 2. Initialize matrices to store results
+totalcost=zeros(s.nInst,s.nperiod);     % totalcost is the "accrual" cost of all the new debt for every quarter. (check) 
+
+t.cash=zeros(1,s.nperiod);  
+t.maturity=o.initialmaturity; 
+t.maturityReal = [o.initialmaturity(1:s.nNomInst,:); [o.initialmaturityReal(s.nNomInst+1:s.nInst,:) zeros(4,s.nperiod)] ];
+n.maturity = zeros(s.nInst,s.nperiod + s.maxMat);
+n.maturityReal = zeros(s.nInst,s.nperiod + s.maxMat);
+n.newaccrual = zeros(s.nInst,s.nperiod + s.maxMat);
+realcost=zeros(s.nInst,s.nperiod + s.maxMat);
+realcost(s.nNomInst+1:s.nInst,1:120) = o.initialaccrualReal(s.nNomInst+1:s.nInst,1:120);    %include costs of old RRBs in matrix of new debt costs for ease of computation (since those values will change from quarter-to-quarter due to inflation uplift)
+
+f.outstanding=s.value.*ones(1,s.nperiod);
+f.dstock_adj = ones(1,s.nperiod/4);
+
+
+%% 3. Evaluate each simulated quarter
+% The following are computed for each quarter, in order:
+% 
+% * (1) financial requirements
+% * (2) issuance amounts
+% * (3) debt costs
+% * (4) portfolio summary measures
+%
+% The evaluation for each quarter is based on the scenario information and the results from previous quarters.
+%
+% See: _<getFinancialRequirements.html getFinancialRequirements>_,
+% _<issuanceProcess.html issuanceProcess>_, _<computeDebtCharges.html
+% computeDebtCharges>_, _<portfolioSummaryMeasures1.html
+% portfolioSummaryMeasures1>_
+
+for i=1:s.nperiod   %loop across all quarters
+  % Compute financial requirements for this quarter
+  getFinancialRequirements;
+  % Compute issuance amounts for this quarter, and update future maturing amounts accordingly
+  issuanceProcess;
+  % Compute debt costs for this quarter
+  computeDebtCharges;
+  % Compute portfolio summary metrics
+  portfolioSummaryMeasures1;
+end
+
+
+%% 4. Aggregate and store key variables
+
+avgIss = ((k-1)/k)*avgIss + (1/k)*n.issuance(:,1:s.nperiod);
+
+%Store variables describing financial requirements in each quarter
+totalStock(k,:)=f.outstanding;
+totalFR(k,:,1)=f.finreq;
+totalFR(k,:,2)=f.finreq_raw;
+totalFR(k,:,3)=f.Expenses;
+totalFR(k,:,4)=f.Revenues;
+totalFR(k,:,5)=f.expectedExpenses;
+totalFR(k,:,6)=f.expectedRevenues;
+totalFR(k,:,7)=f.eDC;
+totalFR(k,:,8)=f.Adjust;
+
+nominalStock(k,:) = sum(n.nominalMaturity,1)+t.cash;    %matrix of total debt stock for each quarter (for each scenario)
+realStock(k,:) = (sum(n.nominalMaturity(1:s.nNomInst,:),1)+t.cash)./CPI(1:s.nperiod) + ...
+    sum(t.maturity(s.nNomInst+1:s.nInst,1:s.nperiod))./CPI(1:s.nperiod);    %debt stock in real terms
+
+for j=1:(s.nperiod/4)
+  Year(k,j) = sum(total(4*j-3:4*j));        %matrix of debt cost for each year (for each scenario)    
+  RRBCpn(k,j) = sum(totalRealCpn(4*j-3:4*j));   %total yearly RRB coupons
+  RRBPrn(k,j) = sum(totalRealPrn(4*j-3:4*j));   %total yearly outflows for RRB principal uplift
+end
+
+Outs(:,:,k) = t.detailedoutstanding;    %3D array of outstanding amount by sector each quarter (for each scenario)
+
+if s.realFlag==1;   %adjust values to real terms if setting on (not used)
+  Year(k,:) = Year(k,:)./CPI(linspace(1,s.nperiod/4,s.nperiod/4)*4);
+  for w=1:size(totalFR,3)
+    totalFR(k,:,w)=totalFR(k,:,w)./CPI(linspace(1,s.nperiod,s.nperiod));
+  end
+  totalStock(k,:) = totalStock(k,:)./CPI(linspace(1,s.nperiod,s.nperiod));
+end
+##### SOURCE END #####
+--></body></html>

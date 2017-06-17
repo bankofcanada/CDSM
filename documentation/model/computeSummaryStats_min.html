@@ -1,0 +1,243 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>computeSummaryStats_min.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="computeSummaryStats_min.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>computeSummaryStats_min.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This subroutine populates the <i>m</i> structure with a wide range of summary metrics for each strategy. They come in the following types.</p><div><ul><li><i>moyenne</i> : average debt cost</li><li><i>med</i> : median debt cost</li><li><i>standev</i> : standard deviation of debt cost</li><li><i>car</i> : Cost-at-Risk measures</li><li><i>DCD</i> : distribution of debt costs</li><li><i>fr</i> : related to financial requirements</li><li><i>cv</i> : conditiona volatility metrics</li><li><i>issue</i> : related to issuance and maturity</li><li><i>psm</i> : portfolio summary metrices</li></ul></div><p>For all of these saved matrices/arrays, the number of strategies forms one of the dimensions.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">1. Debt Stock Metrics</a></li><li><a href="#2">2. Cost-Related Metrics</a></li><li><a href="#3">3. Fiscal Metrics</a></li><li><a href="#4">4. Conditional Volatility Metrics</a></li><li><a href="#5">5. Rollover Metrics</a></li><li><a href="#6">6. Other Portfolio Summary Metrics</a></li><li><a href="#7">7. Save this financing strategy in main array</a></li></ul></div><h2>1. Debt Stock Metrics<a name="1"></a></h2><pre class="codeinput"><span class="keyword">for</span> j=1:s.nperiod/4
+    m.stock.os(:,j,p) = mean(totalStock(:,4*(j-1)+1:4*j),2);    <span class="comment">%average debt stock by year</span>
+<span class="keyword">end</span>
+</pre><h2>2. Cost-Related Metrics<a name="2"></a></h2><pre class="codeinput">m.moyenne(1,:,p) = mean(Year);  <span class="comment">%average debt cost by year</span>
+m.med(1,:,p) = median(Year);    <span class="comment">%median debt cost by year</span>
+m.standev(1,:,p) = std(Year);   <span class="comment">%standard deviation of debt cost by year</span>
+
+m.car.aCaR(1,:,p) = prctile(Year,100*s.alpha);  <span class="comment">%absolute cost-at-risk by year at specified risk level (0.95)</span>
+m.car.rCaR(1,:,p) = m.car.aCaR(1,:,p)-m.moyenne(1,:,p); <span class="comment">%relative cost-at-risk by year</span>
+m.car.cCaR_y2y(1,:,p) = prctile(Year(:,2:end)-Year(:,1:end-1),100*s.alpha);     <span class="comment">%absolute cost-at-risk of year-to-year change, by year</span>
+m.car.crCaR_y2y(1,:,p) = m.car.cCaR_y2y(1,:,p)-mean(Year(:,2:end)-Year(:,1:end-1)); <span class="comment">%relative cost-at-risk of year-to-year change, by year</span>
+[mm,nn]=size(Year);
+<span class="keyword">for</span>(j=1:nn)
+  temp=sort(Year(:,j),1);
+  m.car.cCaR(1,j,p)=mean(temp(s.alpha*s.nscenario:s.nscenario));    <span class="comment">%conditional cost-at-risk</span>
+<span class="keyword">end</span>
+m.car.rcCaR(1,:,p) = m.car.cCaR(1,:,p) - m.moyenne(1,:,p);  <span class="comment">%relative conditional cost-at-risk</span>
+m.DCD(:,:,p)=Year;  <span class="comment">%distribution of simulated debt costs by year</span>
+</pre><h2>3. Fiscal Metrics<a name="3"></a></h2><p>See: <i><a href="prob_greater.html">prob_greater</a></i></p><pre class="codeinput"><span class="keyword">for</span>(j=1:s.nperiod/4)
+  <span class="keyword">for</span> jj=1:size(totalFR,3)
+    totalFR1(:,j,jj)=sum(totalFR(:,(j-1)*4+1:j*4,jj)');
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+m.fr.FinReq(:,:,p)=totalFR1(:,:,1); <span class="comment">%distribution of simulated financial requirements by year</span>
+<span class="keyword">switch</span> s.frFeedback
+    <span class="keyword">case</span> <span class="string">'yes'</span>
+        m.fr.Expenses(1,:,p)=mean(totalFR1(:,:,3),1);   <span class="comment">%distribution of realized expense by year</span>
+        m.fr.Revenues(1,:,p)=mean(totalFR1(:,:,4),1);   <span class="comment">%distribution of realized revenue by year</span>
+
+        m.bar.base.mean(1,:,p) = mean(m.fr.FinReq(:,:,p));  <span class="comment">%average financial requirement by year</span>
+        m.bar.base.std(1,:,p)  = std(m.fr.FinReq(:,:,p));   <span class="comment">%standard deviation of financial requirement by year</span>
+        m.bar.base.med(1,:,p)  = median(m.fr.FinReq(:,:,p));    <span class="comment">%median financial requirement by year</span>
+        m.bar.base.aCaR(1,:,p) = prctile(m.fr.FinReq(:,:,p),100*s.alpha);   <span class="comment">%absolute budget-at-risk by year at specified risk level (0.95)</span>
+        m.bar.base.rCaR(1,:,p) = m.bar.base.aCaR(1,:,p) - mean(m.fr.FinReq(:,:,p)); <span class="comment">%relative budget-at-risk by year</span>
+        m.bar.base.cCaRy2y(1,:,p) = prctile(squeeze(m.fr.FinReq(:,2:end,p))-squeeze(m.fr.FinReq(:,1:end-1,p)),100*s.alpha); <span class="comment">%absolute budget-at-risk of year-to-year change, by year</span>
+        m.bar.base.crCaRy2y(1,:,p) = squeeze(m.bar.base.cCaRy2y(1,:,p))-<span class="keyword">...</span>
+        mean(squeeze(m.fr.FinReq(:,2:end,p))-squeeze(m.fr.FinReq(:,1:end-1,p)));    <span class="comment">%relative budget-at-risk of year-to-year change, by year</span>
+        m.bar.probDeficit(1,:,p) = prob_greater(m.fr.FinReq(:,:,p),0,2);    <span class="comment">%probability of deficit, by year</span>
+<span class="keyword">end</span>
+</pre><h2>4. Conditional Volatility Metrics<a name="4"></a></h2><p>See: <i><a href="computeS_condVol.html">computeS_condVol</a></i></p><pre class="codeinput">computeS_condVol
+clear <span class="string">totalFR</span> <span class="string">totalFR1</span>;
+</pre><h2>5. Rollover Metrics<a name="5"></a></h2><pre class="codeinput">m.issue.qBillRed.mean(1,:,p)=mean(billRedemption);  <span class="comment">%average bill maturity by quarter</span>
+m.issue.qBillRed.std(1,:,p)=std(billRedemption);    <span class="comment">%standard deviation of bill maturity by quarter</span>
+m.issue.qBondRed.mean(1,:,p)=mean(bondRedemption);  <span class="comment">%average bond maturity by quarter</span>
+m.issue.qBondRed.std(1,:,p)=std(bondRedemption);    <span class="comment">%standard deviation of bond maturity by quarter</span>
+
+m.issue.qdetailedOut(:,:,p) = mean(Outs,3); <span class="comment">%each sector's average outstanding by quarter</span>
+m.issue.qBillStock.mean(1,:,p) = mean(sum(Outs(1:s.nBill,:,:)),3);  <span class="comment">%treasury bill stock by quarter</span>
+m.issue.qBondStock.mean(1,:,p) = mean(sum(Outs(s.nBill+1:s.nInst,:,:)),3);  <span class="comment">%bond stock by quarter</span>
+m.issue.meanIss(:,:,p) = avgIss;    <span class="comment">%each sector's average issuance by quarter</span>
+clear <span class="string">issuance</span> <span class="string">bondRedemption</span> <span class="string">billRedemption</span> <span class="string">billIssue</span> <span class="string">bondIssue</span> <span class="string">Outs</span> <span class="string">avgIss</span>;
+clear <span class="string">totalStock</span>;
+</pre><h2>6. Other Portfolio Summary Metrics<a name="6"></a></h2><p>Mean fixed-debt, fixed-debt as % of GDP, ATM, and mDuration measures.</p><pre class="codeinput">m.psm.pFF(1,:,p)=mean(fxfl,1);  <span class="comment">%average fixed-debt ratio by quarter</span>
+m.psm.pRfPg(1,:,p) = mean(rfxPgdp,1);   <span class="comment">%average fixed-debt (as % of GDP) by quarter</span>
+m.psm.pATM(1,:,p)=mean(ATM,1);  <span class="comment">%average ATM by quarter</span>
+m.psm.pDuration(1,:,p)=mean(mDuration,1);   <span class="comment">%average duration by quarter</span>
+<span class="keyword">if</span> p==s.npoids &amp;&amp; k==s.nscenario
+    m.CPI = CPI_k(:,1:s.nperiod);   <span class="comment">%CPI for each simulation by quarter</span>
+    m.GDP = GDP_k(:,1:s.nperiod);   <span class="comment">%GDP for each simulation by quarter</span>
+<span class="keyword">end</span>
+clear <span class="string">fxfl</span> <span class="string">ATM</span> <span class="string">mDuration</span> <span class="string">rfxPgdp</span>;
+</pre><h2>7. Save this financing strategy in main array<a name="7"></a></h2><pre class="codeinput">m.strategy(:,:,p)=s.weight;
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% computeSummaryStats_min.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This subroutine populates the _m_ structure with a wide range of summary
+% metrics for each strategy. They come in the following types.
+%
+% * _moyenne_ : average debt cost
+% * _med_ : median debt cost
+% * _standev_ : standard deviation of debt cost
+% * _car_ : Cost-at-Risk measures
+% * _DCD_ : distribution of debt costs
+% * _fr_ : related to financial requirements
+% * _cv_ : conditiona volatility metrics
+% * _issue_ : related to issuance and maturity
+% * _psm_ : portfolio summary metrices
+%
+% For all of these saved matrices/arrays, the number of strategies forms
+% one of the dimensions.
+
+
+%% 1. Debt Stock Metrics 
+for j=1:s.nperiod/4
+    m.stock.os(:,j,p) = mean(totalStock(:,4*(j-1)+1:4*j),2);    %average debt stock by year
+end
+
+
+%% 2. Cost-Related Metrics
+m.moyenne(1,:,p) = mean(Year);  %average debt cost by year 
+m.med(1,:,p) = median(Year);    %median debt cost by year
+m.standev(1,:,p) = std(Year);   %standard deviation of debt cost by year
+
+m.car.aCaR(1,:,p) = prctile(Year,100*s.alpha);  %absolute cost-at-risk by year at specified risk level (0.95)
+m.car.rCaR(1,:,p) = m.car.aCaR(1,:,p)-m.moyenne(1,:,p); %relative cost-at-risk by year 
+m.car.cCaR_y2y(1,:,p) = prctile(Year(:,2:end)-Year(:,1:end-1),100*s.alpha);     %absolute cost-at-risk of year-to-year change, by year 
+m.car.crCaR_y2y(1,:,p) = m.car.cCaR_y2y(1,:,p)-mean(Year(:,2:end)-Year(:,1:end-1)); %relative cost-at-risk of year-to-year change, by year 
+[mm,nn]=size(Year);             
+for(j=1:nn)
+  temp=sort(Year(:,j),1);
+  m.car.cCaR(1,j,p)=mean(temp(s.alpha*s.nscenario:s.nscenario));    %conditional cost-at-risk 
+end
+m.car.rcCaR(1,:,p) = m.car.cCaR(1,:,p) - m.moyenne(1,:,p);  %relative conditional cost-at-risk
+m.DCD(:,:,p)=Year;  %distribution of simulated debt costs by year
+
+
+%% 3. Fiscal Metrics
+%
+% See: _<prob_greater.html prob_greater>_
+for(j=1:s.nperiod/4)
+  for jj=1:size(totalFR,3)
+    totalFR1(:,j,jj)=sum(totalFR(:,(j-1)*4+1:j*4,jj)');
+  end
+end
+m.fr.FinReq(:,:,p)=totalFR1(:,:,1); %distribution of simulated financial requirements by year
+switch s.frFeedback
+    case 'yes'
+        m.fr.Expenses(1,:,p)=mean(totalFR1(:,:,3),1);   %distribution of realized expense by year
+        m.fr.Revenues(1,:,p)=mean(totalFR1(:,:,4),1);   %distribution of realized revenue by year
+
+        m.bar.base.mean(1,:,p) = mean(m.fr.FinReq(:,:,p));  %average financial requirement by year  
+        m.bar.base.std(1,:,p)  = std(m.fr.FinReq(:,:,p));   %standard deviation of financial requirement by year
+        m.bar.base.med(1,:,p)  = median(m.fr.FinReq(:,:,p));    %median financial requirement by year
+        m.bar.base.aCaR(1,:,p) = prctile(m.fr.FinReq(:,:,p),100*s.alpha);   %absolute budget-at-risk by year at specified risk level (0.95)
+        m.bar.base.rCaR(1,:,p) = m.bar.base.aCaR(1,:,p) - mean(m.fr.FinReq(:,:,p)); %relative budget-at-risk by year
+        m.bar.base.cCaRy2y(1,:,p) = prctile(squeeze(m.fr.FinReq(:,2:end,p))-squeeze(m.fr.FinReq(:,1:end-1,p)),100*s.alpha); %absolute budget-at-risk of year-to-year change, by year 
+        m.bar.base.crCaRy2y(1,:,p) = squeeze(m.bar.base.cCaRy2y(1,:,p))-...
+        mean(squeeze(m.fr.FinReq(:,2:end,p))-squeeze(m.fr.FinReq(:,1:end-1,p)));    %relative budget-at-risk of year-to-year change, by year 
+        m.bar.probDeficit(1,:,p) = prob_greater(m.fr.FinReq(:,:,p),0,2);    %probability of deficit, by year
+end
+
+
+%% 4. Conditional Volatility Metrics
+%
+% See: _<computeS_condVol.html computeS_condVol>_
+computeS_condVol
+clear totalFR totalFR1;
+
+
+%% 5. Rollover Metrics
+m.issue.qBillRed.mean(1,:,p)=mean(billRedemption);  %average bill maturity by quarter
+m.issue.qBillRed.std(1,:,p)=std(billRedemption);    %standard deviation of bill maturity by quarter
+m.issue.qBondRed.mean(1,:,p)=mean(bondRedemption);  %average bond maturity by quarter
+m.issue.qBondRed.std(1,:,p)=std(bondRedemption);    %standard deviation of bond maturity by quarter
+
+m.issue.qdetailedOut(:,:,p) = mean(Outs,3); %each sector's average outstanding by quarter
+m.issue.qBillStock.mean(1,:,p) = mean(sum(Outs(1:s.nBill,:,:)),3);  %treasury bill stock by quarter
+m.issue.qBondStock.mean(1,:,p) = mean(sum(Outs(s.nBill+1:s.nInst,:,:)),3);  %bond stock by quarter  
+m.issue.meanIss(:,:,p) = avgIss;    %each sector's average issuance by quarter
+clear issuance bondRedemption billRedemption billIssue bondIssue Outs avgIss;
+clear totalStock;
+
+
+%% 6. Other Portfolio Summary Metrics
+% Mean fixed-debt, fixed-debt as % of GDP, ATM, and mDuration measures.
+m.psm.pFF(1,:,p)=mean(fxfl,1);  %average fixed-debt ratio by quarter
+m.psm.pRfPg(1,:,p) = mean(rfxPgdp,1);   %average fixed-debt (as % of GDP) by quarter
+m.psm.pATM(1,:,p)=mean(ATM,1);  %average ATM by quarter
+m.psm.pDuration(1,:,p)=mean(mDuration,1);   %average duration by quarter
+if p==s.npoids && k==s.nscenario
+    m.CPI = CPI_k(:,1:s.nperiod);   %CPI for each simulation by quarter
+    m.GDP = GDP_k(:,1:s.nperiod);   %GDP for each simulation by quarter
+end    
+clear fxfl ATM mDuration rfxPgdp;
+
+
+%% 7. Save this financing strategy in main array
+m.strategy(:,:,p)=s.weight;
+##### SOURCE END #####
+--></body></html>

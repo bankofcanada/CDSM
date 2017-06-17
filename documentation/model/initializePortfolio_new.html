@@ -1,0 +1,270 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>initializePortfolio_new.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="initializePortfolio_new.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>initializePortfolio_new.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This function produces variables describing the maturity profile of the portfolio at the start of the simulation (i.e. old debt) for the given financing strategy.</p><p>This is run either under the 'steady-state' (assume the strategy had been in place in the indefinite past) or 'actual' (use the current portfolio) setting.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Function Syntax</a></li><li><a href="#3">1. If 'actual' setting, load maturity profile of actual current debt portfolio (not used)</a></li><li><a href="#5">2. If 'steady-state' setting, create maturity profile assuming this strategy had been in place for the indefinite past</a></li><li><a href="#8">2A. (for 'steady-state') Distribute maturities of old debt over simulation horizon</a></li><li><a href="#9">2B. (for 'steady-state') Apply penalty function to adjust interest rates on old debt, for issuance amounts above or below allowable range</a></li><li><a href="#10">2C. (for 'steady-state') Compute quarterly costs on old debt</a></li><li><a href="#12">3. Initialize variables to be used in strategy evaluation</a></li></ul></div><h2>Function Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [s,o,n,t,f,ttm]=initializePortfolio_new(s,u,LTM,n)
+</pre><p><i>s</i> : structure containing simulation parameters, updated</p><p><i>u</i> : structure containing utility matrices, updated</p><p><i>LTM</i> : long-term mean values for each macroeconomic</p><p><i>n</i> : structure containing information on new debt, updated</p><p><i>o</i> : structure containing information on old debt, created and updated</p><p><i>t</i> : structure containing information on total debt, created and updated</p><p><i>f</i> : structure containing information on financial requirements, created and updated</p><p><i>ttm</i> : variable for time-to-maturity</p><h2>1. If 'actual' setting, load maturity profile of actual current debt portfolio (not used)<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> strcmp(s.equi,<span class="string">'actual'</span>)
+</pre><pre class="codeinput">  currentPortfolio_MMMYY    <span class="comment">% This setting is not used</span>
+</pre><h2>2. If 'steady-state' setting, create maturity profile assuming this strategy had been in place for the indefinite past<a name="5"></a></h2><p>In steady-state, distribution of initial outstanding debt across sectors is same as target allocation</p><pre class="codeinput"><span class="keyword">elseif</span> strcmp(s.equi,<span class="string">'steady-state'</span>)
+</pre><h2>2A. (for 'steady-state') Distribute maturities of old debt over simulation horizon<a name="8"></a></h2><pre class="codeinput">  o=struct(<span class="string">'initialmaturity'</span>,zeros(s.nInst,s.nperiod+s.maxMat));    <span class="comment">%Initialize matrix</span>
+
+    <span class="comment">%Distribute treasury bill maturities evenly, based on sector, across first year</span>
+  o.initialmaturity(1,1)=s.value*s.weight(1);   <span class="comment">%3-month bills</span>
+  o.initialmaturity(2,1:2)=s.value*s.weight(2)/2;   <span class="comment">%6-month bills</span>
+  o.initialmaturity(3,1:4)=s.value*s.weight(3)/4;   <span class="comment">%12-month bills</span>
+
+    <span class="comment">%Distribute bond maturities evenly across the maturity quarters, based on re-opening pattern as defined via utility matrix</span>
+  <span class="keyword">for</span> j=1:s.nBnds;
+    o.initialmaturity(j+3,u.matQuarter(j):s.Reopenings(j):u.numPeriods(j)<span class="keyword">...</span>
+		      +u.matQuarter(j)-s.Reopenings(j))= <span class="keyword">...</span>
+	s.value*s.weight(j+3)/(u.numPeriods(j)/s.Reopenings(j));
+  <span class="keyword">end</span>
+
+    <span class="comment">%Compute initial outstanding in each sector based on maturity amounts</span>
+  <span class="keyword">for</span> i=1:s.nperiod+s.maxMat
+    o.initialoutstanding(:,i)= sum(o.initialmaturity(:,(i+1):end),2);
+  <span class="keyword">end</span>
+</pre><h2>2B. (for 'steady-state') Apply penalty function to adjust interest rates on old debt, for issuance amounts above or below allowable range<a name="9"></a></h2><pre class="codeinput">  pWts = s.value.*s.weight;
+  weitomat=[1 2 4 8 12 20 28 40 120 8 20 40 120];
+  aveQIssue = pWts./weitomat;   <span class="comment">%Quarterly issuance of old debt (based on steady-state target)</span>
+  s.v1 = s.v;   <span class="comment">%Coupon rate on old debt (estimated as average from scenarios)</span>
+
+  <span class="keyword">switch</span> s.issueFeedback
+      <span class="keyword">case</span> {<span class="string">'yes'</span>}  <span class="comment">%Apply penalty function only if 's.issueFeedback' is 'yes'</span>
+     <span class="keyword">for</span>(j=1:s.nInst)
+
+        <span class="keyword">if</span> aveQIssue(j) &lt; s.issueRanges(j,1)    <span class="comment">% Issuance below the minimum issuance range (increase coupon)</span>
+          s.v1(j)=s.v1(j)+s.penFactor(j)*(s.m1(j)*((s.issueRanges(j,1)-<span class="keyword">...</span>
+                aveQIssue(j)).^2))/1e4;
+        <span class="keyword">elseif</span> aveQIssue(j) &gt;= s.issueRanges(j,1) &amp; aveQIssue(j) &lt;= s.issueRanges(j,2)  <span class="comment">% Within the allowable range (no penalty)</span>
+          s.v1(j)=s.v1(j);
+
+        <span class="keyword">elseif</span> aveQIssue(j) &gt; s.issueRanges(j,2)    <span class="comment">% Issuance above the minimum issuance range (increase coupon)</span>
+          s.v1(j)=s.v1(j)+s.penFactor(j)*(s.beta(1,j)+<span class="keyword">...</span>
+              + s.beta(2,j)*aveQIssue(j)<span class="keyword">...</span>
+              + s.beta(3,j)*(aveQIssue(j).^2))/1e4;
+        <span class="keyword">end</span>
+      <span class="keyword">end</span>
+  <span class="keyword">end</span>
+</pre><h2>2C. (for 'steady-state') Compute quarterly costs on old debt<a name="10"></a></h2><pre class="codeinput">  icost=s.v1./4;    <span class="comment">%estimated quarterly coupon rate on old debt</span>
+  icost=icost';
+
+  <span class="keyword">for</span> i=1:s.nperiod+s.maxMat
+    o.initialaccrual(:,i)=icost'.*o.initialoutstanding(:,i);    <span class="comment">%compute quarterly interest costs on old debt based on coupon rates and O/S amount</span>
+  <span class="keyword">end</span>
+
+  <span class="keyword">if</span> s.realFlag==1;
+    o.initialmaturityReal=o.initialmaturity(:,1:s.maxMat);  <span class="comment">%treat old debt on nominal basis (not used)</span>
+    o.initialaccrualReal=o.initialaccrual(:,1:s.maxMat);
+  <span class="keyword">else</span>
+
+    <span class="keyword">for</span> j=s.nNomInst+1:s.nInst  <span class="comment">%compute inflation-adjusted maturing and coupon amounts for old real return bonds, assuming historical inflation was constant at long-term mean</span>
+      <span class="keyword">for</span> i=1:weitomat(j)
+        o.initialmaturityReal(j,i)=<span class="keyword">...</span>
+            o.initialmaturity(j,i)*((1+LTM(s.dim+5))^((weitomat(j)-i)/4));
+
+        o.initialaccrualReal(j,i)=sum(icost(j)*aveQIssue(j)*(1+LTM(s.dim+5))<span class="keyword">...</span>
+				.^((1:weitomat(j)-i)/4)  );
+      <span class="keyword">end</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+  o.totalinitialoutstanding=sum(o.initialoutstanding);  <span class="comment">%total initial outstanding of all sectors</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><h2>3. Initialize variables to be used in strategy evaluation<a name="12"></a></h2><pre class="codeinput">n.issuance=zeros(s.nInst,s.maxMat+s.nperiod);   <span class="comment">%amount of issuance each simulated quarter</span>
+ttm=linspace(1,s.maxMat,s.maxMat);  <span class="comment">%vector from 1 to 120, to use for computations</span>
+t.detailedoutstanding=zeros(s.nInst,s.nperiod); <span class="comment">%amount outstanding for each sector at each simulated quarter</span>
+t.detailedoutstanding2=zeros(s.nInst,s.nperiod);
+f.finreq=zeros(1,s.nperiod);    <span class="comment">% financial requirements each simulated quarter</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% initializePortfolio_new.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This function produces variables describing the maturity profile of the portfolio at the start of the simulation (i.e. old debt) for the given financing strategy.
+%
+% This is run either under the 'steady-state' (assume the strategy had been in place in the indefinite past) or 'actual' (use the current portfolio) setting.
+
+
+%% Function Syntax
+function [s,o,n,t,f,ttm]=initializePortfolio_new(s,u,LTM,n)
+%%
+%
+% _s_ : structure containing simulation parameters, updated
+%
+% _u_ : structure containing utility matrices, updated
+%
+% _LTM_ : long-term mean values for each macroeconomic
+%
+% _n_ : structure containing information on new debt, updated
+%
+% _o_ : structure containing information on old debt, created and updated
+%
+% _t_ : structure containing information on total debt, created and updated
+%
+% _f_ : structure containing information on financial requirements, created and updated
+%
+% _ttm_ : variable for time-to-maturity
+
+
+%% 1. If 'actual' setting, load maturity profile of actual current debt portfolio (not used)
+
+if strcmp(s.equi,'actual')    
+  currentPortfolio_MMMYY    % This setting is not used
+
+
+%% 2. If 'steady-state' setting, create maturity profile assuming this strategy had been in place for the indefinite past
+%
+% In steady-state, distribution of initial outstanding debt across sectors is same as target allocation
+
+elseif strcmp(s.equi,'steady-state')
+
+    
+%% 2A. (for 'steady-state') Distribute maturities of old debt over simulation horizon 
+  o=struct('initialmaturity',zeros(s.nInst,s.nperiod+s.maxMat));    %Initialize matrix
+
+    %Distribute treasury bill maturities evenly, based on sector, across first year
+  o.initialmaturity(1,1)=s.value*s.weight(1);   %3-month bills
+  o.initialmaturity(2,1:2)=s.value*s.weight(2)/2;   %6-month bills
+  o.initialmaturity(3,1:4)=s.value*s.weight(3)/4;   %12-month bills
+
+    %Distribute bond maturities evenly across the maturity quarters, based on re-opening pattern as defined via utility matrix
+  for j=1:s.nBnds;
+    o.initialmaturity(j+3,u.matQuarter(j):s.Reopenings(j):u.numPeriods(j)...
+		      +u.matQuarter(j)-s.Reopenings(j))= ...  
+	s.value*s.weight(j+3)/(u.numPeriods(j)/s.Reopenings(j));  
+  end
+
+    %Compute initial outstanding in each sector based on maturity amounts
+  for i=1:s.nperiod+s.maxMat
+    o.initialoutstanding(:,i)= sum(o.initialmaturity(:,(i+1):end),2);
+  end
+  
+  
+%% 2B. (for 'steady-state') Apply penalty function to adjust interest rates on old debt, for issuance amounts above or below allowable range 
+  
+  pWts = s.value.*s.weight;
+  weitomat=[1 2 4 8 12 20 28 40 120 8 20 40 120];
+  aveQIssue = pWts./weitomat;   %Quarterly issuance of old debt (based on steady-state target)
+  s.v1 = s.v;   %Coupon rate on old debt (estimated as average from scenarios)
+  
+  switch s.issueFeedback    
+      case {'yes'}  %Apply penalty function only if 's.issueFeedback' is 'yes'         
+     for(j=1:s.nInst)
+         
+        if aveQIssue(j) < s.issueRanges(j,1)    % Issuance below the minimum issuance range (increase coupon)
+          s.v1(j)=s.v1(j)+s.penFactor(j)*(s.m1(j)*((s.issueRanges(j,1)-...
+                aveQIssue(j)).^2))/1e4;  
+        elseif aveQIssue(j) >= s.issueRanges(j,1) & aveQIssue(j) <= s.issueRanges(j,2)  % Within the allowable range (no penalty)
+          s.v1(j)=s.v1(j);
+          
+        elseif aveQIssue(j) > s.issueRanges(j,2)    % Issuance above the minimum issuance range (increase coupon)    
+          s.v1(j)=s.v1(j)+s.penFactor(j)*(s.beta(1,j)+...
+              + s.beta(2,j)*aveQIssue(j)...
+              + s.beta(3,j)*(aveQIssue(j).^2))/1e4;
+        end
+      end
+  end
+  
+  
+%% 2C. (for 'steady-state') Compute quarterly costs on old debt 
+  icost=s.v1./4;    %estimated quarterly coupon rate on old debt
+  icost=icost';
+
+  for i=1:s.nperiod+s.maxMat
+    o.initialaccrual(:,i)=icost'.*o.initialoutstanding(:,i);    %compute quarterly interest costs on old debt based on coupon rates and O/S amount
+  end
+
+  if s.realFlag==1;     
+    o.initialmaturityReal=o.initialmaturity(:,1:s.maxMat);  %treat old debt on nominal basis (not used)
+    o.initialaccrualReal=o.initialaccrual(:,1:s.maxMat);
+  else
+
+    for j=s.nNomInst+1:s.nInst  %compute inflation-adjusted maturing and coupon amounts for old real return bonds, assuming historical inflation was constant at long-term mean
+      for i=1:weitomat(j)
+        o.initialmaturityReal(j,i)=...
+            o.initialmaturity(j,i)*((1+LTM(s.dim+5))^((weitomat(j)-i)/4));
+
+        o.initialaccrualReal(j,i)=sum(icost(j)*aveQIssue(j)*(1+LTM(s.dim+5))...
+				.^((1:weitomat(j)-i)/4)  );
+      end
+    end
+  end
+  o.totalinitialoutstanding=sum(o.initialoutstanding);  %total initial outstanding of all sectors
+end
+
+
+%% 3. Initialize variables to be used in strategy evaluation
+n.issuance=zeros(s.nInst,s.maxMat+s.nperiod);   %amount of issuance each simulated quarter
+ttm=linspace(1,s.maxMat,s.maxMat);  %vector from 1 to 120, to use for computations
+t.detailedoutstanding=zeros(s.nInst,s.nperiod); %amount outstanding for each sector at each simulated quarter
+t.detailedoutstanding2=zeros(s.nInst,s.nperiod);
+f.finreq=zeros(1,s.nperiod);    % financial requirements each simulated quarter
+##### SOURCE END #####
+--></body></html>

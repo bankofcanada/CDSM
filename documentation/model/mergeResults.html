@@ -1,0 +1,271 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>mergeResults.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="mergeResults.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>mergeResults.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This script is run to complete the DEBT CHARGE ENGINE step of the model, by merging the training set results produced in separate blocks into a single file for optimization analysis in the PRODUCE EFFICIENT FRONTIER step.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">1. Merge results from each training set block into a single training set file</a></li><li><a href="#3">2. Merge results in desired dimensions</a></li><li><a href="#5">3. Reshape training set result variables into desired dimensions</a></li><li><a href="#6">4. Save file with final training set results</a></li></ul></div><h2>1. Merge results from each training set block into a single training set file<a name="1"></a></h2><p>Each block contains the structures <i>s</i> (parameters of that block's training set) and <i>m</i> (results of that block's training set). The purpose is to combine the information in each field of <i>m</i> across blocks into a single field in the final training set's <i>m</i> structures. (<i>s</i> is taken directly since it is the same for all blocks.)</p><pre class="codeinput">resultName = <span class="string">'~/CDSM-public/results/ns/trainingSets/tsBlocks/policyResults_policyPort_MMMYY_vname_block'</span>;
+
+ff=1;
+<span class="keyword">while</span> 1
+  <span class="keyword">if</span> ff==9       <span class="comment">% equal to one plus the number of blocks (50), since loop is across each block</span>
+   <span class="keyword">break</span>;
+  <span class="keyword">end</span>
+  <span class="keyword">try</span>
+    load( [resultName num2str(ff)] )    <span class="comment">%load the block</span>
+    m.issue.qdetailedOut = squeeze(mean(m.issue.qdetailedOut,3));
+    m=rmfield(m, {<span class="string">'CPI'</span> <span class="string">'GDP'</span>});
+  <span class="keyword">end</span>
+  <span class="keyword">if</span> ff==1
+    M=m;
+    ff=ff+1;
+    <span class="keyword">continue</span>
+  <span class="keyword">end</span>
+  <span class="keyword">try</span>
+    <span class="comment">%m=rmfield(m,{'CPI' 'GDP'});</span>
+  <span class="keyword">end</span>
+  <span class="comment">%S(ff)=s;</span>
+  ff=ff+1;
+
+  <span class="comment">% Loop across each field in _m_ for that block, inserting that field's</span>
+  <span class="comment">% values into the field for the final training set _m_.</span>
+  mNames = fieldnames(m);
+  <span class="keyword">for</span> mm = 1:length(mNames)
+    mField = getfield(m, mNames{mm});
+    <span class="keyword">if</span> isa(mField, <span class="string">'struct'</span>)    <span class="comment">%if the field in _m_ is also a structure</span>
+      mNames2 = fieldnames(mField);
+      <span class="keyword">for</span> mm2 = 1:length(mNames2)
+        mField2 = getfield(mField, mNames2{mm2});
+        <span class="keyword">if</span> isa(mField2, <span class="string">'struct'</span>)   <span class="comment">%if field within the structure in _m_ is also a structure</span>
+          mNames3 = fieldnames(mField2);
+          <span class="keyword">for</span> mm3 = 1:length(mNames3)
+            mField3 = getfield(mField2, mNames3{mm3});
+            M.(mNames{mm}).(mNames2{mm2}).(mNames3{mm3})<span class="keyword">...</span>
+              (:,:,end+1:end+size(mField3,3)) = mField3;
+          <span class="keyword">end</span>
+        <span class="keyword">else</span>    <span class="comment">%if field is not a structure</span>
+          M.(mNames{mm}).(mNames2{mm2})<span class="keyword">...</span>
+            (:,:,end+1:end+size(mField2,3)) = mField2;
+        <span class="keyword">end</span>
+      <span class="keyword">end</span>
+    <span class="keyword">else</span>    <span class="comment">%if field is not a structure</span>
+        M.(mNames{mm})(:,:,end+1:end+size(mField,3)) = mField;
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+m=M;
+clear <span class="string">M</span>
+</pre><h2>2. Merge results in desired dimensions<a name="3"></a></h2><p>Loop across each field in <i>m</i> for each block, inserting that field's values into the field for the final training set <i>m</i>. This overrides process above so that variables are saved in desired dimensions.</p><p>See: <i><a href="squeezeMerge.html">squeezeMerge</a></i></p><pre class="codeinput">squeezeMerge;
+</pre><h2>3. Reshape training set result variables into desired dimensions<a name="5"></a></h2><pre class="codeinput"><span class="comment">% Average cost and debt stock metrics</span>
+<span class="keyword">for</span> j=1:10
+	moyenne(:,j,:) = m.DCD(:,j,:) ./ m.stock.os(:,j,:);
+<span class="keyword">end</span>
+
+m.percentCharges.byYear = 100*squeeze(mean(moyenne,1))';
+m.percentCharges.avg = mean(m.percentCharges.byYear,2);
+
+m.DCDmean = squeeze(mean(m.DCD,1));
+m.SDmean = squeeze(mean(m.stock.os,1));
+m.totalStockYrmean = squeeze(mean(m.stock.os,1));
+m = rmfield(m,{<span class="string">'DCD'</span> <span class="string">'stock'</span>});
+
+<span class="comment">% Risk metrics</span>
+m.cv.cCV = reshape(m.cv.cCV, size(m.cv.cCV,1)*size(m.cv.cCV,2),1);
+m.cv.cAdjBV = reshape(m.cv.cAdjBV, size(m.cv.cAdjBV,1)*size(m.cv.cAdjBV,2),1);
+m.cv.cCV_1stHalf = reshape(m.cv.cCV_1stHalf, size(m.cv.cCV_1stHalf,1)*size(m.cv.cCV_1stHalf,2),1);
+m.cv.cCV_2ndHalf = reshape(m.cv.cCV_2ndHalf, size(m.cv.cCV_2ndHalf,1)*size(m.cv.cCV_2ndHalf,2),1);
+m.cv.cAdjBV_1stHalf = reshape(m.cv.cAdjBV_1stHalf, size(m.cv.cAdjBV_1stHalf,1)*size(m.cv.cAdjBV_1stHalf,2),1);
+m.cv.cAdjBV_2ndHalf = reshape(m.cv.cAdjBV_2ndHalf, size(m.cv.cAdjBV_2ndHalf,1)*size(m.cv.cAdjBV_2ndHalf,2),1);
+<span class="comment">%m.cv.noSurp.cAdjBV = reshape(m.cv.noSurp.cAdjBV, size(m.cv.noSurp.cAdjBV,1)*size(m.cv.noSurp.cAdjBV,2),1);</span>
+<span class="comment">%m.cv.noSurp.cAdjBV_1stHalf = reshape(m.cv.noSurp.cAdjBV_1stHalf, size(m.cv.noSurp.cAdjBV_1stHalf,1)*size(m.cv.noSurp.cAdjBV_1stHalf,2),1);</span>
+<span class="comment">%m.cv.noSurp.cAdjBV_2ndHalf = reshape(m.cv.noSurp.cAdjBV_2ndHalf, size(m.cv.noSurp.cAdjBV_2ndHalf,1)*size(m.cv.noSurp.cAdjBV_2ndHalf,2),1);</span>
+
+<span class="comment">% Fiscal metrics</span>
+m.fr.FinReq = squeeze(mean(m.fr.FinReq,1));
+m.fr.Expenses = squeeze(mean(m.fr.Expenses,1));
+m.fr.Revenues = squeeze(mean(m.fr.Revenues,1));
+</pre><h2>4. Save file with final training set results<a name="6"></a></h2><pre class="codeinput">save([resultName <span class="string">'_all.mat'</span>],<span class="string">'m'</span>,<span class="string">'s'</span>);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% mergeResults.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This script is run to complete the DEBT CHARGE ENGINE step of the model,
+% by merging the training set results produced in separate blocks into a
+% single file for optimization analysis in the PRODUCE EFFICIENT FRONTIER
+% step.
+
+
+%% 1. Merge results from each training set block into a single training set file
+%%
+% Each block contains the structures _s_ (parameters of that block's
+% training set) and _m_ (results of that block's training set). The purpose
+% is to combine the information in each field of _m_ across blocks into a single
+% field in the final training set's _m_ structures. (_s_ is taken directly
+% since it is the same for all blocks.)
+
+resultName = '~/CDSM-public/results/ns/trainingSets/tsBlocks/policyResults_policyPort_MMMYY_vname_block';
+
+ff=1;
+while 1 
+  if ff==9       % equal to one plus the number of blocks (50), since loop is across each block
+   break;
+  end
+  try
+    load( [resultName num2str(ff)] )    %load the block
+    m.issue.qdetailedOut = squeeze(mean(m.issue.qdetailedOut,3));
+    m=rmfield(m, {'CPI' 'GDP'});
+  end
+  if ff==1
+    M=m;
+    ff=ff+1;
+    continue
+  end
+  try
+    %m=rmfield(m,{'CPI' 'GDP'});
+  end
+  %S(ff)=s;
+  ff=ff+1;
+  
+  % Loop across each field in _m_ for that block, inserting that field's
+  % values into the field for the final training set _m_.
+  mNames = fieldnames(m);
+  for mm = 1:length(mNames)
+    mField = getfield(m, mNames{mm});
+    if isa(mField, 'struct')    %if the field in _m_ is also a structure
+      mNames2 = fieldnames(mField);
+      for mm2 = 1:length(mNames2)
+        mField2 = getfield(mField, mNames2{mm2});
+        if isa(mField2, 'struct')   %if field within the structure in _m_ is also a structure
+          mNames3 = fieldnames(mField2);
+          for mm3 = 1:length(mNames3)
+            mField3 = getfield(mField2, mNames3{mm3});
+            M.(mNames{mm}).(mNames2{mm2}).(mNames3{mm3})...
+              (:,:,end+1:end+size(mField3,3)) = mField3;
+          end
+        else    %if field is not a structure
+          M.(mNames{mm}).(mNames2{mm2})...
+            (:,:,end+1:end+size(mField2,3)) = mField2;
+        end
+      end
+    else    %if field is not a structure
+        M.(mNames{mm})(:,:,end+1:end+size(mField,3)) = mField;  
+    end
+  end
+end
+
+m=M;
+clear M
+
+
+%% 2. Merge results in desired dimensions
+%%
+% Loop across each field in _m_ for each block, inserting that field's
+% values into the field for the final training set _m_. This overrides process above so that variables are saved in desired dimensions.
+%
+% See: _<squeezeMerge.html squeezeMerge>_
+squeezeMerge;
+
+
+%% 3. Reshape training set result variables into desired dimensions
+
+% Average cost and debt stock metrics
+for j=1:10
+	moyenne(:,j,:) = m.DCD(:,j,:) ./ m.stock.os(:,j,:);
+end
+
+m.percentCharges.byYear = 100*squeeze(mean(moyenne,1))';
+m.percentCharges.avg = mean(m.percentCharges.byYear,2);
+
+m.DCDmean = squeeze(mean(m.DCD,1));
+m.SDmean = squeeze(mean(m.stock.os,1));
+m.totalStockYrmean = squeeze(mean(m.stock.os,1));
+m = rmfield(m,{'DCD' 'stock'});
+
+% Risk metrics
+m.cv.cCV = reshape(m.cv.cCV, size(m.cv.cCV,1)*size(m.cv.cCV,2),1);
+m.cv.cAdjBV = reshape(m.cv.cAdjBV, size(m.cv.cAdjBV,1)*size(m.cv.cAdjBV,2),1);
+m.cv.cCV_1stHalf = reshape(m.cv.cCV_1stHalf, size(m.cv.cCV_1stHalf,1)*size(m.cv.cCV_1stHalf,2),1);
+m.cv.cCV_2ndHalf = reshape(m.cv.cCV_2ndHalf, size(m.cv.cCV_2ndHalf,1)*size(m.cv.cCV_2ndHalf,2),1);
+m.cv.cAdjBV_1stHalf = reshape(m.cv.cAdjBV_1stHalf, size(m.cv.cAdjBV_1stHalf,1)*size(m.cv.cAdjBV_1stHalf,2),1);
+m.cv.cAdjBV_2ndHalf = reshape(m.cv.cAdjBV_2ndHalf, size(m.cv.cAdjBV_2ndHalf,1)*size(m.cv.cAdjBV_2ndHalf,2),1);
+%m.cv.noSurp.cAdjBV = reshape(m.cv.noSurp.cAdjBV, size(m.cv.noSurp.cAdjBV,1)*size(m.cv.noSurp.cAdjBV,2),1);
+%m.cv.noSurp.cAdjBV_1stHalf = reshape(m.cv.noSurp.cAdjBV_1stHalf, size(m.cv.noSurp.cAdjBV_1stHalf,1)*size(m.cv.noSurp.cAdjBV_1stHalf,2),1);
+%m.cv.noSurp.cAdjBV_2ndHalf = reshape(m.cv.noSurp.cAdjBV_2ndHalf, size(m.cv.noSurp.cAdjBV_2ndHalf,1)*size(m.cv.noSurp.cAdjBV_2ndHalf,2),1);
+
+% Fiscal metrics
+m.fr.FinReq = squeeze(mean(m.fr.FinReq,1));
+m.fr.Expenses = squeeze(mean(m.fr.Expenses,1));
+m.fr.Revenues = squeeze(mean(m.fr.Revenues,1));
+
+
+%% 4. Save file with final training set results
+save([resultName '_all.mat'],'m','s');
+##### SOURCE END #####
+--></body></html>

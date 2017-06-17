@@ -1,0 +1,231 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>computeDebtCharges.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="computeDebtCharges.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>computeDebtCharges.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This subroutine (on <i>runSingleRealization.m</i>) computes the coupon amounts for debt issued in the given quarter (in the given scenario for the given strategy), and updates debt costs in this and future quarters accordingly.</p><p>For real return bonds, the effect of uplift from this quarter's inflation on coupons and principals (on both old and new debt) is also applied.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">1. Compute coupon amounts from this quarter's issuance (by instrument)</a></li><li><a href="#2">2. Interpolate the zero-coupon prices for funding RRB principal uplift</a></li><li><a href="#3">3. Update future debt costs with coupon amounts from this quarter's issuance</a></li><li><a href="#4">4. Compute total debt cost for this quarter</a></li></ul></div><h2>1. Compute coupon amounts from this quarter's issuance (by instrument)<a name="1"></a></h2><p>See <i><a href="computePenaltyFunctions_wts.html">computePenaltyFunctions_wts</a></i></p><pre class="codeinput"><span class="keyword">if</span>(strcmp(s.issueFeedback,<span class="string">'no'</span>))    <span class="comment">%only if penalty functions turned off (not used)</span>
+  n.issuancetotal(:,i)=n.issuance(:,i);
+  n.issuancetotal(1,i)=n.issuance(1,i)+t.cash(i);
+  cost(:,i) = n.issuancetotal(:,i).*(scen(:,i)./4);
+
+<span class="keyword">elseif</span>(strcmp(s.issueFeedback,<span class="string">'yes'</span>))   <span class="comment">%if penalty functions turned on</span>
+  n.issuancetotal(:,i)=n.issuance(:,i);
+  n.issuancetotal(1,i)=n.issuance(1,i)+t.cash(i);   <span class="comment">%add cash buffer to shortest-term (3-month bill) issuance amount</span>
+  computePenaltyFunctions_wts;  <span class="comment">%apply penalty function to adjust interest rates for each sector, for issuance amounts above or below allowable range</span>
+  cost(:,i) = n.issuancetotal(:,i).*(scen1(:,i)./4);    <span class="comment">%compute each sector's coupon amount (quarterly coupon rate x issuance amount)</span>
+<span class="keyword">end</span>
+</pre><h2>2. Interpolate the zero-coupon prices for funding RRB principal uplift<a name="2"></a></h2><pre class="codeinput"><span class="keyword">if</span> i==1
+  <span class="keyword">for</span> tt=1:max(u.numPeriods)    <span class="comment">%for all quarterly tenors (0.25, 0.5, ..., 30)</span>
+    idx = find(s.zterms&lt;=tt,1,<span class="string">'last'</span>);
+    <span class="keyword">if</span> s.zterms(idx)==tt
+      interpZeroP(:,tt) = exp(-tt/4*data.Z(:,idx,k));
+    <span class="keyword">else</span>
+      x1 = s.zterms( idx );
+      x2 = s.zterms( idx+1 );
+      interpZeroP(:,tt) = exp(-tt/4*(<span class="keyword">...</span>
+        (x2-tt)/(x2-x1)*data.Z(:,idx,k) + (tt-x1)/(x2-x1)*data.Z(:,idx+1,k) ));
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> i==1
+  tt=linspace(1,120,120)/4;
+  A1=interp1(get(mObject,<span class="string">'ttm'</span>),data.Z(:,:,k)',tt)';
+  A=(1+A1).^kron(-tt,ones(s.nperiod,1));
+<span class="keyword">end</span>
+</pre><h2>3. Update future debt costs with coupon amounts from this quarter's issuance<a name="3"></a></h2><pre class="codeinput"><span class="keyword">for</span> j=1:s.nInst     <span class="comment">%for each sector issued this quarter</span>
+
+  finPmt = min(u.ttm(j,i)+i-1,s.maxMat+s.nperiod);  <span class="comment">% # of quarters until maturity; if maturity would occur after simulated horizon, it is assumed to instead occur in final quarter</span>
+
+<span class="comment">% For nominal instruments, allocate quarterly coupon amounts to each quarter until maturity</span>
+  <span class="keyword">if</span> j&lt;=s.nNomInst
+    n.newaccrual(j,i:finPmt) = n.newaccrual(j,i:finPmt) + cost(j,i);
+    n.nominalMaturity(j,i) = sum(t.maturity(j,i+1:end));
+
+
+  <span class="keyword">elseif</span> j&gt;=s.nNomInst+1
+
+<span class="comment">% For inflation-linked instruments, convert coupons to real terms (as of</span>
+<span class="comment">% the simulation start) and allocate to quarters until maturity</span>
+    realcost(j,i:finPmt) = realcost(j,i:finPmt) + cost(j,i)/CPI(i);
+
+    diffCPI = ((1+X0(i,s.dim+5,k)).^0.25)-1;    <span class="comment">%inflation this quarter, i.e. % increase in CPI</span>
+
+    <span class="comment">%Adjust RRB maturing amounts for this quarter's increase in CPI</span>
+    t.maturityReal(j,i+1:i+u.ttm(j,i)) = t.maturityReal(j,i+1:i+u.ttm(j,i)).*(1+diffCPI);
+    n.maturityReal(j,i+1:i+u.ttm(j,i)) = n.maturityReal(j,i+1:i+u.ttm(j,i)).*(1+diffCPI);
+
+    <span class="comment">%In order to finance the increased RRB principal from this inflation</span>
+    <span class="comment">% uplift, the government needs to invest some amount this quarter at</span>
+    <span class="comment">% the zero-coupon rate in order to fund the uplifted principal exactly at maturity. This investment is a cash outflow.</span>
+    buyMatureInfl(j,i) = (diffCPI.* t.maturityReal(j,i+1:i+u.ttm(j,i)))*A(i,1:u.ttm(j,i))';
+
+    <span class="comment">%Cost of RRBs each quarter is total of CPI-adjusted coupons and investment outflows (for funding principal uplift).</span>
+    n.newaccrual(j,i) = realcost(j,i)*CPI(i) + buyMatureInfl(j,i);
+    n.rrbCoupon(j,i) = realcost(j,i)*CPI(i);
+    n.rrbPrincipal(j,i) = buyMatureInfl(j,i);
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>4. Compute total debt cost for this quarter<a name="4"></a></h2><pre class="codeinput">total(i)=sum(n.newaccrual(:,i))+sum(o.initialaccrual(1:s.nNomInst,i));  <span class="comment">%sum of debt costs from issuances in horizon and old issuance (all RRB cost included as part of new debt)</span>
+totalRealCpn(i)=sum(n.rrbCoupon(:,i));
+totalRealPrn(i)=sum(n.rrbPrincipal(:,i));
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% computeDebtCharges.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This subroutine (on _runSingleRealization.m_) computes the coupon amounts for debt issued in the given quarter
+% (in the given scenario for the given strategy), and updates debt
+% costs in this and future quarters accordingly.
+%
+% For real return bonds, the effect of uplift from this quarter's inflation on coupons and
+% principals (on both old and new debt) is also applied.
+
+
+%% 1. Compute coupon amounts from this quarter's issuance (by instrument)
+%
+% See _<computePenaltyFunctions_wts.html computePenaltyFunctions_wts>_
+if(strcmp(s.issueFeedback,'no'))    %only if penalty functions turned off (not used)
+  n.issuancetotal(:,i)=n.issuance(:,i);
+  n.issuancetotal(1,i)=n.issuance(1,i)+t.cash(i);
+  cost(:,i) = n.issuancetotal(:,i).*(scen(:,i)./4);
+
+elseif(strcmp(s.issueFeedback,'yes'))   %if penalty functions turned on   
+  n.issuancetotal(:,i)=n.issuance(:,i);
+  n.issuancetotal(1,i)=n.issuance(1,i)+t.cash(i);   %add cash buffer to shortest-term (3-month bill) issuance amount
+  computePenaltyFunctions_wts;  %apply penalty function to adjust interest rates for each sector, for issuance amounts above or below allowable range
+  cost(:,i) = n.issuancetotal(:,i).*(scen1(:,i)./4);    %compute each sector's coupon amount (quarterly coupon rate x issuance amount)
+end
+
+
+%% 2. Interpolate the zero-coupon prices for funding RRB principal uplift
+if i==1
+  for tt=1:max(u.numPeriods)    %for all quarterly tenors (0.25, 0.5, ..., 30)
+    idx = find(s.zterms<=tt,1,'last');
+    if s.zterms(idx)==tt
+      interpZeroP(:,tt) = exp(-tt/4*data.Z(:,idx,k));
+    else
+      x1 = s.zterms( idx );
+      x2 = s.zterms( idx+1 );
+      interpZeroP(:,tt) = exp(-tt/4*(...
+        (x2-tt)/(x2-x1)*data.Z(:,idx,k) + (tt-x1)/(x2-x1)*data.Z(:,idx+1,k) ));
+    end
+  end
+end
+
+if i==1
+  tt=linspace(1,120,120)/4;
+  A1=interp1(get(mObject,'ttm'),data.Z(:,:,k)',tt)';
+  A=(1+A1).^kron(-tt,ones(s.nperiod,1));
+end
+
+
+%% 3. Update future debt costs with coupon amounts from this quarter's issuance 
+
+for j=1:s.nInst     %for each sector issued this quarter
+
+  finPmt = min(u.ttm(j,i)+i-1,s.maxMat+s.nperiod);  % # of quarters until maturity; if maturity would occur after simulated horizon, it is assumed to instead occur in final quarter
+
+% For nominal instruments, allocate quarterly coupon amounts to each quarter until maturity
+  if j<=s.nNomInst
+    n.newaccrual(j,i:finPmt) = n.newaccrual(j,i:finPmt) + cost(j,i);
+    n.nominalMaturity(j,i) = sum(t.maturity(j,i+1:end));
+  
+    
+  elseif j>=s.nNomInst+1
+      
+% For inflation-linked instruments, convert coupons to real terms (as of
+% the simulation start) and allocate to quarters until maturity
+    realcost(j,i:finPmt) = realcost(j,i:finPmt) + cost(j,i)/CPI(i); 
+
+    diffCPI = ((1+X0(i,s.dim+5,k)).^0.25)-1;    %inflation this quarter, i.e. % increase in CPI
+    
+    %Adjust RRB maturing amounts for this quarter's increase in CPI 
+    t.maturityReal(j,i+1:i+u.ttm(j,i)) = t.maturityReal(j,i+1:i+u.ttm(j,i)).*(1+diffCPI);     
+    n.maturityReal(j,i+1:i+u.ttm(j,i)) = n.maturityReal(j,i+1:i+u.ttm(j,i)).*(1+diffCPI);
+    
+    %In order to finance the increased RRB principal from this inflation
+    % uplift, the government needs to invest some amount this quarter at
+    % the zero-coupon rate in order to fund the uplifted principal exactly at maturity. This investment is a cash outflow.               
+    buyMatureInfl(j,i) = (diffCPI.* t.maturityReal(j,i+1:i+u.ttm(j,i)))*A(i,1:u.ttm(j,i))';              
+    
+    %Cost of RRBs each quarter is total of CPI-adjusted coupons and investment outflows (for funding principal uplift).
+    n.newaccrual(j,i) = realcost(j,i)*CPI(i) + buyMatureInfl(j,i); 
+    n.rrbCoupon(j,i) = realcost(j,i)*CPI(i);
+    n.rrbPrincipal(j,i) = buyMatureInfl(j,i);
+  end
+end
+
+
+%% 4. Compute total debt cost for this quarter
+total(i)=sum(n.newaccrual(:,i))+sum(o.initialaccrual(1:s.nNomInst,i));  %sum of debt costs from issuances in horizon and old issuance (all RRB cost included as part of new debt)
+totalRealCpn(i)=sum(n.rrbCoupon(:,i));
+totalRealPrn(i)=sum(n.rrbPrincipal(:,i));
+##### SOURCE END #####
+--></body></html>

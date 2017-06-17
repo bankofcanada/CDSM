@@ -1,0 +1,203 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>initS.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="initS.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>initS.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This subroutine loads the main settings for the debt charge engine. The majority of inputs that are updated between model runs, including several user-specific policy inputs, are defined here.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Policy Inputs</a></li><li><a href="#2">1. Primary Settings</a></li><li><a href="#3">2. Secondary Settings</a></li><li><a href="#4">3. Fiscal and Instrument-Related Settings</a></li></ul></div><h2>Policy Inputs<a name="1"></a></h2><p>These variables are defined via internal policy decision and are set to --- here as a placeholder:</p><div><ul><li><i>s.issueFeedback</i> (see Part 2) : whether to include penalty functions, i.e. additional cost for issuance amounts outside of allowable range ('yes' or 'no')</li><li><i>s.value</i> (see Part 3): steady-state debt stock (above 0)</li><li><i>s.initialGDP</i> (see Part 3): initial GDP (above 0)</li><li><i>s.frExpensesCoef</i> (see Part 3) : coefficients on macro variables in expenses growth equation (see Robbins, Torgunrud, and Matier (2007) for details)</li><li><i>s.frRevenuesCoef</i> (see Part 3) : coefficients on macro variables in revenues growth equation (see Robbins, Torgunrud, and Matier (2007) for details)</li><li><i>s.frInitRevenues</i> (see Part 3) : initial revenues in steady-state (above 0)</li></ul></div><h2>1. Primary Settings<a name="2"></a></h2><pre class="codeinput">s=struct(<span class="string">'npoids'</span>,250);	      <span class="comment">% Number of financing strategies</span>
+s.nperiod = 40;	              <span class="comment">% Number of periods (quarters) to evaluate</span>
+s.nscenario = 4000;           <span class="comment">% Number of scenarios, out of generated, to use</span>
+
+s.nBill = 3;        <span class="comment">% Number of treasury bill instruments (3m, 6m, 12m)</span>
+s.nNomBnds = 6;     <span class="comment">% Number of nominal bond instruments (2Y, 3Y, 5Y, 7Y, 10Y, 30Y)</span>
+s.nNomInst = s.nBill + s.nNomBnds;
+s.nRRB = 4;         <span class="comment">% Number of real return bond instruments (2Y RRB, 5Y RRB, 10Y RRB, 30Y RRB)</span>
+s.nBnds = s.nNomBnds + s.nRRB; s.nInst = s.nBill + s.nBnds;
+
+s.model=<span class="string">'full'</span>;	              <span class="comment">% 'full' : use macro variables and account for fiscal rules</span>
+                              <span class="comment">% 'restricted' : ignore macro variables and fiscal rules, i.e. actual and expected budget always the same (not used)</span>
+s.equi=<span class="string">'steady-state'</span>;	      <span class="comment">% 'actual' : start at pre-defined current actual portfolio (not used)</span>
+                              <span class="comment">% 'steady-state' : start at steady-state portfolio</span>
+</pre><h2>2. Secondary Settings<a name="3"></a></h2><pre class="codeinput">s.frFeedback=<span class="string">'yes'</span>;           <span class="comment">% setting for financial requirements feedback, can be employed with 'full' only</span>
+s.npma=8;                     <span class="comment">% Number of periods in moving average for financial requirements feedback</span>
+<span class="comment">%s.tolerance=---;           % Maximum change in the debt stock each quarter (not used)</span>
+s.frFeedbackType=<span class="string">'quarterly'</span>; <span class="comment">% Frequency of prediction: annual or quarterly</span>
+</pre><h2>3. Fiscal and Instrument-Related Settings<a name="4"></a></h2><p>See: <i><a href="initSpenF_wts.html">initSpenF_wts</a></i></p><pre class="codeinput">s.value = ---;                <span class="comment">% Initial debt stock (in $B), steady-state stock if surplus set to 0</span>
+s.initialGDP= ---;            <span class="comment">% Initial GDP (in $B)</span>
+s.alpha=0.95;                 <span class="comment">% Cut-off for percentile calculations (e.g. CaR)</span>
+s.stressTesting=<span class="string">'no'</span>;         <span class="comment">% 'yes' for stress-testing, 'no' otherwise; adds a third 'extreme' state to Markov chain</span>
+s.issueFeedback=<span class="string">'---'</span>;        <span class="comment">% 'yes' for feedback between issue size and cost (penalty functions), 'no' otherwise</span>
+
+<span class="keyword">if</span>(strcmp(s.issueFeedback,<span class="string">'yes'</span>))
+initSpenF_wts;  <span class="comment">% Define parameters for penalty functions (adjusted cost for over/under-issuance)</span>
+<span class="keyword">end</span>
+
+s.Reopenings = [ 1 2 2 4 4 8 1 2 4 8];  <span class="comment">% number of re-openings for each sector</span>
+s.terms = 4*[1/4; 1/2; 1; 2.25; 3; 5.25; 7.25; 11; 29; 2; 5; 10; 30];   <span class="comment">% TTM of each sector (in quarters)</span>
+s.maxMat = max(s.terms);    <span class="comment">% maximum instrument TTM (in quarters)</span>
+<span class="comment">%s.realrate = ---;  %not used</span>
+
+s.fiscalTarget = 0; <span class="comment">% fiscal target for computing financial requirements</span>
+s.fixedBudget=0;    <span class="comment">% fixed component of the budget</span>
+<span class="comment">%s.debtChangeTolerance = [--- ---]; % minimum and maximum ratio (percent/100) of debt stock change tolerated (not used)</span>
+<span class="comment">%s.billPercentage= [--- --- ---]; % relative weights of the treasury bills in the actual portfolio (not used)</span>
+
+s.realFlag=0;   <span class="comment">%old debt taken on nominal or real basis</span>
+s.varLag = 1;
+
+s.frExpensesCoef = [  ---; ---; ---; ---; --- ];    <span class="comment">%coefficients on [real GDP growth; lagged inflation; inflation; lagged change in short rate; change in short rate]</span>
+s.frRevenuesCoef = [  ---; ---; ---; ---; --- ];    <span class="comment">%coefficients on [real GDP growth; lagged inflation; inflation; lagged change in short rate; change in short rate]</span>
+s.frSurplusPerYear = zeros(1,s.nperiod/4);  <span class="comment">% Desired surplus, or equivalently debt paydown, per year (in $B)</span>
+
+s.frInitialRevenues = ---;      <span class="comment">%initial revenues</span>
+s.frPreviousYrCoef = 0;
+s.frNoiseCoef = 0;          <span class="comment">%size of random fiscal shocks</span>
+s.frObjective=<span class="string">'balanced'</span>;   <span class="comment">%'surplus' or 'balanced'</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% initS.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This subroutine loads the main settings for the debt charge
+% engine. The majority of inputs that are updated between model runs, including several user-specific policy inputs, are defined here.
+
+
+%% Policy Inputs
+% These variables are defined via internal policy decision and are set to REPLACE_WITH_DASH_DASH- here as a placeholder:
+%
+    % * _s.issueFeedback_ (see Part 2) : whether to include penalty
+    % functions, i.e. additional cost for issuance amounts outside of
+    % allowable range ('yes' or 'no')
+    % * _s.value_ (see Part 3): steady-state debt stock (above 0) 
+    % * _s.initialGDP_ (see Part 3): initial GDP (above 0) 
+    % * _s.frExpensesCoef_ (see Part 3) : coefficients on macro variables in expenses growth equation (see Robbins, Torgunrud, and Matier (2007) for details) 
+    % * _s.frRevenuesCoef_ (see Part 3) : coefficients on macro variables in revenues growth equation (see Robbins, Torgunrud, and Matier (2007) for details)
+    % * _s.frInitRevenues_ (see Part 3) : initial revenues in steady-state (above 0)
+
+
+%% 1. Primary Settings
+s=struct('npoids',250);	      % Number of financing strategies
+s.nperiod = 40;	              % Number of periods (quarters) to evaluate
+s.nscenario = 4000;           % Number of scenarios, out of generated, to use
+
+s.nBill = 3;        % Number of treasury bill instruments (3m, 6m, 12m)
+s.nNomBnds = 6;     % Number of nominal bond instruments (2Y, 3Y, 5Y, 7Y, 10Y, 30Y)
+s.nNomInst = s.nBill + s.nNomBnds;   
+s.nRRB = 4;         % Number of real return bond instruments (2Y RRB, 5Y RRB, 10Y RRB, 30Y RRB)
+s.nBnds = s.nNomBnds + s.nRRB; s.nInst = s.nBill + s.nBnds;
+
+s.model='full';	              % 'full' : use macro variables and account for fiscal rules
+                              % 'restricted' : ignore macro variables and fiscal rules, i.e. actual and expected budget always the same (not used)
+s.equi='steady-state';	      % 'actual' : start at pre-defined current actual portfolio (not used)
+                              % 'steady-state' : start at steady-state portfolio
+
+                              
+%% 2. Secondary Settings
+s.frFeedback='yes';           % setting for financial requirements feedback, can be employed with 'full' only                     
+s.npma=8;                     % Number of periods in moving average for financial requirements feedback
+%s.tolerance=REPLACE_WITH_DASH_DASH-;           % Maximum change in the debt stock each quarter (not used)			      
+s.frFeedbackType='quarterly'; % Frequency of prediction: annual or quarterly
+
+
+%% 3. Fiscal and Instrument-Related Settings
+%
+% See: _<initSpenF_wts.html initSpenF_wts>_
+
+s.value = REPLACE_WITH_DASH_DASH-;                % Initial debt stock (in $B), steady-state stock if surplus set to 0
+s.initialGDP= REPLACE_WITH_DASH_DASH-;            % Initial GDP (in $B)
+s.alpha=0.95;                 % Cut-off for percentile calculations (e.g. CaR)
+s.stressTesting='no';         % 'yes' for stress-testing, 'no' otherwise; adds a third 'extreme' state to Markov chain
+s.issueFeedback='REPLACE_WITH_DASH_DASH-';        % 'yes' for feedback between issue size and cost (penalty functions), 'no' otherwise 
+
+if(strcmp(s.issueFeedback,'yes'))
+initSpenF_wts;  % Define parameters for penalty functions (adjusted cost for over/under-issuance)
+end
+
+s.Reopenings = [ 1 2 2 4 4 8 1 2 4 8];  % number of re-openings for each sector
+s.terms = 4*[1/4; 1/2; 1; 2.25; 3; 5.25; 7.25; 11; 29; 2; 5; 10; 30];   % TTM of each sector (in quarters)
+s.maxMat = max(s.terms);    % maximum instrument TTM (in quarters)
+%s.realrate = REPLACE_WITH_DASH_DASH-;  %not used
+
+s.fiscalTarget = 0; % fiscal target for computing financial requirements
+s.fixedBudget=0;    % fixed component of the budget
+%s.debtChangeTolerance = [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]; % minimum and maximum ratio (percent/100) of debt stock change tolerated (not used)
+%s.billPercentage= [REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH- REPLACE_WITH_DASH_DASH-]; % relative weights of the treasury bills in the actual portfolio (not used)
+
+s.realFlag=0;   %old debt taken on nominal or real basis
+s.varLag = 1;   
+
+s.frExpensesCoef = [  REPLACE_WITH_DASH_DASH-; REPLACE_WITH_DASH_DASH-; REPLACE_WITH_DASH_DASH-; REPLACE_WITH_DASH_DASH-; REPLACE_WITH_DASH_DASH- ];    %coefficients on [real GDP growth; lagged inflation; inflation; lagged change in short rate; change in short rate]
+s.frRevenuesCoef = [  REPLACE_WITH_DASH_DASH-; REPLACE_WITH_DASH_DASH-; REPLACE_WITH_DASH_DASH-; REPLACE_WITH_DASH_DASH-; REPLACE_WITH_DASH_DASH- ];    %coefficients on [real GDP growth; lagged inflation; inflation; lagged change in short rate; change in short rate]
+s.frSurplusPerYear = zeros(1,s.nperiod/4);  % Desired surplus, or equivalently debt paydown, per year (in $B)
+
+s.frInitialRevenues = REPLACE_WITH_DASH_DASH-;      %initial revenues
+s.frPreviousYrCoef = 0;
+s.frNoiseCoef = 0;          %size of random fiscal shocks
+s.frObjective='balanced';   %'surplus' or 'balanced'
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,220 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>issuanceProcess.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="issuanceProcess.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>issuanceProcess.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This subroutine (on <i>runSingleRealization.m</i>) computes the issuance amounts by instrument in the given quarter (for the given scenario for the given strategy), and updates future maturities accordingly.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">1. Compute this quarter's issuance amounts (by instrument)</a></li><li><a href="#2">2. Update future maturing amounts based on this quarter's issuance (by instrument)</a></li><li><a href="#3">3. Compute cash buffer</a></li><li><a href="#4">4. Store more detailed information on maturities and outstanding</a></li></ul></div><h2>1. Compute this quarter's issuance amounts (by instrument)<a name="1"></a></h2><p>Issuance in a sector is based on that sector's maturities, adjusted by overall financial requirements. That issuance of financial requirement amount is allocated between sectors in proportion to the steady-state portfolio.</p><pre class="codeinput"><span class="comment">% For treasury bills, issuance equals maturity.</span>
+n.issuance(1:3,i)=t.maturity(1:3,i)+(s.weight(1:3)'.*f.finreq(i));
+
+<span class="comment">% Since some bonds have re-openings (issuance in different quarters mature</span>
+<span class="comment">% in the same quarter), issuance is instead computed as a fraction of total maturities in nearby quarters.</span>
+<span class="keyword">for</span> j=1:s.nBnds     <span class="comment">%for bonds</span>
+  n.issuance(j+s.nBill,i)=sum(t.maturity(j+s.nBill,<span class="keyword">...</span>
+	(u.numReopen(j)*ceil(i/u.numReopen(j))- <span class="keyword">...</span>
+	u.numReopen(j)+1):(u.numReopen(j)*ceil(i/u.numReopen(j)))))<span class="keyword">...</span>
+	/u.numReopen(j)+(s.weight(j+s.nBill)'.*f.finreq(i));
+<span class="keyword">end</span>
+</pre><h2>2. Update future maturing amounts based on this quarter's issuance (by instrument)<a name="2"></a></h2><pre class="codeinput">t.maturity(1,i+1)=t.maturity(1,i+1)+n.issuance(1,i);    <span class="comment">%3-month bills (mature in 1 quarter)</span>
+t.maturity(2,i+2)=t.maturity(2,i+2)+n.issuance(2,i);    <span class="comment">%6-month bills (mature in 2 quarters)</span>
+t.maturity(3,i+4)=t.maturity(3,i+4)+n.issuance(3,i);    <span class="comment">%12-month bills (mature in 4 quarters)</span>
+n.maturity(1,i+1)=t.maturity(1,i+1);
+n.maturity(2,i+2)=t.maturity(2,i+2);
+n.maturity(3,i+4)=t.maturity(3,i+4);
+
+<span class="comment">% Same update to a separate matrix for inflation-adjusted maturity amounts</span>
+n.maturityReal(1,i+1)=t.maturity(1,i+1);
+n.maturityReal(2,i+2)=t.maturity(2,i+2);
+n.maturityReal(3,i+4)=t.maturity(3,i+4);
+t.maturityReal(1,i+1)=t.maturity(1,i+1);
+t.maturityReal(2,i+2)=t.maturity(2,i+2);
+t.maturityReal(3,i+4)=t.maturity(3,i+4);
+
+<span class="keyword">for</span> j=1:s.nBnds     <span class="comment">%for bonds, issuance will mature in # of quarters defined in utility matrix of TTM (for the given sector and quarter)</span>
+  t.maturity(j+3,i+u.ttm(j+3,i))=t.maturity(j+3,i+u.ttm(j+3,i))+<span class="keyword">...</span>
+                                  n.issuance(j+3,i);
+  n.maturity(j+3,i+u.ttm(j+3,i))=n.maturity(j+3,i+u.ttm(j+3,i))+n.issuance(j+3,i);
+
+  <span class="comment">% Same update to a separate matrix for inflation-adjusted maturity amounts</span>
+  t.maturityReal(j+3,i+u.ttm(j+3,i))=t.maturityReal(j+3,i+u.ttm(j+3,i))+<span class="keyword">...</span>
+                                  n.issuance(j+3,i);
+  n.maturityReal(j+3,i+u.ttm(j+3,i))=n.maturityReal(j+3,i+u.ttm(j+3,i))+n.issuance(j+3,i);
+<span class="keyword">end</span>
+</pre><h2>3. Compute cash buffer<a name="3"></a></h2><p>Issuance adjustment needed to match actual quarter's issuance to actual quarter's funding needs (maturities + financial requirements). Arises due to re-opening structure of bonds. It is assumed here to be put in 3-month bills.</p><pre class="codeinput">t.cash(i)=t.cash(max(i-1,1))+sum(t.maturity(s.nBill+1:s.nInst,i))-sum(n.issuance(s.nBill+1:s.nInst,i))+ <span class="keyword">...</span>
+	sum(s.weight(s.nBill+1:s.nInst).*f.finreq(i));
+</pre><h2>4. Store more detailed information on maturities and outstanding<a name="4"></a></h2><pre class="codeinput">t.totalmaturity(1,1:120,i)=sum(t.maturity(:,i:119+i));  <span class="comment">%total maturity from this quarter's issuance</span>
+
+<span class="comment">% Compute this quarter's outstanding amount (by sector), updated for issuance and maturity</span>
+<span class="keyword">if</span>(strcmp(s.equi,<span class="string">'steady-state'</span>))
+  <span class="keyword">if</span> i==1
+    t.detailedoutstanding(:,1)=s.value.*s.weight'-t.maturity(:,1)+n.issuance(:,1);
+    t.detailedoutstanding(1,i)=t.detailedoutstanding(1,i)+t.cash(i);
+  <span class="keyword">else</span>
+    t.detailedoutstanding(:,i)=t.detailedoutstanding(:,i-1)+n.issuance(:,i)-t.maturity(:,i);
+    t.detailedoutstanding(1,i)=t.detailedoutstanding(1,i)+t.cash(i)-t.cash(i-1);
+  <span class="keyword">end</span>
+<span class="keyword">elseif</span>(strcmp(s.equi,<span class="string">'actual'</span>))
+  <span class="keyword">if</span> i==1
+    t.detailedoutstanding(:,1)=sum(o.matbonds')'-o.matbonds(:,1)<span class="keyword">...</span>
+	-n.maturity(:,1)+n.issuance(:,1);
+    t.detailedoutstanding(1,i)=t.detailedoutstanding(1,i)+t.cash(i);
+  <span class="keyword">else</span>
+    t.detailedoutstanding(:,i)=t.detailedoutstanding(:,i-1)-o.matbonds(:,i)<span class="keyword">...</span>
+	-n.maturity(:,i)+n.issuance(:,i);
+    t.detailedoutstanding(1,i)=t.detailedoutstanding(1,i)+t.cash(i)-t.cash(i-1);
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% issuanceProcess.m
+% |Copyright (C) 2017, Bank of Canada|
+%
+% |This source code is licensed under the 3-Clause BSD License found in the
+% LICENSE file in the root directory of this source tree.|
+%
+% This subroutine (on _runSingleRealization.m_) computes the issuance amounts by instrument in the given
+% quarter (for the given scenario for the given strategy), and updates
+% future maturities accordingly.
+
+
+%% 1. Compute this quarter's issuance amounts (by instrument)
+% Issuance in a sector is based on that sector's maturities, adjusted by overall financial requirements. That issuance of financial requirement amount is allocated between
+% sectors in proportion to the steady-state portfolio.
+
+% For treasury bills, issuance equals maturity. 
+n.issuance(1:3,i)=t.maturity(1:3,i)+(s.weight(1:3)'.*f.finreq(i));  
+
+% Since some bonds have re-openings (issuance in different quarters mature
+% in the same quarter), issuance is instead computed as a fraction of total maturities in nearby quarters.
+for j=1:s.nBnds     %for bonds
+  n.issuance(j+s.nBill,i)=sum(t.maturity(j+s.nBill,...
+	(u.numReopen(j)*ceil(i/u.numReopen(j))- ... 
+	u.numReopen(j)+1):(u.numReopen(j)*ceil(i/u.numReopen(j)))))...
+	/u.numReopen(j)+(s.weight(j+s.nBill)'.*f.finreq(i));
+end
+
+
+%% 2. Update future maturing amounts based on this quarter's issuance (by instrument)
+t.maturity(1,i+1)=t.maturity(1,i+1)+n.issuance(1,i);    %3-month bills (mature in 1 quarter)
+t.maturity(2,i+2)=t.maturity(2,i+2)+n.issuance(2,i);    %6-month bills (mature in 2 quarters)
+t.maturity(3,i+4)=t.maturity(3,i+4)+n.issuance(3,i);    %12-month bills (mature in 4 quarters)
+n.maturity(1,i+1)=t.maturity(1,i+1); 
+n.maturity(2,i+2)=t.maturity(2,i+2);
+n.maturity(3,i+4)=t.maturity(3,i+4);
+
+% Same update to a separate matrix for inflation-adjusted maturity amounts
+n.maturityReal(1,i+1)=t.maturity(1,i+1);
+n.maturityReal(2,i+2)=t.maturity(2,i+2);
+n.maturityReal(3,i+4)=t.maturity(3,i+4);
+t.maturityReal(1,i+1)=t.maturity(1,i+1);
+t.maturityReal(2,i+2)=t.maturity(2,i+2);
+t.maturityReal(3,i+4)=t.maturity(3,i+4);
+
+for j=1:s.nBnds     %for bonds, issuance will mature in # of quarters defined in utility matrix of TTM (for the given sector and quarter)
+  t.maturity(j+3,i+u.ttm(j+3,i))=t.maturity(j+3,i+u.ttm(j+3,i))+...
+                                  n.issuance(j+3,i);
+  n.maturity(j+3,i+u.ttm(j+3,i))=n.maturity(j+3,i+u.ttm(j+3,i))+n.issuance(j+3,i);
+  
+  % Same update to a separate matrix for inflation-adjusted maturity amounts
+  t.maturityReal(j+3,i+u.ttm(j+3,i))=t.maturityReal(j+3,i+u.ttm(j+3,i))+...
+                                  n.issuance(j+3,i);
+  n.maturityReal(j+3,i+u.ttm(j+3,i))=n.maturityReal(j+3,i+u.ttm(j+3,i))+n.issuance(j+3,i);
+end
+
+
+%% 3. Compute cash buffer
+% Issuance adjustment needed to match actual quarter's
+% issuance to actual quarter's funding needs (maturities + financial
+% requirements). Arises due to re-opening structure of bonds. It is assumed
+% here to be put in 3-month bills.
+t.cash(i)=t.cash(max(i-1,1))+sum(t.maturity(s.nBill+1:s.nInst,i))-sum(n.issuance(s.nBill+1:s.nInst,i))+ ...
+	sum(s.weight(s.nBill+1:s.nInst).*f.finreq(i));
+
+
+%% 4. Store more detailed information on maturities and outstanding
+t.totalmaturity(1,1:120,i)=sum(t.maturity(:,i:119+i));  %total maturity from this quarter's issuance
+
+% Compute this quarter's outstanding amount (by sector), updated for issuance and maturity
+if(strcmp(s.equi,'steady-state'))
+  if i==1
+    t.detailedoutstanding(:,1)=s.value.*s.weight'-t.maturity(:,1)+n.issuance(:,1);
+    t.detailedoutstanding(1,i)=t.detailedoutstanding(1,i)+t.cash(i); 
+  else  
+    t.detailedoutstanding(:,i)=t.detailedoutstanding(:,i-1)+n.issuance(:,i)-t.maturity(:,i);
+    t.detailedoutstanding(1,i)=t.detailedoutstanding(1,i)+t.cash(i)-t.cash(i-1); 
+  end
+elseif(strcmp(s.equi,'actual'))
+  if i==1
+    t.detailedoutstanding(:,1)=sum(o.matbonds')'-o.matbonds(:,1)...
+	-n.maturity(:,1)+n.issuance(:,1);
+    t.detailedoutstanding(1,i)=t.detailedoutstanding(1,i)+t.cash(i); 
+  else  
+    t.detailedoutstanding(:,i)=t.detailedoutstanding(:,i-1)-o.matbonds(:,i)...
+	-n.maturity(:,i)+n.issuance(:,i);
+    t.detailedoutstanding(1,i)=t.detailedoutstanding(1,i)+t.cash(i)-t.cash(i-1); 
+  end
+end
+##### SOURCE END #####
+--></body></html>
