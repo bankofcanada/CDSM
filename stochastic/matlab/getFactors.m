@@ -18,11 +18,7 @@ function [X,H,HSim] = getFactors(ns);
 % _HSim_ : Nelson-Siegel factor loadings based on adjusted tenors
 
 
-%% 1. Set path
-path(path,'../../@nelsonSiegel/private/');  
-
-
-%% 2. Compute Nelson-Siegel factor loadings for each factor (level, slope, curvature) 
+%% 1. Compute Nelson-Siegel factor loadings for each factor (level, slope, curvature) 
 %
 % _See <ns_basis.html ns_basis>_
 for(i=1:get(ns,'dim'))
@@ -31,11 +27,11 @@ for(i=1:get(ns,'dim'))
 end
 
 
-%% 3. Load historical yield curve data
+%% 2. Load historical yield curve data
 Z = get(ns,'zero_data');
 
 
-%% 4. Solve for the historical factor values, for each month, through least-squares optimization
+%% 3. Solve for the historical factor values, for each month, through least-squares optimization
 %
 % _See <nsOF.html nsOF>_
 options = optimset('MaxIter',5000,'Display','off','MaxFunEvals',10000,...
@@ -53,6 +49,6 @@ for(i=1:length(Z));
 end
 
 
-%% 5. Display the fit to the data
+%% 4. Display the fit to the data
 disp([get(ns,'ttm')' 10000*(sqrt(sum((H*X-Z).^2,2)/(get(ns,'histT')* ...
 						  get(ns,'histN'))))])
