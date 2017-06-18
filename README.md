@@ -7,7 +7,7 @@ The CDSM is coded in MATLAB and is run in three modules:
 2. The second module ([model](/model/)) creates a set of representative strategies, and evaluates them under those scenarios.
 3. The third module ([optimize](/optimize/)) uses those results to curve-fit general functions of cost and risk for any financing strategy, and optimizes over them to produce an efficient frontier.  
 
-The CDSM User Guide is available here. An interactive HTML guide to the line-by-line coding is also available in the ([documentation](/documentation/)) folder.
+The CDSM User Guide is available here. An interactive HTML guide to the line-by-line coding is also available in the [documentation](/documentation/) folder.
 
 Links to David J. Bolder’s original papers on the CDSM can be found [here](http://www.bankofcanada.ca/profile/david-bolder/).
 
