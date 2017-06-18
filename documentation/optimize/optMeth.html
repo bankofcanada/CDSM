@@ -100,7 +100,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
         <span class="keyword">else</span>
             rollhat=[];
         <span class="keyword">end</span>
-</pre><h2>2. Curve-fit general functions of cost and risk with training set results, using OLS<a name="5"></a></h2><p>See: <i><a href="np_regression\OLS\train.html">train</a></i>, <i><a href="np_regression\OLS\OLS.html">OLS</a></i></p><pre class="codeinput">    <span class="keyword">case</span> <span class="string">'OLS'</span>  <span class="comment">%if OLS method is used (standard)</span>
+</pre><h2>2. Curve-fit general functions of cost and risk with training set results, using OLS<a name="5"></a></h2><p>See: <i><a href="np_regression\@OLS\train.html">train</a></i>, <i><a href="np_regression\@OLS\OLS.html">OLS</a></i></p><pre class="codeinput">    <span class="keyword">case</span> <span class="string">'OLS'</span>  <span class="comment">%if OLS method is used (standard)</span>
         fhat = train(OLS(), x, f); <span class="comment">% approximate a general function of cost (on any allocation)</span>
         ghat = train(OLS(), x, g); <span class="comment">% approximate a general function of risk (on any allocation)</span>
     <span class="keyword">if</span> roll_overlay == 1
@@ -184,7 +184,7 @@ switch mt
         
 %% 2. Curve-fit general functions of cost and risk with training set results, using OLS
 %
-% See: _<np_regression\OLS\train.html train>_, _<np_regression\OLS\OLS.html OLS>_
+% See: _<np_regression\@OLS\train.html train>_, _<np_regression\@OLS\OLS.html OLS>_
     case 'OLS'  %if OLS method is used (standard)
         fhat = train(OLS(), x, f); % approximate a general function of cost (on any allocation)
         ghat = train(OLS(), x, g); % approximate a general function of risk (on any allocation)
