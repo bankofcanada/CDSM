@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>main.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-17"><meta name="DC.source" content="main.m"><style type="text/css">
+      --><title>main.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-19"><meta name="DC.source" content="main.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -69,7 +69,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
   </style></head><body><div class="content"><h1>main.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This script is run for the DEBT CHARGE ENGINE step of the model. It evaluates the cost and risk of each financing strategy (from the MAKE STRATEGIES step) under a subset of the economic scenarios (from the GENERATE SCENARIOS step). It is run once for each strategy in the defined block through a Linux shell script. Running this for all blocks produces the training set result which is used to curve-fit general functions of cost and risk for all strategies - which is the basis for optimization (in the PRODUCE EFFICIENT FRONTIER step).</p><p>This script can also be run directly to evaluate the cost and risk of specific strategies.</p><p>The inputs and results from these evaluations are stored across several matrix variables, which saved in one of the following structures:</p><div><ul><li><i>s</i> : parameters of the simulation</li><li><i>u</i> : utility matrices describing debt instrument properties</li><li><i>o</i> : information on old debt (i.e. debt issued before start of simulation), overwritten with each strategy</li><li><i>n</i> : information on new debt (i.e. debt issued during simulation), overwritten with each strategy</li><li><i>t</i> : information on total debt, overwritten with each strategy</li><li><i>f</i> : information on financial requirements, overwritten with each strategy</li><li><i>m</i> : summary metrics (e.g. cost and risk) for the strategies, from simulation</li></ul></div><p>When analyzing the code and results, it is important to note a few key variable inputs, which determine the majority of matrix dimensions and loop sizes:</p><div><ul><li>Number of instruments (<i>s.nInst</i>) : 13 in this case (3m, 6m, 12m, 2Y, 3Y, 5Y, 7Y, 10Y, 30Y, 2Y RRB, 5Y RRB, 10Y RRB, 30Y RRB), note index of each instrument</li><li>Number of strategies (<i>s.nPoids</i>) : 250 in this case (block size for training set), much fewer if running individual strategies</li><li>Number of simulations selected (<i>s.nscenario</i>) : 4000 in this case</li><li>Number of quarters in simulation (<i>s.nPeriod</i>) : 40 in this case (10-year simulation)</li><li>Maximum instrument maturity in quarters (<i>s.maxMat</i>) : 120 in this case (30-year bond)</li></ul></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Policy Inputs</a></li><li><a href="#2">1. Set Up</a></li><li><a href="#3">2. Load settings</a></li><li><a href="#4">3. Load financing strategies to evaluate.</a></li><li><a href="#5">4. Load files with combined macroeconomic and interest rate scenarios</a></li><li><a href="#6">5. Set up utility matrices describing instrument properties</a></li><li><a href="#7">6. Evaluate the financing strategies and save results</a></li></ul></div><h2>Policy Inputs<a name="1"></a></h2><p>These variables are defined via internal policy decision and are set to --- here as a placeholder:</p><div><ul><li><i>ports</i> (see Part 3): defined individual strategies to evaluate, if setting defined (each term between 0 and 1, terms for a strategy must add to 1)</li></ul></div><h2>1. Set Up<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Set path</span>
 path(path,<span class="string">'../stochastic'</span>);
 path(path,<span class="string">'../stochastic/matlab'</span>);
-<span class="comment">%path(path,'../practice/');</span>
+path(path,<span class="string">'../practice/'</span>);
 modelType = <span class="string">'ns'</span>;
 
 tic;
@@ -165,7 +165,7 @@ toc;
 % Set path
 path(path,'../stochastic');
 path(path,'../stochastic/matlab');
-%path(path,'../practice/');
+path(path,'../practice/');
 modelType = 'ns';
 
 tic;
