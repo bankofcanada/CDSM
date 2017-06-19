@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>initializePortfolio_new.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-30"><meta name="DC.source" content="initializePortfolio_new.m"><style type="text/css">
+      --><title>initializePortfolio_new.m</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-06-19"><meta name="DC.source" content="initializePortfolio_new.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -68,7 +68,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
   </style></head><body><div class="content"><h1>initializePortfolio_new.m</h1><!--introduction--><p><tt>Copyright (C) 2017, Bank of Canada</tt></p><p><tt>This source code is licensed under the 3-Clause BSD License found in the LICENSE file in the root directory of this source tree.</tt></p><p>This function produces variables describing the maturity profile of the portfolio at the start of the simulation (i.e. old debt) for the given financing strategy.</p><p>This is run either under the 'steady-state' (assume the strategy had been in place in the indefinite past) or 'actual' (use the current portfolio) setting.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Function Syntax</a></li><li><a href="#3">1. If 'actual' setting, load maturity profile of actual current debt portfolio (not used)</a></li><li><a href="#5">2. If 'steady-state' setting, create maturity profile assuming this strategy had been in place for the indefinite past</a></li><li><a href="#8">2A. (for 'steady-state') Distribute maturities of old debt over simulation horizon</a></li><li><a href="#9">2B. (for 'steady-state') Apply penalty function to adjust interest rates on old debt, for issuance amounts above or below allowable range</a></li><li><a href="#10">2C. (for 'steady-state') Compute quarterly costs on old debt</a></li><li><a href="#12">3. Initialize variables to be used in strategy evaluation</a></li></ul></div><h2>Function Syntax<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [s,o,n,t,f,ttm]=initializePortfolio_new(s,u,LTM,n)
 </pre><p><i>s</i> : structure containing simulation parameters, updated</p><p><i>u</i> : structure containing utility matrices, updated</p><p><i>LTM</i> : long-term mean values for each macroeconomic</p><p><i>n</i> : structure containing information on new debt, updated</p><p><i>o</i> : structure containing information on old debt, created and updated</p><p><i>t</i> : structure containing information on total debt, created and updated</p><p><i>f</i> : structure containing information on financial requirements, created and updated</p><p><i>ttm</i> : variable for time-to-maturity</p><h2>1. If 'actual' setting, load maturity profile of actual current debt portfolio (not used)<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> strcmp(s.equi,<span class="string">'actual'</span>)
-</pre><pre class="codeinput">  currentPortfolio_MMMYY    <span class="comment">% This setting is not used</span>
+</pre><pre class="codeinput">  currentPortfolio_new    <span class="comment">% This setting is not used</span>
 </pre><h2>2. If 'steady-state' setting, create maturity profile assuming this strategy had been in place for the indefinite past<a name="5"></a></h2><p>In steady-state, distribution of initial outstanding debt across sectors is same as target allocation</p><pre class="codeinput"><span class="keyword">elseif</span> strcmp(s.equi,<span class="string">'steady-state'</span>)
 </pre><h2>2A. (for 'steady-state') Distribute maturities of old debt over simulation horizon<a name="8"></a></h2><pre class="codeinput">  o=struct(<span class="string">'initialmaturity'</span>,zeros(s.nInst,s.nperiod+s.maxMat));    <span class="comment">%Initialize matrix</span>
 
@@ -176,7 +176,7 @@ function [s,o,n,t,f,ttm]=initializePortfolio_new(s,u,LTM,n)
 %% 1. If 'actual' setting, load maturity profile of actual current debt portfolio (not used)
 
 if strcmp(s.equi,'actual')    
-  currentPortfolio_MMMYY    % This setting is not used
+  currentPortfolio_new    % This setting is not used
 
 
 %% 2. If 'steady-state' setting, create maturity profile assuming this strategy had been in place for the indefinite past
