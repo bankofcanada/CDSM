@@ -1,5 +1,7 @@
 # Canadian Debt Strategy Model Public Version 1.0
 
+_Jeffrey Gao_ (jgao@bankofcanada.ca)
+
 The purpose of the Canadian Debt Strategy Model (CDSM) is to help debt managers determine their optimal financing strategy. It does so by robustly quantifying the cost-risk trade-off between issuing shorter-term or longer-term debt in steady-state.
 
 The CDSM is coded in MATLAB and is run in three modules:
