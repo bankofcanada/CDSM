@@ -14,3 +14,5 @@ The CDSM User Guide is available here. An interactive HTML guide to the line-by-
 Links to David J. Bolder’s original papers on the CDSM can be found [here](http://www.bankofcanada.ca/profile/david-bolder/).
 
 The CDSM was developed by the Bank of Canada as part of its role as a fiscal agent for the Government of Canada. The published code is illustrative and is provided for example and information purposes only. This content does not reflect the views of the Bank of Canada or the Government of Canada.
+
+Contact: FBDDebtManagement@bank-banque-canada.ca
