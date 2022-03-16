@@ -20,7 +20,7 @@ if strcmp(s.model,'restricted')
 
   
 %% 2. Save results if running a full model with financial requirements
-elseif strcmp(s.model,'full')   
+elseif strcmp(s.model,'full')       
   if strcmp(s.equi,'actual')    %if start simulation with actual portfolio (not used)
     disp('Saving results from full stochastic model with actual portfolio.')
     save ../results/FullActual_MMMYY s m;

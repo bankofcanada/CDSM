@@ -26,13 +26,13 @@
 
 inst = [ 1 2 3 4 5 6 8 9 13];   %index of relevant sectors
 nInst = size(inst,2);
-issConst = - [ --- --- --- --- --- --- --- --- ---];   %minimum issuance constraint for each instrument
+issConst = - zeros(1,9);   %minimum issuance constraint for each instrument
 
 path('../results/ns/',path)
 
-resultName= '_MMMYY_vname_block';    %name of result files
+resultName= '_MMMYY_block';    %name of result files
 mt = 'OLS';  % model used to curve-fit general cost/risk functions for strategies
-rc = '---'; % risk metric used for the efficient frontier
+rc = 'cCV'; % risk metric used for the efficient frontier, the user can specify cCV, rCaR, roll2gdp etc. 
 ic = 'IC'; % issuance constraints on or off ('IC' or 'noIC')
 
 cost = 'percent';   % define settings for name of saved file 
@@ -47,7 +47,7 @@ fileAdd = strcat(resultName,techstr,num2str(roll_overlay_value));
 
 %% 2. Load file with training set results
 % Contains structure _s_ with model parameters and _m_ with summary metrics
-eval(['load ../results/ns/trainingSets/policyResults_policyPort',resultName,'_all']); 
+eval(['load ./dataFiles/results_SS',resultName,'_all']); 
 
 
 %% 3. Define cost and risk metrics for each financing strategy (from training set results)
@@ -71,9 +71,9 @@ g = riskCon(rc,riskC);  %vector of risk measures for each strategy
 % for each risk level. Thus, setting the lower bound (_k_), upper bound (_endcon_), and granularity (_step_) of the
 % risk levels gives the points to evaluate to determine the frontier.
 
-k = ---;    %lower bound of risk level
-endcon = ---; %upper bound of risk level
-step = ---;   %step size between risk level points to evaluate
+k = 1.3;    %lower bound of risk level
+endcon = 2.2; %upper bound of risk level
+step = 0.1;   %step size between risk level points to evaluate
 par = [ k endcon step];
 last = ((endcon-k)/step) + 1;	%number of risk level points evaluated  
 
@@ -82,8 +82,8 @@ last = ((endcon-k)/step) + 1;	%number of risk level points evaluated
 %
 % See: _<setApproximationPaths.html setApproximationPaths>_
 
-path(path, '../optimize/');
-path(path, '../optimize/np_regression/');
+%path(path, '../optimize/');
+%path(path, '../optimize/np_regression/');
 
 setApproximationPaths   %set path for curve-fitting method of training set 
 [fhat ghat rollhat] = optMeth(mt,x,f,g,rc,resultName,cost,dF_str,riskC.roll,roll_overlay);  %compute parameters of cost, risk, and rollover functions
@@ -127,7 +127,9 @@ rcq = [riskC.roll/dstock];  %not used
 
 % Create cell array of minimum issuance constraints
 [Constraints x0] = constr(ic,nInst,issConst);
-
+if sum(isnan(x0))>0
+    x0 = ones(size(x0))/length(x0);
+end
 % Set options for optimization (standard)
 options = optimset('MaxIter', 2000, 'MaxFunEvals', 5000, 'Display', 'off', ...
     'LargeScale', 'off', 'TolFun', 1e-8, 'TolCon', 1e-8);   
@@ -143,9 +145,11 @@ for i =1:round(last)
         [xstar(:,:,i), fstar(i), e_flag(i), output(i), lambda(i)]= ...     
     fmincon(optFunc, x0,Constraints{:},nonLinCon,options);  %call _fmincon_ MATLAB function with defined inputs   
    end
-    
-% Save result in file and move to next risk constraint value for next optimization
-     eval(['save ~/CDSM-public/results/ns/optimizationResults/optResults',fileAdd,...
-     ' xstar fstar e_flag output lambda f x g par'])
     k=k+step;
 end
+ports0 = squeeze(xstar)';
+ports = zeros(size(ports0,1),inst(end));
+ports(:,inst) = ports0;
+% Save result in file and move to next risk constraint value for next optimization
+eval(['save ./results/ns/optimizationResults/optResults',fileAdd,...
+    ' xstar fstar e_flag output lambda f x g par ports'])

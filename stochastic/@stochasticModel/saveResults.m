@@ -33,7 +33,7 @@ Xlag = get_Xlag(mObject,get(mObject,'startLag'));   %vector of lagged values for
 
 %% 2. Save results to three files in defined _dataFiles_ folder
 if ~exist('userSavePath')
-  userSavePath = ['../dataFiles/' date];
+  userSavePath = ['./dataFiles/' date];
   disp('No "userSavePath". Results saved in "../dataFiles/date.mat" ')
 end
 

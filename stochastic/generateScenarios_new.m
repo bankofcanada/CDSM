@@ -15,7 +15,7 @@
 %
 
 %% 1. Set the number of scenarios
-N = 10000;
+N = 50;
 warning off
 
 
@@ -32,19 +32,21 @@ M = [YGAP CORE OVNR POTGROWTH]';
 
 %% 4. Initialize a pre-set matrix of long-term means for macroeconomic variables
 % For each variable, the first LTM is for parameterization and the second LTM is for simulation.
-M_LTM=[  ---, --- ; ... % 4 - output gap, NaN if taken from historical average
-         ---, --- ; ... % 5 - core inflation, NaN if taken from historical average
-         ---, ---; ...    % 6 - overnight rate, NaN if taken from historical average
-         ---, ---; ...    % 7 - potential output growth, NaN if taken from historical average
-         ---, --- ];    % 8 - total inflation (cannot set historical average for this)
+M_LTM=[  0.00, 0.00 ; ... % ygap
+         0.05, 0.05 ; ... % core inflation
+         NaN, NaN; ...  % NaN, NaN ; ... % overnight rate  (no pre-set ltm)
+         NaN, NaN ; ... % potential output growth  (no pre-set ltm)
+         0.05, 0.05 ];    % total inflation (not in M)
+
 
      
 %% 5. Initialize a pre-set combined matrix of long-term means for both yield curve variables (via Nelson-Siegel) and macroeconomic variables
 % For each variable, the first LTM is for parameterization and the second LTM is for simulation.
-nsLTM =[    ---, ---; ...   % 1 - level, NaN if taken from historical average     
-            ---, ---; ...   % 2 - slope, NaN if taken from historical average     
-            ---, ---; ...   % 3 - curvature, NaN if taken from historical average   
-           M_LTM    ];      % 4:8 - macroeconomic LTM's
+nsLTM =[    NaN, NaN; ... % 1-level      % 0.045 %0.03, 0.03; ... 
+            NaN, NaN; ... % 2-slope      % -0.015
+            NaN, NaN; ... % 3-curvature  (no pre-set ltm)
+           M_LTM    ];    % 4:8-Macro Economic LTM's
+
 
        
 %% 6. Construct 'nelsonSiegel' class where key variables for estimation and simulation will be stored
@@ -118,4 +120,4 @@ viewSimulation(ns,data);
 % File 3: Parameters from VAR Simulation
 %
 % See: _<@stochasticModel/saveResults.html saveResults>_
-saveResults(ns,data,'../dataFiles/','ns_MMMYY');
+saveResults(ns,data,'./dataFiles/','ns_MMMYY');

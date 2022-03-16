@@ -18,54 +18,64 @@
 % field in the final training set's _m_ structures. (_s_ is taken directly
 % since it is the same for all blocks.)
 
-resultName = '../results/ns/trainingSets/tsBlocks/policyResults_policyPort_MMMYY_vname_block';
+resultName = './dataFiles/results_SS_MMMYY_block';
 
 ff=1;
-while 1 
-  if ff==9       % equal to one plus the number of blocks (50), since loop is across each block
-   break;
-  end
-  try
-    load( [resultName num2str(ff)] )    %load the block
-    m.issue.qdetailedOut = squeeze(mean(m.issue.qdetailedOut,3));
-    m=rmfield(m, {'CPI' 'GDP'});
-  end
-  if ff==1
-    M=m;
-    ff=ff+1;
-    continue
-  end
-  try
-    %m=rmfield(m,{'CPI' 'GDP'});
-  end
-  %S(ff)=s;
-  ff=ff+1;
-  
-  % Loop across each field in _m_ for that block, inserting that field's
-  % values into the field for the final training set _m_.
-  mNames = fieldnames(m);
-  for mm = 1:length(mNames)
-    mField = getfield(m, mNames{mm});
-    if isa(mField, 'struct')    %if the field in _m_ is also a structure
-      mNames2 = fieldnames(mField);
-      for mm2 = 1:length(mNames2)
-        mField2 = getfield(mField, mNames2{mm2});
-        if isa(mField2, 'struct')   %if field within the structure in _m_ is also a structure
-          mNames3 = fieldnames(mField2);
-          for mm3 = 1:length(mNames3)
-            mField3 = getfield(mField2, mNames3{mm3});
-            M.(mNames{mm}).(mNames2{mm2}).(mNames3{mm3})...
-              (:,:,end+1:end+size(mField3,3)) = mField3;
-          end
-        else    %if field is not a structure
-          M.(mNames{mm}).(mNames2{mm2})...
-            (:,:,end+1:end+size(mField2,3)) = mField2;
-        end
-      end
-    else    %if field is not a structure
-        M.(mNames{mm})(:,:,end+1:end+size(mField,3)) = mField;  
+while 1
+    if ff==9       % equal to one plus the number of blocks (50), since loop is across each block
+        break;
     end
-  end
+    %  try
+    filename =[resultName num2str(ff) '.mat'];
+    if ~exist(filename,'file')
+        break;
+    else
+        load(filename)    %load the block
+        m.issue.qdetailedOut = squeeze(mean(m.issue.qdetailedOut,3));
+        m=rmfield(m, {'CPI' 'GDP'});
+        %   end
+        %   if ff==1
+        %     M=m;
+        %     ff=ff+1;
+        %     continue
+        %   end
+        %   try
+        %     %m=rmfield(m,{'CPI' 'GDP'});
+        %   end
+        %   %S(ff)=s;
+        %   ff=ff+1;
+        
+        % Loop across each field in _m_ for that block, inserting that field's
+        % values into the field for the final training set _m_.
+        if ff==1
+            M = m;
+        else
+            mNames = fieldnames(m);
+            for mm = 1:length(mNames)
+                mField = getfield(m, mNames{mm});
+                if isa(mField, 'struct')    %if the field in _m_ is also a structure
+                    mNames2 = fieldnames(mField);
+                    for mm2 = 1:length(mNames2)
+                        mField2 = getfield(mField, mNames2{mm2});
+                        if isa(mField2, 'struct')   %if field within the structure in _m_ is also a structure
+                            mNames3 = fieldnames(mField2);
+                            for mm3 = 1:length(mNames3)
+                                mField3 = getfield(mField2, mNames3{mm3});
+                                M.(mNames{mm}).(mNames2{mm2}).(mNames3{mm3})...
+                                    (:,:,end+1:end+size(mField3,3)) = mField3;
+                            end
+                        else    %if field is not a structure
+                            M.(mNames{mm}).(mNames2{mm2})...
+                                (:,:,end+1:end+size(mField2,3)) = mField2;
+                        end
+                    end
+                else    %if field is not a structure
+                    M.(mNames{mm})(:,:,end+1:end+size(mField,3)) = mField;
+                end
+            end
+        end
+        ff = ff + 1;
+    end
 end
 
 m=M;
@@ -85,7 +95,7 @@ squeezeMerge;
 
 % Average cost and debt stock metrics
 for j=1:10
-	moyenne(:,j,:) = m.DCD(:,j,:) ./ m.stock.os(:,j,:);
+    moyenne(:,j,:) = m.DCD(:,j,:) ./ m.stock.os(:,j,:);
 end
 
 m.percentCharges.byYear = 100*squeeze(mean(moyenne,1))';

@@ -22,9 +22,9 @@
 
 
 %% 1. Primary Settings
-s=struct('npoids',250);	      % Number of financing strategies
-s.nperiod = 40;	              % Number of periods (quarters) to evaluate
-s.nscenario = 4000;           % Number of scenarios, out of generated, to use
+s=struct('npoids',50);	      % Number of financing strategies, recommend to be at least 2000 for actual simulation
+s.nperiod = 40;	              % Number of periods (quarters) to evaluate, recommended to be at least 40 quarters
+s.nscenario = 50;           % Number of scenarios, out of generated, to use, recommended to be at least 4000 for actual simulation
 
 s.nBill = 3;        % Number of treasury bill instruments (3m, 6m, 12m)
 s.nNomBnds = 6;     % Number of nominal bond instruments (2Y, 3Y, 5Y, 7Y, 10Y, 30Y)
@@ -49,11 +49,11 @@ s.frFeedbackType='quarterly'; % Frequency of prediction: annual or quarterly
 %
 % See: _<initSpenF_wts.html initSpenF_wts>_
 
-s.value = ---;                % Initial debt stock (in $B), steady-state stock if surplus set to 0
-s.initialGDP= ---;            % Initial GDP (in $B)
+s.value = 1000;                % Initial debt stock (in $B), steady-state stock if surplus set to 0
+s.initialGDP= 2000;            % Initial GDP (in $B)
 s.alpha=0.95;                 % Cut-off for percentile calculations (e.g. CaR)
 s.stressTesting='no';         % 'yes' for stress-testing, 'no' otherwise; adds a third 'extreme' state to Markov chain
-s.issueFeedback='---';        % 'yes' for feedback between issue size and cost (penalty functions), 'no' otherwise 
+s.issueFeedback='yes';        % 'yes' for feedback between issue size and cost (penalty functions), 'no' otherwise 
 
 if(strcmp(s.issueFeedback,'yes'))
 initSpenF_wts;  % Define parameters for penalty functions (adjusted cost for over/under-issuance)
@@ -72,11 +72,11 @@ s.fixedBudget=0;    % fixed component of the budget
 s.realFlag=0;   %old debt taken on nominal or real basis
 s.varLag = 1;   
 
-s.frExpensesCoef = [  ---; ---; ---; ---; --- ];    %coefficients on [real GDP growth; lagged inflation; inflation; lagged change in short rate; change in short rate]
-s.frRevenuesCoef = [  ---; ---; ---; ---; --- ];    %coefficients on [real GDP growth; lagged inflation; inflation; lagged change in short rate; change in short rate]
+s.frExpensesCoef = [ -0.3; -0.1;  0.5;  0; 0];    %calibrated every year by regression,coefficients on [real GDP growth; lagged inflation; inflation; lagged change in short rate; change in short rate]
+s.frRevenuesCoef = [ 1.2; -0.2;  1.2;  0.4; 0.10];    %calibrated every year by regression,coefficients on [real GDP growth; lagged inflation; inflation; lagged change in short rate; change in short rate]
 s.frSurplusPerYear = zeros(1,s.nperiod/4);  % Desired surplus, or equivalently debt paydown, per year (in $B)
 
-s.frInitialRevenues = ---;      %initial revenues
+s.frInitialRevenues = 500;      %initial revenues
 s.frPreviousYrCoef = 0;
 s.frNoiseCoef = 0;          %size of random fiscal shocks
 s.frObjective='balanced';   %'surplus' or 'balanced'

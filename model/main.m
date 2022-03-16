@@ -45,9 +45,9 @@
 %% 1. Set Up
 
 % Set path
-path(path,'../stochastic');
-path(path,'../stochastic/matlab');
-path(path,'../practice/');
+path(path,'./stochastic');
+path(path,'./stochastic/matlab');
+path(path,'./practice/');
 modelType = 'ns';
 
 tic;
@@ -69,7 +69,7 @@ initS;
 % Each financing strategy is completely defined by a 13x1 vector describing
 % the percentage allocation for each instrument in steady-state.
 
-load(strategyFile);       %comment out if running area portfolio
+load(strategyFile,'ports');       %comment out if running area portfolio
 %ports = [ --- --- --- --- --- --- --- --- --- --- --- --- --- ];    %[3m, 6m, 12m, 2Y, 3Y, 5Y, 7Y, 10Y, 30Y, 2Y RRB, 5Y RRB, 10Y RRB, 30Y RRB], comment out if running training set
 
 
@@ -105,7 +105,7 @@ bTime=clock;
 % See: _<initializePortfolio_new.html initializePortfolio_new>_,
 % _<runSingleRealization.html runSingleRealization>_, _<saveIntermediateResults.html saveIntermediateResults>_, _<computeSummaryStats_min.html computeSummaryStats_min>_, _<saveSimulationResults.html saveSimulationResults>_
 
-for p=1:s.npoids    %loop across all strategies
+for p=1:size(ports,1)    %loop across all strategies
   s.weight= ports(p,:);     % vector of steady-state portfolio weights representing that strategy
   avgIss = zeros(13,s.nperiod);
   disp(['Financing Strategy ' num2str(p) ' --> Elapsed time: ' ...

@@ -8,7 +8,7 @@
 
 
 %% Policy Inputs
-% These variables are defined via internal policy decision and are set to --- here as a placeholder:
+% These variables are defined via internal policy Sepision and are set to --- here as a placeholder:
 %
 % * _start_ and _last_ (see Part 1) : starting/ending month (1-12) and year (1-2017) for historical time series used to parameterize VAR model
 %
@@ -25,45 +25,45 @@
 % * _'zeroCurvesMMMYY.txt'_ : monthly historical time series of yield curve rates
 % * _'RGDPpctchquarterMMMYY.txt'_ : monthly historical time series of real GDP growth
 %
-
+%
 
 %% 1. Set Up
 
 % Set historical data range
-start = [-- ----]   %[MM YYYY]       
-last = [-- ----]    %[MM YYYY]
+start = [1 1996]   %[MM YYYY]       
+last = [9 2019]    %[MM YYYY]
 
-% Set path
-path('../stochastic',path);
-path('../stochastic/matlab',path);
+% % Set path
+% path('../stochastic',path);
+% path('../stochastic/matlab',path);
 
 
 %% 2. Load historical monthly macroeconomic data
 
 %OVNR : Bank of Canada's Overnight Rate (average for month)
 disp('OVNR')
-X=load( '../stochastic/varData/ovnrateMMMYY.txt'); %load data file
+load('./stochastic/varData/2019/Sep/ovnrate.mat','X');
 [i,j]=min( abs(X(:,1)-start(1))+abs(X(:,2)-start(2)) ); %index of start date
 [i,k]=min( abs(X(:,1)-last(1))+abs(X(:,2)-last(2)) );   %index of last date
 OVNR=X(j:k,3:end);  %vector of monthly data for historical range
 
 %INFL : Total Inflation (for past year)
 disp('INFL')
-X=load( '../stochastic/varData/inflyearMMMYY.txt' );
+load('./stochastic/varData/2019/Sep/inflyear.mat','X');
 [i,j]=min( abs(X(:,1)-start(1))+abs(X(:,2)-start(2)) ); 
 [i,k]=min( abs(X(:,1)-last(1))+abs(X(:,2)-last(2)) );   
 INFL=X(j:k,3:end);   
 
 %CORE : Core Inflation (for past year)
 disp('CORE')
-X=load( '../stochastic/varData/inflcoreyearMMMYY.txt' );
+load('./stochastic/varData/2019/Sep/inflcoreyear.mat','X');
 [i,j]=min( abs(X(:,1)-start(1))+abs(X(:,2)-start(2)) );  
 [i,k]=min( abs(X(:,1)-last(1))+abs(X(:,2)-last(2)) );   
 CORE=X(j:k,3:end);  
 
 %YGAP : Output Gap (interpolated from quarterly data) 
 disp('YGAP')
-X=load( '../stochastic/varData/ygapMMMYY.txt' );
+load('./stochastic/varData/2019/Sep/ygap.mat','X');
 [i,j]=min( abs(X(:,1)-start(1))+abs(X(:,2)-start(2)) ); 
 [i,k]=min( abs(X(:,1)-last(1))+abs(X(:,2)-last(2)) );   
 YGAP=X(j:k,3:end);  
@@ -74,7 +74,7 @@ GAPGROWTH=(1+X(j:k,3:end))./(1+X(j-3:k-3,3:end)) - 1;
 
 %POTGROWTH : Growth in Potential Output (for past three months, interpolated from quarterly data) 
 disp('POTGROWTH')
-X=load( '../stochastic/varData/potgdppctchquarterMMMYY.txt' );
+load('./stochastic/varData/2019/Sep/potgdppctchquarter.mat','X');
 [i,j]=min( abs(X(:,1)-start(1))+abs(X(:,2)-start(2)) ); 
 [i,k]=min( abs(X(:,1)-last(1))+abs(X(:,2)-last(2)) );   
 POTGROWTH=X(j:k,3:end);
@@ -90,10 +90,10 @@ clear GAPRATIO X;
 %% 4. Load historical monthly yield curve data
 
 %ZCURVES : Zero-Coupon Yield Curve (for end of month)
-X9207=load( '../stochastic/varData/zeroCurvesMMMYY.txt');
-[i,j]=min( abs(X9207(:,1)-start(1))+abs(X9207(:,2)-start(2)) ); %index of start date
-[i,k]=min( abs(X9207(:,1)-last(1))+abs(X9207(:,2)-last(2)) );   %index of last date
-ZCURVES=X9207(j:k,3:end); %vector of monthly data for historical range
+load('./stochastic/varData/2019/Sep/zeroCurves.mat','X');
+[i,j]=min( abs(X(:,1)-start(1))+abs(X(:,2)-start(2)) ); %index of start date
+[i,k]=min( abs(X(:,1)-last(1))+abs(X(:,2)-last(2)) );   %index of last date
+ZCURVES=X(j:k,3:end); %vector of monthly data for historical range
 
 
 %% 5. Save matrix of historical yield curve data (in terms of Nelson-Siegel parameters) for VAR parameterization 
@@ -112,7 +112,7 @@ return;
 
 
 %% 7. Load historical monthly data for Growth of Real GDP 
-X=load( '../stochastic/varData/RGDPpctchquarterMMMYY.txt' );
+load('./stochastic/varData/2019/Sep/RGDPpctchquarter.mat','X');
 [i,j]=min( abs(X(:,1)-start(1))+abs(X(:,2)-start(2)) ); 
 [i,k]=min( abs(X(:,1)-last(1))+abs(X(:,2)-last(2)) ); 
 YREAL=X(j:k,3:end);
@@ -122,9 +122,9 @@ for i=3:length(POTGROWTH);
   YREAL_hat(i) = (((1+YGAP(i))./(1+YGAP(i-1)))-1) + POTGROWTH(i); 
 end
 
-plot(100*POTGROWTH(2:end))
-hold on
-plot(100*YREAL(2:end),'r')
-plot(100*YGAP(2:end),'g')
-plot(100*YREAL_hat(2:end),'k')
-hold off
+% plot(100*POTGROWTH(2:end))
+% hold on
+% plot(100*YREAL(2:end),'r')
+% plot(100*YGAP(2:end),'g')
+% plot(100*YREAL_hat(2:end),'k')
+% hold off

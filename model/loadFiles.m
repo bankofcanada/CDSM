@@ -10,17 +10,17 @@
 %% 1. Load all generated scenarios
 
 if exist('shockType');  % Load scenarios for specified shock type (not defined here)
-  load(['../dataFiles/ns' num2str(shockType) 'Results']);
-  load(['../dataFiles/Coupon_ns' num2str(shockType)]);
-  load(['../dataFiles/FinR_ns' num2str(shockType)]);
+  load(['./dataFiles/ns' num2str(shockType) 'Results']);
+  load(['./dataFiles/Coupon_ns' num2str(shockType)]);
+  load(['./dataFiles/FinR_ns' num2str(shockType)]);
 else  
   switch modelType;
    % Load scenarios based on Nelson-Siegel yield curve model
    case 'ns';   
 
-    load ../dataFiles/ns_MMMYYResults;
-    load ../dataFiles/Coupon_ns_MMMYY;
-    load ../dataFiles/FinR_ns_MMMYY;
+    load ./dataFiles/ns_MMMYYResults;
+    load ./dataFiles/Coupon_ns_MMMYY;
+    load ./dataFiles/FinR_ns_MMMYY;
    
    % Load scenarios based on other yield curve models (not defined here) 
    case 'es';
@@ -63,7 +63,7 @@ if randomize == 1;
       disp('State of rand changed');
   end
   randSims=ceil(0 + (numSimsAvail-0)*rand(1,s.nscenario));  %Obtain random subset of scenarios (by index)
-  randSims = sort(randSims);
+  [~,randSims] = sort(randSims);
   
   % Adjust so that no repeated scenarios 
   p = test_same(randSims);      
@@ -77,7 +77,7 @@ if randomize == 1;
           end
       end
   end
-  randSims = sort(randSims);
+  [~,randSims] = sort(randSims);
   p= test_same(randSims);
   end
 

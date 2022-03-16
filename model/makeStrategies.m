@@ -27,10 +27,10 @@
 
 
 %% 1. Set Up
-N = 2000; % Total number of strategies created
+N = 200; % Total number of strategies created
 inc=linspace(1,0.5,20); %vector of relevant single-instrument weights in extreme portfolios
 A=[];
-blockSize=250; % Number of strategies in each block, N/blockSize is number of blocks (an integer)
+blockSize=100; % Number of strategies in each block, N/blockSize is number of blocks (an integer)
 nInst = 9;  % Number of instruments: 3m, 6m, 1y, 2y, 3y, 5y 10y, 30y, RRB
 
 
@@ -54,7 +54,7 @@ nInst = 9;  % Number of instruments: 3m, 6m, 1y, 2y, 3y, 5y 10y, 30y, RRB
 % are generated this way.
 %
 % See: _<icWts.html icWts>_
-ic = [ --- --- --- --- --- --- --- --- ---];   %minimum issuance constraints for each instrument
+ic = zeros(1,nInst);   %minimum issuance constraints for each instrument
 ic_wts = icWts(ic,round(N/6));  %ic_wts is final matrix of constraint-consistent strategies
 
 
@@ -111,5 +111,5 @@ allPorts = allPorts(x,:);
 % Blocks will be evaluated separately in a parallel process, and results will be merged.
 for i=1:N/blockSize
   ports=allPorts((i-1)*blockSize+1:i*blockSize,:);  
-  eval(['save ../dataFiles/policyPort_MMMYY_vname_block',num2str(i),'.mat ports seq']);
+  eval(['save ./dataFiles/policyPort_MMMYY_vname_block',num2str(i),'.mat ports seq']);
 end
